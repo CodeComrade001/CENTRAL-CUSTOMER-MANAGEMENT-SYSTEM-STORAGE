@@ -1,14 +1,10 @@
-import express, { Request, Response } from 'express';
+// src/index.ts
+import AppBootstrap from "./app";
 
-const app = express();
-const port = 3300;
-const message = "thsi is suppose to show in terminal";
-console.log("Turbo Log  ~ message:", message);
+const bootstrap = new AppBootstrap();
+const app = bootstrap.getApp();
 
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello from Express with TypeScript! and nodemon test');
-});
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
