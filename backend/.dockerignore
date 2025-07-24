@@ -1,0 +1,35 @@
+# Node modules (don't copy to image)
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Logs
+logs
+*.log
+
+# Local env files
+.env
+.env.*
+
+# Build output
+dist
+build
+coverage
+
+# OS / IDE-specific
+.DS_Store
+*.swp
+*.swo
+*.bak
+.vscode
+.idea
+*.iml
+
+# Git stuff
+.git
+.gitignore
+
+# Docker files you don't want copied (optional)
+docker-compose.yml
+Dockerfile*
