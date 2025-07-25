@@ -1,6 +1,8 @@
 # Ignore dependency folders
 */node_modules
 
+.vscode
+
 # Build outputs
 */dist
 */dist-ssr

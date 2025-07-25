@@ -4,11 +4,11 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import AdminController from "./admin.controller";
+import validateUserMiddleware from "../auth/auth.middleware"
 
 export default class AdminRoute {
   public router = Router();
   private controller: AdminController;
-  static router: any;
 
   public getRouter(): Router {
     return this.router;
@@ -19,16 +19,6 @@ export default class AdminRoute {
     this.controller = new AdminController(); // instantiate internally
     this.initializeRoutes();
   }
-  /**
-   * @notice Computer Base Testing Platform (CBT), Rygma Admin should be able to activate 
-  and deactivate a Customer’s account; Grant candidate slot to Customer account 
-  *@notice For the School Management System (SMS) , Admin should be able to activate or deactivate 
-  School Account, Upgrade School package, See the numbers of student and staff 
-  withing a Schoo
-  *@note Computer Base Testing Platform (CBT) == /cbt/<route-path>
-  *@note School Management System (SMS) == /sms/<route-path>
-  * @notice Defines all user-related HTTP routes
-   */
 
 
   private initializeRoutes() {
@@ -55,7 +45,7 @@ export default class AdminRoute {
          */
 
     this.router.post("/cbt/activate-customer", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getCustomerActivation(req, res, next)
+      this.controller.getCustomerActivated(req, res, next)
     );
 
     /**
@@ -64,7 +54,7 @@ export default class AdminRoute {
          */
 
     this.router.post("/cbt/deactivate-customer", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getCustomerDeactivation(req, res, next)
+      this.controller.getCustomerDeactivated(req, res, next)
     );
 
     /**
@@ -74,6 +64,22 @@ export default class AdminRoute {
 
     this.router.post("/sms/increase-slot", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getIncreaseInSlot(req, res, next)
+    );
+    /**
+         * @route POST / school-cbt-student 
+         * @description Incrase slot for customers who needs more slot for student
+         */
+
+    this.router.post("/school-cbt-student", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.getSchoolStudentForCBT(req, res, next)
+    );
+    /**
+         * @route POST /school-full-details 
+         * @description Incrase slot for customers who needs more slot for student
+         */
+
+    this.router.post("/school-full-details", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.getSchoolManagementFullDetails(req, res, next)
     );
 
     // add more routes here, e.g.

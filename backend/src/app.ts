@@ -6,6 +6,7 @@ import AdminRoute from "./modules/admin/admin.routes";
 
 export default class AppBootstrap {
   private app: Express;
+  public adminRoute = new AdminRoute();
 
   constructor() {
     this.app = express();
@@ -24,9 +25,9 @@ export default class AppBootstrap {
   }
 
   private setupRoutes() {
-    const adminRoute = new AdminRoute();
 
-    this.app.use("/api/admin", adminRoute.getRouter());
+    this.app.use("/api/admin", this.adminRoute.getRouter());
+
     this.app.get("/health", (req: Request, res: Response) => {
       res.status(200).json({ status: "OK", timestamp: new Date() });
     });

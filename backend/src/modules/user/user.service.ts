@@ -24,6 +24,24 @@ export default class UserImplementation {
     }
   }
 
+  protected async storeSchoolName(schoolName: string): Promise<boolean> {
+    try {
+      if (schoolName === "") return false;
+
+      const { error } = await this.supabase
+        .from("all_customers")
+        .insert([{ school_name: schoolName }]);
+
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.log("Turbo Log  ~ UserImplementation ~ storeSchoolName ~ err:", err);
+      return false;
+    }
+  }
+
+
+
 
   /**
    * @notice Fetches user email and company information for initial setup.
@@ -31,9 +49,12 @@ export default class UserImplementation {
    * @throws Error if Supabase query fails.
    */
   public async fetchUserDetails() {
-    const { data, error } = await this.supabase
-      .from("user_product_overview")
-      .select("email, Company");
+
+    let { data, error } = await this.supabase
+      .from('all_customers')
+      .select('conputer_based_test_slot,school_management_slot')
+    console.log("Turbo Log  ~ UserImplementation ~ fetchUserDetails ~ data:", data);
+
     if (error) throw error;
     return data;
   }
@@ -60,13 +81,16 @@ export default class UserImplementation {
    * @param userPassword - The new user's password.
    * @returns Supabase sign-up response object.
    * @throws Error if registration fails.
+   * @note co.
    */
-  public async fetchUserSignUp(userEmail: string, userPassword: string) {
+  public async fetchUserSignUp(schoolName: string, userEmail: string, userPassword: string) {
     const { data, error } = await this.supabase.auth.signUp({
       email: userEmail,
       password: userPassword
     });
+
     if (error) throw error;
+    await this.storeSchoolName(schoolName)
     return data;
   }
 
@@ -77,8 +101,8 @@ export default class UserImplementation {
    */
   public async fetchUserSelectPlan() {
     const { data, error } = await this.supabase
-      .from("user_product_overview")
-      .select("packages");
+      .from("rygma_subsription")
+      .select("school_management_system ,computer_base_testing_system ,health_management_system");
     if (error) throw error;
     return data;
   }
@@ -96,9 +120,8 @@ export default class UserImplementation {
     const { product, product_subscription } = userSelectedPlan;
 
     const { data, error } = await this.supabase
-      .from("user_product_overview")
+      .from("all_customer")
       .update({ [product]: product_subscription })
-      .eq("product", product);
 
     if (error) throw error;
     return data;
