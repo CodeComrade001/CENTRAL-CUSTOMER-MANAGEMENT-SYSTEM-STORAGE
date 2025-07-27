@@ -84,15 +84,27 @@ export default class UserImplementation {
    * @note co.
    */
   public async fetchUserSignUp(schoolName: string, userEmail: string, userPassword: string) {
-    const { data, error } = await this.supabase.auth.signUp({
+    // Step 1: Sign up the user
+    const { data: authData, error: signUpError } = await this.supabase.auth.signUp({
       email: userEmail,
-      password: userPassword
+      password: userPassword,
     });
 
-    if (error) throw error;
-    await this.storeSchoolName(schoolName)
-    return data;
+    if (signUpError) throw signUpError;
+
+    // Step 2: Insert customer company_name
+    const { error: insertError } = await this.supabase.from('all_customers').insert([
+      { company_name: schoolName },
+    ]);
+
+    if (insertError) throw insertError;
+
+    // Step 3: Optional logic (e.g., local storage, session memory)
+    // await this.storeSchoolName(schoolName);
+
+    return authData;
   }
+
 
   /**
    * @notice Retrieves all available subscription packages.
