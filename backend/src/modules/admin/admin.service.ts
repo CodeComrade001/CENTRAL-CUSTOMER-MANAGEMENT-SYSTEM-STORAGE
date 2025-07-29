@@ -46,12 +46,84 @@ export default class AdminImplementation {
     return { message: true };
   }
 
-  public async fetchAllDetails() {
-    const { data, error } = await this.supabase.from("all_customers").select("school_id,email,school_management_slot,company_name,conputer_based_test_slot, subscription(computer_based_test, school_management, health_management)")
-    console.log("Turbo Log  ~ AdminImplementation ~ fetchAllDetails ~ data:", data);
-    if (error) throw error
-    return data
+
+  public async fetchAllCustomers() {
+    const { data, error } = await this.supabase
+      .from("all_customers")
+      .select(`
+      school_id,
+      email,
+      company_name,
+      computer_based_test_slot,
+      school_management_slot,
+      activate,
+      deactivate,
+      school_management_slot,
+      subscription(
+        computer_based_test,
+        school_management,
+        health_management,
+      )
+    `)
+
+    if (error) throw error;
+    return data;
   }
+
+  public async fetchCBTDetails() {
+    const { data, error } = await this.supabase
+      .from("all_customers")
+      .select(`
+      school_id,
+      email,
+      company_name,
+      conputer_based_test_slot,
+      subscription(
+        computer_based_test
+      )
+    `)
+      .filter("subscription.computer_based_test", "eq", true);
+
+    if (error) throw error;
+    return data;
+  }
+
+  public async fetchSchoolManagementDetails() {
+    const { data, error } = await this.supabase
+      .from("all_customers")
+      .select(`
+      school_id,
+      email,
+      company_name,
+      school_management_slot,
+      subscription(
+        school_management
+      )
+    `)
+      .filter("subscription.school_management", "eq", true);
+
+    if (error) throw error;
+    return data;
+  }
+
+
+  public async fetchHealthManagementDetails() {
+    const { data, error } = await this.supabase
+      .from("all_customers")
+      .select(`
+      school_id,
+      email,
+      company_name,
+      subscription(
+        health_management
+      )
+    `)
+      .filter("subscription.health_management", "eq", true);
+
+    if (error) throw error;
+    return data;
+  }
+
 
   public async fetch_CustomerAccountActivation(userIdToBeUpdated: string) {
 
@@ -84,17 +156,33 @@ export default class AdminImplementation {
     return true
   }
 
+  public async fetch_IncreaseSchoolManagementSlot(slotValue: number, schoolId: string) {
+    const { data, error } = await this.supabase.from("all_customers").update({ "school_management": slotValue })
+      .eq("user_id", schoolId)
+    if (error) return false
+    return true
+  }
 
-  public async fetchSchoolManagementCBT_student(schoolId: string) {
-    const { data, error } = await this.supabase.from("computer_base_testing_system_db").select(`student_db(*)`)
-      .eq("school_id", schoolId)
+
+  public async fetchAllSchoolStudent() {
+    const { data, error } = await this.supabase.from("student_db").select(`
+      id,
+      student_name,
+      student_department,
+      student_class,
+      student_age,
+      all_customer(company_name , email)
+      `)
     if (error) throw error
     return data
   }
 
 
-  public async fetchSchoolManagement_alldetails(schoolId: string) {
-    const { data, error } = await this.supabase.from("school_management_system").select(`student_db(*),teacher_db(*) `).eq("school_id", schoolId)
+  public async fetchAllSchoolTeacher() {
+    const { data, error } = await this.supabase.from("teacher_db").select(`  all_customer(company_name , email)
+      id,
+      teacher_name,
+      teacher_email,`)
     if (error) throw error
     return data
   }

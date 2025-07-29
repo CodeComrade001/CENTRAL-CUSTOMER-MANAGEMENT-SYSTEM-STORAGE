@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { type AxiosRequestConfig } from "axios";
 
 
@@ -85,26 +86,47 @@ export const API__Admin_LogIn = (data: { username: string, password: string }, c
   return api.post("api/admin/login", data, config)
 }
 
-export const API__Admin_AllDetails = (config?: AxiosRequestConfig) => {
-  return api.get("api/admin/all-details", config)
+export const API__Admin_LogOut = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/signout", config)
 }
 
-export const API__Admin_UserAccountDeactivation = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/cbt/deactivate-account", data, config)
+export const API__Admin_AllCustomers = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/customer/all", config)
 }
 
-export const API__Admin_UserAccountActivate = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/cbt/activate-account", data, config)
+export const API__Admin_SchoolManagement_AllDetails = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/sms/all", config)
 }
 
-export const API__Admin_UserSMS_IncreaseSlot = (data: { slotValue: number, schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/sms/increase-slot", data, config)
+export const API__Admin_CBT_AllDetails = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/cbt/all", config)
 }
 
-export const API__Admin_UserCbt_students = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/school-cbt-student", data, config)
+export const API__Admin_HealthManagement_AllDetails = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/hms/all", config)
 }
 
-export const API__Admin_UserSchoolManagentFullDetails = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/school-full-details", data, config)
+export const API__Admin_ActivateCustomer = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
+  return api.post("api/admin/customer/activate", data, config)
 }
+
+export const API__Admin_DeactivateCustomer = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
+  return api.post("api/admin/customer/deactivate", data, config)
+}
+
+export const API__Admin_UpdateSMS_Slot = (data: { slotValue: number, schoolId: string }, config?: AxiosRequestConfig) => {
+  return api.post("api/admin/sms/update", data, config)
+}
+
+export const API__Admin_UpdateCBT_Slot = (data: { slotValue: number, schoolId: string }, config?: AxiosRequestConfig) => {
+  return api.post("api/admin/cbt/update", data, config)
+}
+
+export const API__Admin_SchoolCBT_Students = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
+  return api.post("api/admin/school/student", data, config)
+}
+
+export const API__Admin_SchoolTeachers = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
+  return api.post("api/admin/school/teachers", data, config)
+}
+
