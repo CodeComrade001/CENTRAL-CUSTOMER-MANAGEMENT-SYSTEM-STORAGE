@@ -19,6 +19,10 @@ export const APi__FetchUserDeails = (config?: AxiosRequestConfig) => {
   return api.get("api/user/details", config)
 }
 
+export const APi__ValidateUser = (config?: AxiosRequestConfig) => {
+  return api.get("api/user/validate-user", config)
+}
+
 export const API__UserSelectedPlan = (config?: AxiosRequestConfig) => {
   return api.get("api/user/selected-plan", config)
 }
@@ -43,7 +47,12 @@ export const API__ValidateUserToken = (data: { token: string }, config?: AxiosRe
 }
 
 // Create students (array or single)
-export const API__CreateStudents = (data: any[], config?: AxiosRequestConfig) => {
+export const API__CreateStudents = (data: {
+  student_name: string;
+  student_class: string;
+  student_department?: string;
+  student_age: string;
+}[], config?: AxiosRequestConfig) => {
   return api.post("api/user/students/create", data, config)
 }
 
@@ -58,7 +67,10 @@ export const API__GetAllStudents = (config?: AxiosRequestConfig) => {
 }
 
 // Create teachers (array or single)
-export const API__CreateTeachers = (data: any[], config?: AxiosRequestConfig) => {
+export const API__CreateTeachers = (data: {
+  teacher_name: string;
+  teacher_email: string;
+}[], config?: AxiosRequestConfig) => {
   return api.post("api/user/teachers/create", data, config)
 }
 
@@ -82,8 +94,13 @@ export const API__GetCBTStudents = (config?: AxiosRequestConfig) => {
 // Admin APIs Endpoints
 // ============================
 
-export const API__Admin_LogIn = (data: { username: string, password: string }, config?: AxiosRequestConfig) => {
+export const API__Admin_LogIn = (data: { email: string, password: string }, config?: AxiosRequestConfig) => {
   return api.post("api/admin/login", data, config)
+}
+
+
+export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => {
+  return api.get("api/user/validate-admin", config)
 }
 
 export const API__Admin_LogOut = (config?: AxiosRequestConfig) => {
@@ -106,15 +123,15 @@ export const API__Admin_HealthManagement_AllDetails = (config?: AxiosRequestConf
   return api.get("api/admin/hms/all", config)
 }
 
-export const API__Admin_ActivateCustomer = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
+export const API__Admin_ActivateCustomer = (data: { schoolId: number }, config?: AxiosRequestConfig) => {
   return api.post("api/admin/customer/activate", data, config)
 }
 
-export const API__Admin_DeactivateCustomer = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
+export const API__Admin_DeactivateCustomer = (data: { schoolId: number }, config?: AxiosRequestConfig) => {
   return api.post("api/admin/customer/deactivate", data, config)
 }
 
-export const API__Admin_UpdateSMS_Slot = (data: { slotValue: number, schoolId: string }, config?: AxiosRequestConfig) => {
+export const API__Admin_UpdateSMS_Slot = (data: { slotValue: number, schoolId: number }, config?: AxiosRequestConfig) => {
   return api.post("api/admin/sms/update", data, config)
 }
 
@@ -122,11 +139,11 @@ export const API__Admin_UpdateCBT_Slot = (data: { slotValue: number, schoolId: s
   return api.post("api/admin/cbt/update", data, config)
 }
 
-export const API__Admin_SchoolCBT_Students = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/school/student", data, config)
+export const API__Admin_SchoolCBT_Students = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/school/student", config)
 }
 
-export const API__Admin_SchoolTeachers = (data: { schoolId: string }, config?: AxiosRequestConfig) => {
-  return api.post("api/admin/school/teachers", data, config)
+export const API__Admin_SchoolTeachers = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/school/teachers", config)
 }
 

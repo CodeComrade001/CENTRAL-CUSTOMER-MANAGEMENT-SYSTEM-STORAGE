@@ -3,11 +3,9 @@
  */
 import { SupabaseClient } from "@supabase/supabase-js"
 import { getSafeSupabase } from "../../config/database"
-import bcrypt from "bcrypt";
 
 export default class AdminImplementation {
   private supabase!: SupabaseClient
-  private saltRounds = 10;
 
   constructor() {
     this.init()
@@ -24,18 +22,14 @@ export default class AdminImplementation {
     }
   }
 
+  public async verifyAdminLogin(email: string, password: string) {
+    const { error } = await this.supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    })
+    if (error) return { message: false };
 
-
-  public async verifyAdminLogin(username: string, inputPassword: string) {
-    const { data, error } = await this.supabase.rpc("get_staff_password", {
-      p_username: username
-    });
-
-    if (error || !data) return false;
-
-    const isMatch = await bcrypt.compare(inputPassword, data);
-    if (!isMatch) return false;
-    return true;
+    return { message: true };
   }
 
   public async fetchAdminSignOut() {
@@ -51,9 +45,9 @@ export default class AdminImplementation {
     const { data, error } = await this.supabase
       .from("all_customers")
       .select(`
-      school_id,
+      id,
       email,
-      company_name,
+      school_name,
       computer_based_test_slot,
       school_management_slot,
       activate,
@@ -72,15 +66,13 @@ export default class AdminImplementation {
 
   public async fetchCBTDetails() {
     const { data, error } = await this.supabase
-      .from("all_customers")
+      .from("view_school_cbt_usage")
       .select(`
-      school_id,
+      id,
       email,
-      company_name,
+      school_name,
       conputer_based_test_slot,
-      subscription(
-        computer_based_test
-      )
+       used_cbt_slot
     `)
       .filter("subscription.computer_based_test", "eq", true);
 
@@ -90,17 +82,14 @@ export default class AdminImplementation {
 
   public async fetchSchoolManagementDetails() {
     const { data, error } = await this.supabase
-      .from("all_customers")
+      .from("view_school_management_usage")
       .select(`
-      school_id,
+      id,
       email,
-      company_name,
+      school_name,
       school_management_slot,
-      subscription(
-        school_management
+       used_school_management_slot`
       )
-    `)
-      .filter("subscription.school_management", "eq", true);
 
     if (error) throw error;
     return data;
@@ -111,9 +100,9 @@ export default class AdminImplementation {
     const { data, error } = await this.supabase
       .from("all_customers")
       .select(`
-      school_id,
+      id,
       email,
-      company_name,
+      school_name,
       subscription(
         health_management
       )
@@ -149,14 +138,14 @@ export default class AdminImplementation {
   }
 
 
-  public async fetch_IncreaseCBTSlot(slotValue: number, schoolId: string) {
+  public async fetch_IncreaseCBTSlot(slotValue: number, schoolId: number) {
     const { data, error } = await this.supabase.from("all_customers").update({ "conputer_based_test_slot": slotValue })
       .eq("user_id", schoolId)
     if (error) return false
     return true
   }
 
-  public async fetch_IncreaseSchoolManagementSlot(slotValue: number, schoolId: string) {
+  public async fetch_IncreaseSchoolManagementSlot(slotValue: number, schoolId: number) {
     const { data, error } = await this.supabase.from("all_customers").update({ "school_management": slotValue })
       .eq("user_id", schoolId)
     if (error) return false
@@ -171,7 +160,7 @@ export default class AdminImplementation {
       student_department,
       student_class,
       student_age,
-      all_customer(company_name , email)
+      all_customer(school_name , email)
       `)
     if (error) throw error
     return data
@@ -179,10 +168,12 @@ export default class AdminImplementation {
 
 
   public async fetchAllSchoolTeacher() {
-    const { data, error } = await this.supabase.from("teacher_db").select(`  all_customer(company_name , email)
+    const { data, error } = await this.supabase.from("teacher_db").select(`  all_customer(school_name , email)
       id,
       teacher_name,
-      teacher_email,`)
+      teacher_email,
+       all_customer(school_name , email)
+      `)
     if (error) throw error
     return data
   }

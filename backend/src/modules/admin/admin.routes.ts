@@ -5,6 +5,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import AdminController from "./admin.controller";
 import validateUserMiddleware from "../auth/auth.middleware"
+import { adminAuthMiddleware } from "../../middlewares/admin.middleware";
 
 export default class AdminRoute {
   public router = Router();
@@ -30,6 +31,12 @@ export default class AdminRoute {
     this.router.post("/login", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getAdminLogedIn(req, res, next)
     );
+
+
+    this.router.get("/validate-admin", adminAuthMiddleware)
+
+    this.router.use(adminAuthMiddleware);
+
     /**
          * @route GET / all-detail admin
          * @description Retrieves all customer details

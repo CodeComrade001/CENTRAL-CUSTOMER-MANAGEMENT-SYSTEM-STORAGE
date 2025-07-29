@@ -36,7 +36,8 @@ export const AdminFullScreenSignIn = () => {
     }
 
     try {
-      const response = await API__Admin_LogIn({ username, password });
+      const email = username
+      const response = await API__Admin_LogIn({ email, password });
       if (response.status === 200) {
         navigate("/admin/dashboard/"); // 👈 your destination route
       }
@@ -95,7 +96,7 @@ export const AdminFullScreenSignIn = () => {
               <label htmlFor="email" className="block text-sm mb-2">
                 Enter Your Admin Username :
                 <span className="ml-2 italic text-gray-500 text-xs align-middle">
-                  demo username: admin22294
+                  demo username: <mark>davidibeanusi009@gmail.com</mark>
                 </span>
               </label>
               <input
@@ -119,7 +120,7 @@ export const AdminFullScreenSignIn = () => {
               <label htmlFor="password" className="block text-sm mb-2">
                 Enter Your Admin password:
                 <span className="ml-2 italic text-gray-500 text-xs align-middle">
-                  demo password: demoAccount123
+                  demo password:<mark>Demopassword123</mark>
                 </span>
               </label>
               <input

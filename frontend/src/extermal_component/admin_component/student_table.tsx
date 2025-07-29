@@ -1,75 +1,50 @@
+import { API__Admin_SchoolCBT_Students } from "@/services/api";
 import TableSecondStructure from "../reusable_component/second_table_schems";
+import { useEffect, useState } from "react";
 
 const headers = [
-  'Subscription ID',
-  'School Name',
-  'Student ID',
-  'Full Name',
-  'Class',
-  'Gender',
-  'Email',
-  'Phone Number'
+  'id',
+  'email',
+  'school_name',
+  'student_name',
+  'student_department',
+  'student_class',
+  'student_age',
 ];
 
-const data = [
-  {
-    subscriptionid: 'SUB101',
-    schoolname: 'Bright Future College',
-    studentid: 'STD001',
-    fullname: 'Daniel Adekunle',
-    class: 'JSS1',
-    gender: 'Male',
-    email: 'daniel.adekunle@brightfuture.edu.ng',
-    phonenumber: '08012345678'
-  },
-  {
-    subscriptionid: 'SUB102',
-    schoolname: 'Unity High School',
-    studentid: 'STD002',
-    fullname: 'Blessing Okoro',
-    class: 'SS2',
-    gender: 'Female',
-    email: 'blessing.okoro@unityhigh.edu.ng',
-    phonenumber: '07098765432'
-  },
-  {
-    subscriptionid: 'SUB103',
-    schoolname: 'Golden Gate Academy',
-    studentid: 'STD003',
-    fullname: 'John Mark',
-    class: 'JSS3',
-    gender: 'Male',
-    email: 'john.mark@goldengate.edu.ng',
-    phonenumber: '09022334455'
-  },
-  {
-    subscriptionid: 'SUB101',
-    schoolname: 'Bright Future College',
-    studentid: 'STD004',
-    fullname: 'Chioma Nwosu',
-    class: 'SS1',
-    gender: 'Female',
-    email: 'chioma.nwosu@brightfuture.edu.ng',
-    phonenumber: '08155667788'
-  },
-  {
-    subscriptionid: 'SUB104',
-    schoolname: 'Silver Heights School',
-    studentid: 'STD005',
-    fullname: 'Emeka Obi',
-    class: 'SS3',
-    gender: 'Male',
-    email: 'emeka.obi@silverheights.edu.ng',
-    phonenumber: '08099887766'
-  }
-];
+interface allStudentDataType {
+  id: number
+  email: string
+  school_name: string
+  student_name: string
+  student_department: string
+  student_class: string
+  student_age: number
+
+  [key: string]: string | number;
+}
 
 export default function AllSchoolStudent() {
+  const [allCustomersStudent, setAllCustomersStudent] = useState<allStudentDataType[]>([]);
+
+  useEffect(() => {
+    async function fetchAllDetails() {
+      try {
+        const admin = await API__Admin_SchoolCBT_Students();
+        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin.data);
+        setAllCustomersStudent(admin.data); // <-- you forgot to update state
+      } catch (err) {
+        console.log("Turbo Log  ~ fetchAllDetails ~ err:", err);
+      }
+    }
+    fetchAllDetails();
+  }, []);
+
   return (
     <TableSecondStructure
       tableCaption="This table displays all student profiles across subscribed schools"
       headers={headers}
-      data={data}
+      data={allCustomersStudent}
     />
   );
 }

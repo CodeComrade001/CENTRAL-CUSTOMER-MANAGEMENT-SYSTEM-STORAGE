@@ -1,64 +1,101 @@
-import TableThirdStructure from "../reusable_component/third_table_schema";
+import { useEffect, useState, useCallback } from 'react';
+import { API__GetAllStudents, API__CreateStudents } from '@/services/api';
+import TableThirdStructure from '../reusable_component/third_table_schema';
+import AddStudentModal from './reusable_component/add_new_student';
 
 const headers = [
-  'Student ID',
-  'Full Name',
-  'Class',
-  'Gender',
-  'Email',
-  'Phone Number'
+  'id',
+  'student_name',
+  'student_class',
+  'student_department',
+  'student_age',
 ];
 
-const data = [
-  {
-    studentid: 'STD001',
-    fullname: 'Daniel Adekunle',
-    class: 'JSS1',
-    gender: 'Male',
-    email: 'daniel.adekunle@brightfuture.edu.ng',
-    phonenumber: '08012345678'
-  },
-  {
-    studentid: 'STD002',
-    fullname: 'Blessing Okoro',
-    class: 'SS2',
-    gender: 'Female',
-    email: 'blessing.okoro@unityhigh.edu.ng',
-    phonenumber: '07098765432'
-  },
-  {
-    studentid: 'STD003',
-    fullname: 'John Mark',
-    class: 'JSS3',
-    gender: 'Male',
-    email: 'john.mark@goldengate.edu.ng',
-    phonenumber: '09022334455'
-  },
-  {
-    studentid: 'STD004',
-    fullname: 'Chioma Nwosu',
-    class: 'SS1',
-    gender: 'Female',
-    email: 'chioma.nwosu@brightfuture.edu.ng',
-    phonenumber: '08155667788'
-  },
-  {
-    studentid: 'STD005',
-    fullname: 'Emeka Obi',
-    class: 'SS3',
-    gender: 'Male',
-    email: 'emeka.obi@silverheights.edu.ng',
-    phonenumber: '08099887766'
-  }
-];
-
-export default function AllUserSchoolStudent() {
-  return (
-    <TableThirdStructure
-      tableCaption="This table displays all student profiles across subscribed schools"
-      headers={headers}
-      data={data}
-    />
-  );
+interface AllStudentDataType {
+  id: number;
+  student_name: string;
+  student_class: string;
+  student_department: string;
+  student_age: string;
+  [key: string]: string | number;
 }
 
+export default function AllUserSchoolStudent() {
+  const [allStudent, setAllStudent] = useState<AllStudentDataType[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch existing students
+  useEffect(() => {
+    async function fetchAllDetails() {
+      try {
+        const res = await API__GetAllStudents();
+        setAllStudent(res.data);
+      } catch (err) {
+        console.error('Error fetching students:', err);
+      }
+    }
+    fetchAllDetails();
+  }, []);
+
+  // Submit new students to API and refresh list
+  const submitStudents = useCallback(
+    async (students: {
+      student_name?: string;
+      student_class?: string;
+      student_department?: string;
+      student_age?: string;
+    }[]) => {
+      setLoading(true);
+      try {
+        // Ensure all fields are present
+        const payload = students.map(s => ({
+          student_name: s.student_name || '',
+          student_class: s.student_class || '',
+          student_department: s.student_department || '',
+          student_age: s.student_age || '',
+        }));
+        await API__CreateStudents(payload);
+        const refreshed = await API__GetAllStudents();
+        setAllStudent(refreshed.data);
+        setModalOpen(false);
+      } catch (err) {
+        console.error('Error adding students:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return (
+    <div className="p-4">
+      {/* New Student Button */}
+      <button
+        onClick={() => setModalOpen(true)}
+        disabled={loading}
+        className=" mb-4 px-4 py-2 
+    bg-black text-white 
+    rounded-lg 
+    hover:bg-gray-800 
+    disabled:opacity-50"
+      >
+        {loading ? 'Loading...' : 'New Student'}
+      </button>
+
+      {/* Add Student Modal */}
+      <AddStudentModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={submitStudents}
+      />
+
+      {/* Students Table */}
+      <TableThirdStructure
+        tableCaption="This table displays all student profiles across subscribed schools"
+        headers={headers}
+        data={allStudent}
+      />
+    </div>
+  );
+}

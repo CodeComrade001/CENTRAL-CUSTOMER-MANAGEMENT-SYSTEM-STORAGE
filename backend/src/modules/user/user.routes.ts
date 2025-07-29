@@ -4,6 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import UserController from "./user.controller";
+import { userAuthMiddleware } from "../../middlewares/user.middleware";
 
 export default class UserRoute {
   public router: Router;
@@ -30,21 +31,6 @@ export default class UserRoute {
    */
   private initializeRoutes(): void {
     /**
-     * @route GET /details
-     * @description Retrieves user saved details
-     */
-    this.router.get("/details", (req: Request, res: Response, next: NextFunction) => {
-      this.controller.getUserDetails(req, res, next)
-    });
-    /**
-     * @route GET /signout
-     * @description Log out user
-     */
-    this.router.get("/signout", (req: Request, res: Response, next: NextFunction) => {
-      this.controller.getUserSignOut(req, res, next)
-    });
-
-    /**
      * @route POST /login
      * @description Logs in a user
      */
@@ -59,6 +45,26 @@ export default class UserRoute {
     this.router.post("/signup", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getUserSignUp(req, res, next)
     );
+    this.router.get("/validate-admin", userAuthMiddleware)
+    /**
+     * @notice middle ware only runs from here all route below are protected 
+     */
+    this.router.use(userAuthMiddleware);
+    /**
+     * @route GET /details
+     * @description Retrieves user saved details
+     */
+    this.router.get("/details", (req: Request, res: Response, next: NextFunction) => {
+      this.controller.getUserDetails(req, res, next)
+    });
+    /**
+     * @route GET /signout
+     * @description Log out user
+     */
+    this.router.get("/signout", (req: Request, res: Response, next: NextFunction) => {
+      this.controller.getUserSignOut(req, res, next)
+    });
+
 
     /**
      * @route POST /select-plan
@@ -116,13 +122,6 @@ export default class UserRoute {
       this.controller.createStudents(req, res, next)
     );
 
-    /**
- * @route POST /auth/validate
- * @description Validates a user's token to access protected routes
- */
-    this.router.post("/auth/validate", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.validateSession(req, res, next)
-    );
 
     /**
      * @route GET /students/all
