@@ -1,49 +1,55 @@
 "use client";
 
+import { API__Admin_LogIn } from "@/services/api";
+import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 export const AdminFullScreenSignIn = () => {
-  const [userName, setUserName] = useState("");
+  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [userNameError, setUserNameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [signInText, setSignInText] = useState("Log In ");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [submitted, setSubmitted] = useState(false);
-
+  const navigate = useNavigate();
 
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setSubmitted(true);
+    setSignInText("Logging In...");
+
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
+    // Basic validation
+    if (!trimmedUsername || !trimmedPassword) {
+      if (!trimmedUsername) setUserNameError("Username is empty");
+      if (!trimmedPassword) setPasswordError("Password is empty");
+      setSignInText("❌ Username or password is empty");
+      setSubmitted(false);
+      return;
+    }
+
     try {
-      setSignInText("Logging In...")
-      let valid = false;
-      e.preventDefault();
-      if (userName.trim() == "") {
-        setUserNameError("UserName is empty")
+      const response = await API__Admin_LogIn({ username, password });
+      if (response.status === 200) {
+        navigate("/admin/dashboard/"); // 👈 your destination route
       }
-      if (password.trim() == "") {
-        setPasswordError("Password is empty")
-      }
-      valid = true
-
-      setSubmitted(true);
-
-      if (valid) {
-        // Submission logic goes here
-        // console.log("Form submitted!");
-        // console.log("Email:", email);
-        // alert("Form submitted!");
-        // setEmail("");
-        // setPassword("");
-        setSubmitted(false);
-      }
-    } catch (err) {
-      console.log("Turbo Log  ~ handleSubmit ~ err:", err);
-      setSignInText("Server Error: Don't fret this is a server error")
+      setSignInText(getLoginStatusMessage(response.status));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const status = error?.response?.status;
+      setSignInText(getLoginStatusMessage(status));
+    } finally {
+      setSubmitted(false);
     }
   };
+
 
   return (
     <div className="min-h-screen  flex items-center justify-center overflow-hidden p-4l">
@@ -63,7 +69,7 @@ export const AdminFullScreenSignIn = () => {
 
         <div className="bg-black text-white p-8 md:p-12 md:w-1/2 relative rounded-bl-3xl  overflow-hidden">
           <h1 className="text-2xl md:text-3xl font-medium leading-tight z-10 tracking-tight relative">
-            Managemet software for startups schools.
+            CCMSS Admin Dashboard Login
           </h1>
         </div>
 
@@ -73,10 +79,10 @@ export const AdminFullScreenSignIn = () => {
               <Sunburst className="h-10 w-10" />
             </div>
             <h2 className="text-3xl font-medium mb-2 tracking-tight">
-              Get Started
+              Take a peek over your shoulder. Your login is your key — keep it safe.
             </h2>
             <p className="text-left opacity-80">
-              Welcome to HextaStudio — Let's get started
+              Welcome to CCMSS Admin Page — Let's get started
             </p>
           </div>
 
@@ -89,7 +95,7 @@ export const AdminFullScreenSignIn = () => {
               <label htmlFor="email" className="block text-sm mb-2">
                 Enter Your Admin Username :
                 <span className="ml-2 italic text-gray-500 text-xs align-middle">
-                  demo userName: admin22294
+                  demo username: admin22294
                 </span>
               </label>
               <input
@@ -98,7 +104,7 @@ export const AdminFullScreenSignIn = () => {
                 placeholder="username"
                 className={`text-sm w-full py-2 px-3 border rounded-lg focus:outline-none focus:ring-1 bg-white text-black focus:ring-orange-500 ${userNameError ? "border-red-500" : "border-gray-300"
                   }`}
-                value={userName}
+                value={username}
                 onChange={(e) => setUserName(e.target.value)}
                 aria-invalid={!!userNameError}
                 aria-describedby="email-error"
@@ -135,10 +141,14 @@ export const AdminFullScreenSignIn = () => {
 
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              className={`w-full text-white font-medium py-2 px-4 rounded-lg transition-colors
+    ${submitted ? 'bg-orange-400 opacity-50 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}
+  `}
+              disabled={submitted}
             >
               {signInText}
             </button>
+
           </form>
         </div>
       </div>

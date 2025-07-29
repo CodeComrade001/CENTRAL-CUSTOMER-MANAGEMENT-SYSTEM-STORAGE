@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import UserImplementation from "./user.service";
+import { verifyUserSession } from "../../middlewares/user.middleware";
 
 /**
  * @title UserController
@@ -7,16 +8,36 @@ import UserImplementation from "./user.service";
  */
 export default class UserController {
   private userService: UserImplementation;
+  // private Valiidator: userSupabaseAuthMiddleware;
 
   constructor() {
     this.userService = new UserImplementation();
+    // this.validator = new userSupabaseAuthMiddleware();
   }
+
+  /**
+   * 
+   * @notice ensure that all routes are protected  one mistake will leave route exposed
+   * @warning do not add for sign up and sign function
+   * @copy if (!(await this.ensureAuthenticated(req, res))) return;
+   */
+
+  private async ensureAuthenticated(req: Request, res: Response): Promise<boolean> {
+    const isValid = await verifyUserSession(req);
+    if (!isValid) {
+      res.status(401).json({ error: "Unauthorized" });
+      return false;
+    }
+    return true;
+  }
+
 
   /**
    * @notice Fetches user details during initial setup.
    */
   public async getUserDetails(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
       const users = await this.userService.fetchUserDetails();
       return res.status(200).json(users);
     } catch (err) {
@@ -31,9 +52,26 @@ export default class UserController {
    */
   public async getUserLogin(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userEmail, userPassword } = req.body;
-      const loginData = await this.userService.fetchUserLogin(userEmail, userPassword);
-      return res.status(200).json(loginData);
+      const { email, password } = req.body;
+      const { message } = await this.userService.fetchUserLogin(email, password);
+      if (message) {
+        return res.status(200).json({ message: "Log in successful " });
+      } else {
+        return res.status(401).json({ message: "incorrect email or password " });
+      }
+    } catch (err) {
+      console.error("Turbo Log ~ getUserLogin ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+  /**
+   * @notice Handles user log out.
+   * @dev Expects `userEmail` and `userPassword` in the request body.
+   */
+  public async getUserSignOut(req: Request, res: Response, next: NextFunction) {
+    try {
+      const logoutData = await this.userService.fetchUserSignOut();
+      return res.status(200).json(logoutData);
     } catch (err) {
       console.error("Turbo Log ~ getUserLogin ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
@@ -46,9 +84,12 @@ export default class UserController {
    */
   public async getUserSignUp(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userEmail, userPassword } = req.body;
-      const signUpData = await this.userService.fetchUserSignUp(userEmail, userPassword);
-      return res.status(200).json(signUpData);
+      const { schoolName, email, password } = req.body;
+      const { message } = await this.userService.fetchUserSignUp(schoolName, email, password);
+      if (message) {
+        return res.status(200).json({ message: "account creation successful" });
+      }
+      return res.status(404).json({ message: "account creation successful but school name not inserted" });
     } catch (err) {
       console.error("Turbo Log ~ getUserSignUp ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
@@ -58,9 +99,10 @@ export default class UserController {
   /**
    * @notice Fetches available user plans.
    */
-  public async getUserSelectPlan(req: Request, res: Response, next: NextFunction) {
+  public async getUserSelectedPlan(req: Request, res: Response, next: NextFunction) {
     try {
-      const plans = await this.userService.fetchUserSelectPlan();
+      // if (!(await this.ensureAuthenticated(req, res))) return;
+      const plans = await this.userService.fetchUserSelectedPlan();
       return res.status(200).json(plans);
     } catch (err) {
       console.error("Turbo Log ~ getUserSelectPlan ~ err:", err);
@@ -74,15 +116,130 @@ export default class UserController {
    */
   public async getUserPlanEdit(req: Request, res: Response, next: NextFunction) {
     try {
+      // if (!(await this.ensureAuthenticated(req, res))) return res.status(403).json({ message: "Unauthorised User" });
       const { product, product_subscription } = req.body;
-      const updatedPlan = await this.userService.fetchUserPlanEdit({
+      const { message } = await this.userService.fetchUserPlanEdit(
         product,
-        product_subscription: product_subscription,
-      });
-      return res.status(200).json(updatedPlan);
+        product_subscription,
+      );
+      if (message) {
+        return res.status(200).json({ message: "subscription plan added" });
+      }
     } catch (err) {
       console.error("Turbo Log ~ getUserPlanEdit ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
+
+  public async createStudents(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+
+      const students = req.body;
+      const result = await this.userService.createStudents(students);
+      return res.status(result.message ? 201 : 400).json(result);
+    } catch (err) {
+      console.error("Turbo Log ~ createStudents ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async updateStudents(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+
+      const students = req.body;
+      const result = await this.userService.updateStudents(students);
+
+      return res.status(result.message ? 200 : 400).json(result);
+    } catch (err) {
+      console.error("Turbo Log ~ updateStudents ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async createTeachers(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+
+      const teachers = req.body;
+      const result = await this.userService.createTeachers(teachers);
+
+      return res.status(result.message ? 201 : 400).json(result);
+    } catch (err) {
+      console.error("Turbo Log ~ createTeachers ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+
+  public async updateTeachers(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+
+      const teachers = req.body;
+      const result = await this.userService.updateTeachers(teachers);
+
+      return res.status(result.message ? 200 : 400).json({ result });
+    } catch (err) {
+      console.error("Turbo Log ~ updateTeachers ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  /**
+    * @notice Controller to get all students
+    * @route GET /students/all
+    */
+  public async getAllStudents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.userService.getAllStudents();
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error("Controller ~ getAllStudents ~ Error:", err);
+      return res.status(500).json({ error: "Failed to fetch students" });
+    }
+  }
+
+  /**
+   * @notice Controller to get all teachers
+   * @route GET /teachers/all
+   */
+  public async getAllTeachers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.userService.getAllTeachers();
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error("Controller ~ getAllTeachers ~ Error:", err);
+      return res.status(500).json({ error: "Failed to fetch teachers" });
+    }
+  }
+
+  /**
+   * @notice Controller to get students marked for CBT
+   * @route GET /cbt/students
+   */
+  public async getAllCBTStudents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.userService.getAllCBTStudents();
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error("Controller ~ getAllCBTStudents ~ Error:", err);
+      return res.status(500).json({ error: "Failed to fetch CBT students" });
+    }
+  }
+
+  /**
+   * @notice controller to get validation on user for protected route
+   */
+  public async validateSession(req: Request, res: Response, next: NextFunction) {
+    try {
+      const isValid = await this.userService.validateSession(req);
+      if (!isValid) return res.status(401).json({ message: "Session invalid or expired" });
+      return res.status(200).json({ message: "Session valid" });
+    } catch (err) {
+      next(err);
+    }
+  }
+
 }

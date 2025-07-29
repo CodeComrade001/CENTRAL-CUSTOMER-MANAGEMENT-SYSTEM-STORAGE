@@ -1,20 +1,18 @@
-import React, { type JSX } from "react";
+// AdminProtectedRoute.tsx
+import { useAuth } from "@/context/authContext";
 import { Navigate } from "react-router-dom";
+import type { ReactNode } from "react";
 
-interface AdminProtectedRouteProps {
-  children: JSX.Element;
-  isAdminAuthenticated: boolean;
-}
+const AdminProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { isAuthenticated, role, loading } = useAuth();
 
-const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ isAdminAuthenticated, children }) => {
-  // Replace this with actual logic when ready
-  // const isAdminAuthenticated = true;
+  if (loading) return <div>Loading...</div>;
 
-  if (!isAdminAuthenticated) {
-    return <Navigate to="/user" replace />;
+  if (!isAuthenticated || role !== "admin") {
+    return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default AdminProtectedRoute;

@@ -1,8 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { User, BatteryPlus,  Computer, BookMinus, SquarePen } from "lucide-react";
+import AllUserCbtStudent from "@/extermal_component/user_component/user_cbt";
+import AllUserSchoolStudent from "@/extermal_component/user_component/User_student";
+import AllUserSchoolTeacher from "@/extermal_component/user_component/user_teacher";
+
 import { motion, AnimatePresence } from "framer-motion";
-import { User, BatteryPlus, University, Computer } from "lucide-react";
+
+
+const CollapsibleSection = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mb-4">
+      <button
+        className="w-full flex items-center justify-between py-2 px-4 rounded-xl hover:bg-gray-100"
+        onClick={() => setOpen(!open)}
+      >
+        <span className="font-semibold">{title}</span>
+        {open ? <XIcon /> : <MenuIcon />}
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="p-2">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+
+const MenuIcon = () => (
+  <motion.svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <motion.line x1="3" y1="12" x2="21" y2="12" />
+  </motion.svg>
+);
+
+const XIcon = () => (
+  <motion.svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <motion.line x1="18" y1="6" x2="6" y2="18" />
+    <motion.line x1="6" y1="6" x2="18" y2="18" />
+  </motion.svg>
+);
+
+
+
 
 const AnimatedMenuToggle = ({
   toggle,
@@ -11,6 +82,9 @@ const AnimatedMenuToggle = ({
   toggle: () => void;
   isOpen: boolean;
 }) => (
+
+
+
   <button
     onClick={toggle}
     aria-label="Toggle menu"
@@ -64,15 +138,31 @@ const AnimatedMenuToggle = ({
 
 
 
-const Sidebar = () => {
+const UserDashboardPackages = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeBtn, setActiveBtn] = useState<string>("teacher")
 
   const mobileSidebarVariants = {
     hidden: { x: "-100%" },
     visible: { x: 0 },
   };
 
+  const activateBtnAction = useCallback(() => {
+    switch (activeBtn) {
+      case "teacher":
+        return <AllUserSchoolTeacher />
+      case "student":
+        return <AllUserSchoolStudent />
+      case "cbt":
+        return <AllUserCbtStudent />
+      default:
+        return <AllUserSchoolTeacher />
+    }
+  }, [activeBtn])
+
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+
 
   return (
     <div className="flex h-screen">
@@ -104,29 +194,44 @@ const Sidebar = () => {
               <nav className="flex-1 p-4 overflow-y-auto">
                 <ul>
                   <li className="mb-2">
-                    <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <User className="h-5 w-5" />
-                      All Customers
-                    </button>
-                  </li>
-                  <li className="mb-2">
-                    <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <University className="h-5 w-5" />
-                      School Management System
-                    </button>
-                  </li>
-                  <li className="mb-2">
-                    <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                    <button
+                      onClick={() => setActiveBtn("health_management")}
+                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <BatteryPlus className="h-5 w-5" />
                       Health management System
                     </button>
                   </li>
                   <li className="mb-2">
-                    <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                    <button
+                      onClick={() => setActiveBtn("cbt_system")}
+                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <Computer className="h-5 w-5" />
                       CBT System (Enterprise)
                     </button>
                   </li>
+                  <li className="mb-2">
+                    <CollapsibleSection title="School Management System">
+                      <ul>
+                        <li className="mb-2">
+                          <button
+                            onClick={() => setActiveBtn("teacher")}
+                            className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                            <BookMinus className="h-5 w-5" />
+                            Teacher
+                          </button>
+                        </li>
+                        <li className="mb-2">
+                          <button
+                            onClick={() => setActiveBtn("student")}
+                            className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                            <SquarePen className="h-5 w-5" />
+                            Student
+                          </button>
+                        </li>
+                      </ul>
+                    </CollapsibleSection>
+                  </li>
+
                 </ul>
               </nav>
               {/* Footer / Action Button */}
@@ -158,28 +263,43 @@ const Sidebar = () => {
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul>
             <li className="mb-2">
-              <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                <User className="h-5 w-5" />
-                All Customers
-              </button>
-            </li>
-            <li className="mb-2">
-              <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                <University className="h-5 w-5" />
-                School Management System
-              </button>
-            </li>
-            <li className="mb-2">
-              <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+              <button
+                onClick={() => setActiveBtn("cbt_system")}
+                className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <Computer className="h-5 w-5" />
                 CBT System (Enterprise)
               </button>
             </li>
             <li className="mb-2">
-              <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+              <button
+                onClick={() => setActiveBtn("health_management")}
+                className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <BatteryPlus className="h-5 w-5" />
                 Health management System
               </button>
+            </li>
+            <li className="mb-2">
+              {/* <University className="h-5 w-5" /> */}
+              <CollapsibleSection title="School Management System">
+                <ul>
+                  <li className="mb-2">
+                    <button
+                      onClick={() => setActiveBtn("teacher")}
+                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                      <BookMinus className="h-5 w-5" />
+                      Teacher
+                    </button>
+                  </li>
+                  <li className="mb-2">
+                    <button
+                      onClick={() => setActiveBtn("student")}
+                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                      <SquarePen className="h-5 w-5" />
+                      Student
+                    </button>
+                  </li>
+                </ul>
+              </CollapsibleSection>
             </li>
           </ul>
         </nav>
@@ -200,15 +320,15 @@ const Sidebar = () => {
         </div>
         <div className="p-6">
           <h1 className="text-2xl font-bold">Dashboard View</h1>
-          <p className="text-sm font-medium">
+          <div className="text-sm font-medium">
             {/* Additional details and settings can be found here. */}
+            {activateBtnAction()}
 
-
-          </p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export { Sidebar };
+export { UserDashboardPackages };

@@ -25,11 +25,14 @@ export function LandingPageIntroductionPage() {
             <Button size="lg" className="gap-4">
               <a
                 href="/admin/login"
+
               >
                 Admin
               </a>
               <MoveRight className="w-4 h-4" />
             </Button>
+
+
             <Button size="lg" className="gap-4">
               <a
                 href="/user"

@@ -1,32 +1,29 @@
-// src/middlewares/validateUser.ts
-import bcrypt from "bcrypt";
-import { createClient } from "@supabase/supabase-js";
-import { Router, Request, Response, NextFunction } from "express";
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!);
+import { createClient } from '@supabase/supabase-js';
+import { Request } from 'express';
 
-export default async function validateUserMiddleware(req: Request, res: Response, next: NextFunction) {
-  const { username, password } = req.headers;
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-  if (!username || !password) {
-    return res.status(401).json({ message: "Missing credentials" });
-  }
+export async function verifyAdminSession(req: Request): Promise<boolean> {
 
-  const { data, error } = await supabase
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!token) return false;
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return false;
+
+  // Example: Check if the user's role is "admin"
+  const { data: profile, error: profileError } = await supabase
     .from("management.staff")
-    .select("password, role")
-    .eq("username", username)
+    .select("role")
+    .eq("id", user.id)
     .single();
 
-  if (error || !data) {
-    return res.status(403).json({ message: "Invalid user" });
-  }
+  console.log("Turbo Log  ~ verifyAdminSession ~ profileError:", profileError);
+  if (profileError || profile?.role !== "admin" || profile?.role !== "database_administrator") return false;
 
-  const isValid = await bcrypt.compare(password as string, data.password);
-  if (!isValid) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
-
-  // Attach user info to request for downstream use
-  req.body.user = { username, role: data.role };
-  next();
+  // Attach user for later use
+  (req as any).user = user;
+  return true;
 }

@@ -5,6 +5,31 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSafeSupabase } from "../../config/database";
 
+interface AddStudent {
+  id?: string;
+  student_name?: string;
+  student_class?: string;
+  student_department?: string;
+  student_age?: string;
+}
+interface EditStudent {
+  id?: string;
+  student_name?: string;
+  student_class?: string;
+  student_department?: string;
+  student_age?: string;
+}
+
+interface AddTeacher {
+  teacher_name?: string;
+  teacher_email?: string;
+}
+
+interface EditTeacher {
+  id?: string;
+  teacher_name?: string;
+  teacher_email?: string;
+}
 
 export default class UserImplementation {
   private supabase!: SupabaseClient
@@ -24,7 +49,7 @@ export default class UserImplementation {
     }
   }
 
-  protected async storeSchoolName(schoolName: string): Promise<boolean> {
+  protected async storeSchoolName(schoolName: string) {
     try {
       if (schoolName === "") return false;
 
@@ -32,16 +57,24 @@ export default class UserImplementation {
         .from("all_customers")
         .insert([{ school_name: schoolName }]);
 
-      if (error) throw error;
-      return true;
+      if (error) return { message: false };
+      return { message: true };
     } catch (err) {
       console.log("Turbo Log  ~ UserImplementation ~ storeSchoolName ~ err:", err);
-      return false;
+      return { message: null };
     }
   }
 
-
-
+  protected async verifySession() {
+    try {
+      const { error } = await this.supabase.auth.getSession()
+      if (error) return false;
+      return true
+    } catch (err) {
+      console.log("Turbo Log  ~ UserImplementation ~ verifySession ~ err:", err);
+      return false
+    }
+  }
 
   /**
    * @notice Fetches user email and company information for initial setup.
@@ -67,12 +100,13 @@ export default class UserImplementation {
    * @throws Error if login fails.
    */
   public async fetchUserLogin(userEmail: string, userPassword: string) {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
+    const { error } = await this.supabase.auth.signInWithPassword({
       email: userEmail,
       password: userPassword
     });
-    if (error) throw error;
-    return data;
+    console.log("Turbo Log  ~ UserImplementation ~ fetchUserLogin ~ error:", error);
+    if (error) return { message: false };
+    return { message: true };
   }
 
   /**
@@ -83,26 +117,28 @@ export default class UserImplementation {
    * @throws Error if registration fails.
    * @note co.
    */
-  public async fetchUserSignUp(schoolName: string, userEmail: string, userPassword: string) {
-    // Step 1: Sign up the user
+  public async fetchUserSignUp(schoolName: string, email: string, password: string) {
     const { data: authData, error: signUpError } = await this.supabase.auth.signUp({
-      email: userEmail,
-      password: userPassword,
+      email: email,
+      password: password,
     });
-
     if (signUpError) throw signUpError;
 
-    // Step 2: Insert customer company_name
+    // 🔒 Wait for auth to fully complete before inserting
+    const { error: signInError } = await this.supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+    if (signInError) throw signInError;
+
+    // ✅ Now insert: auth.uid() is available
     const { error: insertError } = await this.supabase.from('all_customers').insert([
-      { company_name: schoolName },
+      { company_name: schoolName }
     ]);
+    if (insertError) return { message: false };
 
-    if (insertError) throw insertError;
+    return { message: true };
 
-    // Step 3: Optional logic (e.g., local storage, session memory)
-    // await this.storeSchoolName(schoolName);
-
-    return authData;
   }
 
 
@@ -111,10 +147,10 @@ export default class UserImplementation {
    * @returns List of available packages from the database.
    * @throws Error if Supabase query fails.
    */
-  public async fetchUserSelectPlan() {
+  public async fetchUserSelectedPlan() {
     const { data, error } = await this.supabase
-      .from("rygma_subsription")
-      .select("school_management_system ,computer_base_testing_system ,health_management_system");
+      .from("subscription")
+      .select("computer_based_test, school_management ,health_management ");
     if (error) throw error;
     return data;
   }
@@ -125,18 +161,196 @@ export default class UserImplementation {
    * @returns Update response data from Supabase.
    * @throws Error if the update fails.
    */
-  public async fetchUserPlanEdit(userSelectedPlan: {
-    product: string;
-    product_subscription: boolean;
-  }) {
-    const { product, product_subscription } = userSelectedPlan;
+  public async fetchUserPlanEdit(
+    product_name: string,
+    product_subscription: boolean
+  ) {
+    console.log("Turbo Log  ~ fetchUserPlanEdit ~ product_name:", product_name);
+    console.log("Turbo Log  ~ fetchUserPlanEdit ~ product_subscription:", product_subscription);
+
+    let column: string;
+
+    switch (product_name) {
+      case "school_management":
+        column = "school_management";
+        break;
+      case "computer_based_test":
+        column = "computer_base_test";
+        break;
+      case "health_management":
+        column = "health_management";
+        break;
+      default:
+        return { message: false }; // Invalid input
+    }
+
+    // Simply update the column for the current user
+    const { error } = await this.supabase
+      .from("subscription")
+      .update({ [column]: product_subscription })
+
+    console.log("Turbo Log ~ fetchUserPlanEdit ~ update error:", error);
+
+    if (error) return { message: false };
+
+    return { message: true };
+  }
+
+
+
+
+  public async fetchUserSignOut() {
+
+    const { error } = await this.supabase.auth.signOut()
+    if (error) return { message: false };
+
+    return { message: true };
+  }
+
+  public async createStudents(
+    students: AddStudent | AddStudent[]
+  ): Promise<any> {
+    const studentArray = Array.isArray(students) ? students : [students];
 
     const { data, error } = await this.supabase
-      .from("all_customer")
-      .update({ [product]: product_subscription })
+      .from('student_db')
+      .insert(studentArray)
+      .select(); // Optional: remove if not needed
 
-    if (error) throw error;
+    if (error) return { message: false };
+    return { message: true };
+  }
+
+
+  public async updateStudents(
+    students: EditStudent | EditStudent[]
+  ): Promise<any> {
+    const studentArray = Array.isArray(students) ? students : [students];
+
+    await Promise.all(
+      studentArray.map(async (student) => {
+        const { id, ...fields } = student;
+
+        const { data, error } = await this.supabase
+          .from('student_db')
+          .update(fields)
+          .eq('id', id)
+          .select();
+
+        if (error) return { message: false };
+        return { message: true };
+      })
+    );
+
+    return { message: true };
+  }
+
+  public async createTeachers(
+    teachers: AddTeacher | AddTeacher[]
+  ): Promise<any> {
+    const teacherArray = Array.isArray(teachers) ? teachers : [teachers];
+
+    const { data, error } = await this.supabase
+      .from('teacher_db')
+      .insert(teacherArray)
+      .select(); // Optional: remove if not needed
+
+    if (error) return { message: false };
+    return { message: true };
+  }
+
+  public async updateTeachers(
+    teachers: EditTeacher | EditTeacher[]
+  ): Promise<any> {
+    const teacherArray = Array.isArray(teachers) ? teachers : [teachers];
+
+    const updates = await Promise.all(
+      teacherArray.map(async (teacher) => {
+        const { id, ...fields } = teacher;
+
+        const { data, error } = await this.supabase
+          .from('teacher_db')
+          .update(fields)
+          .eq('id', id)
+          .select();
+
+        if (error) return { message: false };
+        return { message: true };
+      })
+    );
+
+    return { message: true };
+  }
+  /**
+    * @notice Fetch all registered students
+    */
+  public async getAllStudents() {
+    const { data, error } = await this.supabase.from("student_db").select("id,student_name,student_department,student_class, student_age");
+
+    if (error) {
+      console.error("StudentService ~ getAllStudents ~ error:", error.message);
+      throw new Error("Failed to fetch students");
+    }
+
     return data;
   }
+
+  /**
+   * @notice Fetch all registered teachers
+   */
+  public async getAllTeachers() {
+    const { data, error } = await this.supabase.from("teachers").select("id,teacher_name,teacher_email");
+
+    if (error) {
+      console.error("StudentService ~ getAllTeachers ~ error:", error.message);
+      throw new Error("Failed to fetch teachers");
+    }
+
+    return data;
+  }
+
+  /**
+   * @notice Fetch students marked for CBT via subscription
+   */
+  public async getAllCBTStudents() {
+    const { data, error } = await this.supabase
+      .from("student_db")
+      .select(`
+      id,
+      student_name,
+      student_department,
+      student_class,
+      student_age,
+      computer_based_test!inner(student_id)
+    `);
+
+    if (error) {
+      console.error("StudentService ~ getAllCBTStudents ~ error:", error.message);
+      throw new Error("Failed to fetch CBT students");
+    }
+
+    return data;
+  }
+
+  /**
+   * @notice validate session to protect private route
+   */
+  /**
+ * @notice Service method to validate user session using token
+ */
+  public async validateSession(req: Request): Promise<boolean> {
+    const token = req.headers["authorization"]?.replace("Bearer ", "");
+
+    if (!token) return false;
+
+    const { data, error } = await this.supabase.auth.getUser(token);
+
+    if (error || !data?.user) return false;
+
+    return true;
+  }
+
+
+
 }
 

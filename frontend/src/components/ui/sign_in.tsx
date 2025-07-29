@@ -1,7 +1,10 @@
 "use client";
 
+import { API__UserLogIn } from "@/services/api";
+import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 export const UserFullScreenSignIn = () => {
@@ -10,40 +13,43 @@ export const UserFullScreenSignIn = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [signInText, setSignInText] = useState("Log In ");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [submitted, setSubmitted] = useState(false);
-
+  const navigate = useNavigate();
 
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setSubmitted(true);
+    setSignInText("Logging In...");
+
+    const trimmedUsername = email.trim();
+    const trimmedPassword = password.trim();
+
+    // Basic validation
+    if (!trimmedUsername || !trimmedPassword) {
+      if (!trimmedUsername) setEmailError("email is empty");
+      if (!trimmedPassword) setPasswordError("Password is empty");
+      setSignInText("❌ Username or password is empty");
+      setSubmitted(false);
+      return;
+    }
+
     try {
-      setSignInText("Logging In...")
-      let valid = false;
-      e.preventDefault();
-      if (email.trim() == "") {
-        setEmailError("Email is empty")
+      const response = await API__UserLogIn({ email, password });
+      if (response.status === 200) {
+        navigate("/user/dashboard"); // 👈 your destination route
       }
-      if (password.trim() == "") {
-        setPasswordError("Password is empty")
-      }
-      valid = true
-
-      setSubmitted(true);
-
-      if (valid) {
-        // Submission logic goes here
-        // console.log("Form submitted!");
-        // console.log("Email:", email);
-        // alert("Form submitted!");
-        // setEmail("");
-        // setPassword("");
-        setSubmitted(false);
-      }
-    } catch (err) {
-      console.log("Turbo Log  ~ handleSubmit ~ err:", err);
-      setSignInText("Server Error: Don't fret this is a server error")
+      setSignInText(getLoginStatusMessage(response.status));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const status = error?.response?.status;
+      setSignInText(getLoginStatusMessage(status));
+    } finally {
+      setSubmitted(false);
     }
   };
+
 
   return (
     <div className="min-h-screen  flex items-center justify-center overflow-hidden p-4l">
@@ -63,7 +69,7 @@ export const UserFullScreenSignIn = () => {
 
         <div className="bg-black text-white p-8 md:p-12 md:w-1/2 relative rounded-bl-3xl  overflow-hidden">
           <h1 className="text-2xl md:text-3xl font-medium leading-tight z-10 tracking-tight relative">
-            Managemet software for startups schools.
+            CCMSS User Dashboard Login.
           </h1>
         </div>
 
@@ -73,7 +79,7 @@ export const UserFullScreenSignIn = () => {
               <Sunburst className="h-10 w-10" />
             </div>
             <h2 className="text-3xl font-medium mb-2 tracking-tight">
-              Get Started
+              Look around before typing — secure access starts with you.
             </h2>
             <p className="text-left opacity-80">
               Central Customer Management System Storage
@@ -129,11 +135,13 @@ export const UserFullScreenSignIn = () => {
 
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              className={`w-full text-white font-medium py-2 px-4 rounded-lg transition-colors
+    ${submitted ? 'bg-orange-400 opacity-50 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}
+  `}
+              disabled={submitted}
             >
               {signInText}
             </button>
-
             <div className="text-center text-gray-600 text-sm">
               Dont Have Account?{" "}
               <a href="/user/create-account" className="text-secondary-foreground font-medium underline">

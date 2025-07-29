@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { ReactNode } from "react";
 
 const BentoGrid = ({
   children,
@@ -14,7 +14,7 @@ const BentoGrid = ({
   return (
     <div
       className={cn(
-        "grid w-full auto-rows-[22rem] grid-cols-3 gap-4",
+        "grid auto-rows-[22rem] w-[95%] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
         className,
       )}
     >
@@ -35,11 +35,15 @@ const BentoCard = ({
   name: string;
   className: string;
   background: ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Icon: any;
   description: string;
   href: string;
   cta: string;
 }) => (
+
+
+
   <div
     key={name}
     className={cn(

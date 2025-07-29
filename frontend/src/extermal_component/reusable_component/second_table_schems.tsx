@@ -1,0 +1,84 @@
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/table';
+
+
+interface TableRowData {
+  [key: string]: string | number;
+}
+
+interface TableStructureProps {
+  tableCaption: string;
+  headers: string[];
+  data: TableRowData[];
+  showTotal?: boolean;
+  totalColumnKey?: string;
+}
+
+
+
+export default function TableSecondStructure({
+  tableCaption,
+  headers,
+  data,
+}: TableStructureProps) {
+
+
+
+  return (
+    <div className="px-5 py-10 w-full  h-[100%] ">
+      <Table>
+        <TableCaption>{tableCaption}</TableCaption>
+        <TableHeader>
+          <TableRow>
+            {headers.map((header, i) => (
+              <TableHead key={i} className={i === headers.length - 1 ? 'text-right' : ''}>
+                {header}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((row, rowIndex) => {
+            // const rowId = row.subscriptionid; // Or whatever unique ID you're using
+            const isActive = row.status === 'deactivate'; // Toggle logic per row
+
+            return (
+              <TableRow key={rowIndex}>
+                {headers.map((header, colIndex) => (
+                  <TableCell
+                    key={colIndex}
+                    className={colIndex === headers.length - 1 ? 'text-right' : ''}
+                  >
+                    {row[header.toLowerCase().replace(/\s/g, '')] || '-'}
+                  </TableCell>
+                ))}
+
+                {/* Toggle Button Cell at the END of the row */}
+                <TableCell>
+                  <div className="flex flex-col gap-3" >
+                    <div
+                      className={`cursor-pointer w-32 text-center py-1 px-3 rounded-lg font-semibold transition-colors duration-300
+                      ${isActive ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'}
+                      `}
+                    >
+                      {isActive ? 'Active' : 'Deactivated'}
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+

@@ -1,12 +1,14 @@
 // src/app.ts
 import express, { Express, Request, Response, NextFunction } from "express";
 import AdminRoute from "./modules/admin/admin.routes";
+import UserRoute from "./modules/user/user.routes";
+import cors from 'cors';
+import { limitPayload } from "./middlewares/limitPayload";
 
 // dotenv.config();
 
 export default class AppBootstrap {
   private app: Express;
-  public adminRoute = new AdminRoute();
 
   constructor() {
     this.app = express();
@@ -22,11 +24,21 @@ export default class AppBootstrap {
   private setupMiddleware() {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(cors({
+      origin: 'http://localhost:5173',
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    }));
+    this.app.use(limitPayload(1_000_000));
   }
 
   private setupRoutes() {
+    const adminRoute = new AdminRoute();
+    const userRoute = new UserRoute();
 
-    this.app.use("/api/admin", this.adminRoute.getRouter());
+    this.app.use("/api/admin", adminRoute.getRouter());
+    this.app.use("/api/user", userRoute.getRouter());
 
     this.app.get("/health", (req: Request, res: Response) => {
       res.status(200).json({ status: "OK", timestamp: new Date() });
