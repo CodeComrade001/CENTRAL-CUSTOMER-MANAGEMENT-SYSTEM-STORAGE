@@ -229,17 +229,22 @@ export default class UserController {
     }
   }
 
-  /**
-   * @notice controller to get validation on user for protected route
-   */
-  public async validateSession(req: Request, res: Response, next: NextFunction) {
-    try {
-      const isValid = await this.userService.validateSession(req);
-      if (!isValid) return res.status(401).json({ message: "Session invalid or expired" });
-      return res.status(200).json({ message: "Session valid" });
-    } catch (err) {
-      next(err);
-    }
-  }
+  // /**
+  //  * @notice controller to get validation on user for protected route
+  //  */
+  // public async validateSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   try {
+  //     const isValid = await this.userService.validateSession(req);
+
+  //     if (!isValid) {
+  //       res.status(401).json({ message: "Session invalid or expired" });
+  //       return;
+  //     }
+
+  //     res.status(200).json({ message: "Session valid" });
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 
 }

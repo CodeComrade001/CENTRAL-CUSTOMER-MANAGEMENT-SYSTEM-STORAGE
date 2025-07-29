@@ -332,25 +332,20 @@ export default class UserImplementation {
     return data;
   }
 
-  /**
-   * @notice validate session to protect private route
-   */
-  /**
- * @notice Service method to validate user session using token
- */
-  public async validateSession(req: Request): Promise<boolean> {
-    const token = req.headers["authorization"]?.replace("Bearer ", "");
+  //   /**
+  //    * @notice validate session to protect private route
+  //    */
+  //   /**
+  //  * @notice Service method to validate user session using token
+  //  */
 
-    if (!token) return false;
+  //   // utils/token.ts
 
-    const { data, error } = await this.supabase.auth.getUser(token);
-
-    if (error || !data?.user) return false;
-
-    return true;
-  }
-
-
+  // export function extractBearerToken(req: Request): string | null {
+  //   const authHeader = req.headers["authorization"] as string | undefined;
+  //   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  //   return authHeader.slice(7);
+  // }
 
 }
 

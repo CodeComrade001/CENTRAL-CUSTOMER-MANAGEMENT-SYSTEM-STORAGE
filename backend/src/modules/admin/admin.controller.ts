@@ -60,10 +60,43 @@ export default class AdminController {
   }
 
 
-  public async getAllDetails(req: Request, res: Response, next: NextFunction) {
+  public async getCBTAllDetails(req: Request, res: Response, next: NextFunction) {
     try {
       if (!(await this.ensureAuthenticated(req, res))) return;
-      const admins = await this.adminService.fetchAllDetails();
+      const admins = await this.adminService.fetchCBTDetails();
+      return res.status(200).json(admins);
+    } catch (err) {
+      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async getAllCustomers(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+      const admins = await this.adminService.fetchAllCustomers();
+      return res.status(200).json(admins);
+    } catch (err) {
+      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async getSchoolManagementAllDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+      const admins = await this.adminService.fetchSchoolManagementDetails();
+      return res.status(200).json(admins);
+    } catch (err) {
+      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async getHealthManagementAllDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+      const admins = await this.adminService.fetchSchoolManagementDetails();
       return res.status(200).json(admins);
     } catch (err) {
       console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
@@ -102,7 +135,7 @@ export default class AdminController {
   }
 
 
-  public async getIncreaseInSlot(req: Request, res: Response, next: NextFunction) {
+  public async getIncreaseInCBTSlot(req: Request, res: Response, next: NextFunction) {
     try {
       if (!(await this.ensureAuthenticated(req, res))) return;
       const { slotValue, schoolId } = req.body
@@ -116,13 +149,27 @@ export default class AdminController {
     }
   }
 
+  public async getIncreaseInSchoolManagementSlot(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!(await this.ensureAuthenticated(req, res))) return;
+      const { slotValue, schoolId } = req.body
+      const admins = await this.adminService.fetch_IncreaseSchoolManagementSlot(slotValue, schoolId);
+      if (admins) {
+        return res.status(200).json({ message: "customer cbt slot increased" });
+      }
+    } catch (err) {
+      console.log("Turbo Log  ~ AdminController ~ getIncreaseInSlot ~ err:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
 
 
-  public async getSchoolStudentForCBT(req: Request, res: Response, next: NextFunction) {
+
+  public async getSchoolStudent(req: Request, res: Response, next: NextFunction) {
     try {
       if (!(await this.ensureAuthenticated(req, res))) return;
       const { schoolId } = req.body
-      const admins = await this.adminService.fetchSchoolManagementCBT_student(schoolId);
+      const admins = await this.adminService.fetchAllSchoolStudent();
       return res.status(200).json(admins);
     } catch (err) {
       console.log("Turbo Log  ~ AdminController ~ getSchoolStudentForCBT ~ (err:", (err));
@@ -131,11 +178,11 @@ export default class AdminController {
   }
 
 
-  public async getSchoolManagementFullDetails(req: Request, res: Response, next: NextFunction) {
+  public async getSchoolTeacher(req: Request, res: Response, next: NextFunction) {
     try {
       if (!(await this.ensureAuthenticated(req, res))) return;
       const { schoolId } = req.body
-      const admins = await this.adminService.fetchSchoolManagement_alldetails(schoolId);
+      const admins = await this.adminService.fetchAllSchoolTeacher();
       return res.status(200).json(admins);
     } catch (err) {
       console.log("Turbo Log  ~ AdminController ~ getSchoolManagementFullDetails ~ (err:", (err));
