@@ -9,6 +9,7 @@ import AdminProtectedRoute from "./extermal_component/middleware/adminProtectedR
 import { AdminDashboard } from "./extermal_component/admin_dashboard"
 import { UserDashboard } from "./extermal_component/user_dashborad"
 import NotFoundPage from "./pages/not found_page"
+import { UserDashboardPackages } from "./pages/package_view"
 
 function App() {
 
@@ -23,18 +24,26 @@ function App() {
         <Route path="/user/login" element={<UserFullScreenSignIn />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route
-          path="/user/dashboard"
+          path="/admin/dashboard"
           element={
-            <AdminProtectedRoute isAdminAuthenticated={true} >
+            <AdminProtectedRoute >
               <AdminDashboard />
             </AdminProtectedRoute>
           }
         />
         <Route
-          path="/admin/dashboard"
+          path="/user/dashboard"
           element={
             <UserProtectedRoute isUserAuthenticated={true} >
               <UserDashboard />
+            </UserProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/dashboard/packages"
+          element={
+            <UserProtectedRoute isUserAuthenticated={true} >
+              <UserDashboardPackages />
             </UserProtectedRoute>
           }
         />

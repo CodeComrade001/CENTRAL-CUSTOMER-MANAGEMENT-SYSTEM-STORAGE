@@ -78,7 +78,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --destructive-foreground: oklch(1 0 0);
-  --elegant-font: 'Great Vibes';
+  --elegant-font: "Great Vibes";
 }
 
 .dark {
@@ -123,4 +123,9 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
 }

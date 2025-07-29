@@ -26,8 +26,7 @@ export default class AdminImplementation {
 
 
 
-  public async verifyAdminLogin(username: string, inputPassword: string): Promise<boolean> {
-    console.log("Turbo Log  ~ AdminImplementation ~ verifyAdminLogin ~ verifyAdminLogin:");
+  public async verifyAdminLogin(username: string, inputPassword: string) {
     const { data, error } = await this.supabase.rpc("get_staff_password", {
       p_username: username
     });
@@ -35,15 +34,25 @@ export default class AdminImplementation {
     if (error || !data) return false;
 
     const isMatch = await bcrypt.compare(inputPassword, data);
-    console.log("Turbo Log  ~ AdminImplementation ~ verifyAdminLogin ~ isMatch:", isMatch);
-    return isMatch;
+    if (!isMatch) return false;
+    return true;
+  }
+
+  public async fetchAdminSignOut() {
+
+    const { error } = await this.supabase.auth.signOut()
+    if (error) return { message: false };
+
+    return { message: true };
   }
 
   public async fetchAllDetails() {
-    const { data, error } = await this.supabase.from("all_customers").select("*")
+    const { data, error } = await this.supabase.from("all_customers").select("school_id,email,school_management_slot,company_name,conputer_based_test_slot, subscription(computer_based_test, school_management, health_management)")
+    console.log("Turbo Log  ~ AdminImplementation ~ fetchAllDetails ~ data:", data);
     if (error) throw error
     return data
   }
+
   public async fetch_CustomerAccountActivation(userIdToBeUpdated: string) {
 
     const { data, error } = await this.supabase
@@ -55,30 +64,37 @@ export default class AdminImplementation {
     if (error) throw error
     return data
   }
+
+
   public async fetch_CustomerAccountDeactivation(userIdToBeUpdated: string) {
     const { data, error } = await this.supabase
       .from('all_customers')
       .update({ activate: false, deactivate: true })
       .eq('user_id', userIdToBeUpdated)
       .select()
-    if (error) throw error
-    return data
+    if (error) return false
+    return true
   }
+
+
   public async fetch_IncreaseCBTSlot(slotValue: number, schoolId: string) {
     const { data, error } = await this.supabase.from("all_customers").update({ "conputer_based_test_slot": slotValue })
       .eq("user_id", schoolId)
-    if (error) throw error
-    return data
+    if (error) return false
+    return true
   }
+
+
   public async fetchSchoolManagementCBT_student(schoolId: string) {
     const { data, error } = await this.supabase.from("computer_base_testing_system_db").select(`student_db(*)`)
       .eq("school_id", schoolId)
     if (error) throw error
     return data
   }
+
+
   public async fetchSchoolManagement_alldetails(schoolId: string) {
     const { data, error } = await this.supabase.from("school_management_system").select(`student_db(*),teacher_db(*) `).eq("school_id", schoolId)
-      .eq("school_id", schoolId)
     if (error) throw error
     return data
   }

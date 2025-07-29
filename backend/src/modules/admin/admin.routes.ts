@@ -27,7 +27,7 @@ export default class AdminRoute {
          * @route POST / logs-in 
          * @description Authtenticate Admin before logging in
          */
-    this.router.post("/log-in", (req: Request, res: Response, next: NextFunction) =>
+    this.router.post("/login", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getAdminLogedIn(req, res, next)
     );
     /**
@@ -37,6 +37,15 @@ export default class AdminRoute {
 
     this.router.get("/all-details", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getAllDetails(req, res, next)
+    );
+
+    /**
+         * @route GET / logOut admin
+         * @description Retrieves all customer details
+         */
+
+    this.router.get("/signout", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.getAdminLoggedOut(req, res, next)
     );
 
     /**

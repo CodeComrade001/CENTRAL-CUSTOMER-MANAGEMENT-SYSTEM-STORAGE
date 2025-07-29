@@ -14,7 +14,9 @@
   "description": "",
   "dependencies": {
     "@supabase/supabase-js": "^2.52.1",
+    "@types/cors": "^2.8.19",
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0"
   },

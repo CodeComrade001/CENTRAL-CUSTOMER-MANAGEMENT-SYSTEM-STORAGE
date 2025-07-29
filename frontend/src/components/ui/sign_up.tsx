@@ -1,7 +1,10 @@
 "use client";
 
+import { API__UserSignUp } from "@/services/api";
+import { getNewAccountStatusMessage } from "@/utils/authNewAccountStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 export const UserFullScreenSignUp = () => {
@@ -12,8 +15,8 @@ export const UserFullScreenSignUp = () => {
   const [passwordError, setPasswordError] = useState("");
   const [schoolNameError, setSchoolNameError] = useState("");
   const [signUpText, setSignUpText] = useState("Create New Account");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   const validateEmail = (value: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -26,48 +29,54 @@ export const UserFullScreenSignUp = () => {
   const validatePassword = (value: string) => {
     return value.length >= 8;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setSignUpText("Creating Account...");
+
+    let isValid = true;
+
+    // Validation
+    if (!validateSchoolName(schoolName)) {
+      setSchoolNameError("School name must be 3–50 characters long and contain only letters and spaces.");
+      isValid = false;
+    } else {
+      setSchoolNameError("");
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!validatePassword(password)) {
+      setPasswordError("Password must be at least 8 characters.");
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (!isValid) {
+      setSignUpText("❌ Invalid Input");
+      setSubmitted(false);
+      return;
+    }
+
     try {
-      setSignUpText("Creating Account...")
-      e.preventDefault();
-      let valid = true;
-
-      if (!validateSchoolName(schoolName)) {
-        setSchoolNameError("School name must be 3–50 characters long and contain only letters and spaces.");
-        valid = false;
-      } else {
-        setSchoolNameError("");
+      const response = await API__UserSignUp({ schoolName, email, password });
+      if (response.status === 200) {
+        navigate("/user/dashboard"); // 👈 your destination route
       }
-
-      if (!validateEmail(email)) {
-        setEmailError("Please enter a valid email address.");
-        valid = false;
-      } else {
-        setEmailError("");
-      }
-
-      if (!validatePassword(password)) {
-        setPasswordError("Password must be at least 8 characters.");
-        valid = false;
-      } else {
-        setPasswordError("");
-      }
-
-      setSubmitted(true);
-
-      if (valid) {
-        // Submission logic goes here
-        console.log("Form submitted!");
-        console.log("Email:", email);
-        alert("Form submitted!");
-        setEmail("");
-        setPassword("");
-        setSubmitted(false);
-      }
-    } catch (err) {
-      setSignUpText("Server Error :Don't fret this is a server error")
-      console.log("Turbo Log  ~ handleSubmit ~ err:", err);
+      setSignUpText(getNewAccountStatusMessage(response.status));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Turbo Log: Signup error", error);
+      const status = error?.response?.status;
+      setSignUpText(getNewAccountStatusMessage(status));
+    } finally {
+      setSubmitted(false);
     }
   };
 
@@ -89,7 +98,7 @@ export const UserFullScreenSignUp = () => {
 
         <div className="bg-black text-white p-8 md:p-12 md:w-1/2 relative rounded-bl-3xl  overflow-hidden">
           <h1 className="text-2xl md:text-3xl font-medium leading-tight z-10 tracking-tight relative">
-            Managemet software for startups schools.
+            CCMSS User Dashboard New Account.
           </h1>
         </div>
 
@@ -99,10 +108,10 @@ export const UserFullScreenSignUp = () => {
               <Sunburst className="h-10 w-10" />
             </div>
             <h2 className="text-3xl font-medium mb-2 tracking-tight">
-              Get Started
+              Still using spreadsheets? Upgrade your workflow now.
             </h2>
             <p className="text-left opacity-80">
-              Central Customer Management System Storage
+              From the first student to your 1000th customer — grow without chaos.
             </p>
           </div>
 
@@ -121,7 +130,7 @@ export const UserFullScreenSignUp = () => {
                 placeholder="High school of Boys"
                 className={`text-sm w-full py-2 px-3 border rounded-lg focus:outline-none focus:ring-1 bg-white text-black focus:ring-orange-500 ${emailError ? "border-red-500" : "border-gray-300"
                   }`}
-                value={email}
+                value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
                 aria-invalid={!!schoolNameError}
                 aria-describedby="email-error"
@@ -177,10 +186,14 @@ export const UserFullScreenSignUp = () => {
 
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              className={`w-full text-white font-medium py-2 px-4 rounded-lg transition-colors
+    ${submitted ? 'bg-orange-400 opacity-50 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}
+  `}
+              disabled={submitted}
             >
               {signUpText}
             </button>
+
 
             <div className="text-center text-gray-600 text-sm">
               Already have account?{" "}
