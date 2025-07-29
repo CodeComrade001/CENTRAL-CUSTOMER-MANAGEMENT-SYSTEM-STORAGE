@@ -1,55 +1,48 @@
+import { useEffect, useState } from "react";
 import TableSecondStructure from "../reusable_component/second_table_schems";
+import { API__Admin_SchoolTeachers } from "@/services/api";
 
 const headers = [
-  'Subscription ID',
-  'school Name',
-  'teacher Id',
-  'teacher Name',
-  'teacher email',
-  'teacher Phone No'
+  'id',
+  'school_name',
+  'email',
+  'teacher_name',
+  'teacher_email'
 ];
 
-const data = [
-  {
-    subscriptionid: 'SUB001',
-    schoolname: 'Greenfield Academy',
-    teacherid: 'TCH101',
-    teachername: 'Alice Smith',
-    teacheremail: 'alice.smith@greenfield.edu',
-    teacherphoneno: '08123456789'
-  },
-  {
-    subscriptionid: 'SUB002',
-    schoolname: 'Bluebell High School',
-    teacherid: 'TCH102',
-    teachername: 'Michael Johnson',
-    teacheremail: 'michael.j@bluebell.edu',
-    teacherphoneno: '08098765432'
-  },
-  {
-    subscriptionid: 'SUB003',
-    schoolname: 'Sunrise Primary',
-    teacherid: 'TCH103',
-    teachername: 'Fatima Bello',
-    teacheremail: 'fatima.bello@sunrise.edu',
-    teacherphoneno: '07055667788'
-  },
-  {
-    subscriptionid: 'SUB004',
-    schoolname: 'Hope International',
-    teacherid: 'TCH104',
-    teachername: 'John Doe',
-    teacheremail: 'john.doe@hopeintl.edu',
-    teacherphoneno: '09033221144'
-  }
-];
+interface allTeacherDataType {
+  id: number
+  school_name: string;
+  email: string;
+  teacher_name: string;
+  teacher_email: string;
+
+  [key: string]: string | number;
+}
+
 
 export default function AllSchoolTeacher() {
+  const [allCustomersTeacher, setAllCustomersTeacher] = useState<allTeacherDataType[]>([]);
+
+  useEffect(() => {
+    async function fetchAllDetails() {
+      try {
+        const admin = await API__Admin_SchoolTeachers();
+        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin.data);
+        setAllCustomersTeacher(admin.data); // <-- you forgot to update state
+      } catch (err) {
+        console.log("Turbo Log  ~ fetchAllDetails ~ err:", err);
+      }
+    }
+    fetchAllDetails();
+  }, []);
+
+
   return (
     <TableSecondStructure
       tableCaption="This is a table to show all teacher customers"
       headers={headers}
-      data={data}
+      data={allCustomersTeacher}
     />
   );
 }

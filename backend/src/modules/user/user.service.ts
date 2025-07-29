@@ -12,6 +12,12 @@ interface AddStudent {
   student_department?: string;
   student_age?: string;
 }
+
+interface AddTeacher {
+  teacher_name?: string;
+  teacher_email?: string;
+}
+
 interface EditStudent {
   id?: string;
   student_name?: string;
@@ -19,12 +25,6 @@ interface EditStudent {
   student_department?: string;
   student_age?: string;
 }
-
-interface AddTeacher {
-  teacher_name?: string;
-  teacher_email?: string;
-}
-
 interface EditTeacher {
   id?: string;
   teacher_name?: string;
@@ -75,6 +75,34 @@ export default class UserImplementation {
       return false
     }
   }
+
+  protected async fetchUserSlot(): Promise<
+    { computer_based_test_slot: string; school_management_slot: string }[]
+  > {
+    try {
+      const { data, error } = await this.supabase
+        .from("all_customers")
+        .select("computer_based_test_slot, school_management_slot");
+      if (error) {
+        console.error(
+          "Turbo Log  ~ UserController ~ fetchUserSlot ~ supabase error:",
+          error
+        );
+        // You could re-throw here if you want upstream to handle it
+        return [];
+      }
+      // data will be `null` if no rows, so default to empty array
+      return data ?? [];
+    } catch (err) {
+      console.error(
+        "Turbo Log  ~ UserController ~ fetchUserSlot ~ unexpected err:",
+        err
+      );
+      // Return empty array to satisfy callers expecting an array
+      return [];
+    }
+  }
+
 
   /**
    * @notice Fetches user email and company information for initial setup.
@@ -321,7 +349,7 @@ export default class UserImplementation {
       student_department,
       student_class,
       student_age,
-      computer_based_test!inner(student_id)
+      computer_based_test_system!inner(student_id)
     `);
 
     if (error) {

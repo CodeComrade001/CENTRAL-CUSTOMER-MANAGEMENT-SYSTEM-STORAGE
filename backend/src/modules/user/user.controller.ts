@@ -31,7 +31,6 @@ export default class UserController {
     return true;
   }
 
-
   /**
    * @notice Fetches user details during initial setup.
    */

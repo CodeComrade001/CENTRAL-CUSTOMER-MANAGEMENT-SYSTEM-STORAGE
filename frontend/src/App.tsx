@@ -5,11 +5,11 @@ import { UserFullScreenSignIn } from "./components/ui/sign_in"
 import { UserIntroductionPage } from "./pages/user_page"
 import { LandingPageIntroductionPage } from "./pages/landing_page"
 import UserProtectedRoute from './extermal_component/middleware/userProtectedRoute';
-import AdminProtectedRoute from "./extermal_component/middleware/adminProtectedRoute"
 import { AdminDashboard } from "./extermal_component/admin_dashboard"
 import { UserDashboard } from "./extermal_component/user_dashborad"
 import NotFoundPage from "./pages/not found_page"
-import { UserDashboardPackages } from "./pages/package_view"
+import { UserDashboardPackages } from "./pages/user_dashboard_package_view"
+import { AuthProvider } from "./context/authContext"
 
 function App() {
 
@@ -26,15 +26,15 @@ function App() {
         <Route
           path="/admin/dashboard"
           element={
-            <AdminProtectedRoute >
+            <AuthProvider>
               <AdminDashboard />
-            </AdminProtectedRoute>
+            </AuthProvider >
           }
         />
         <Route
           path="/user/dashboard"
           element={
-            <UserProtectedRoute isUserAuthenticated={true} >
+            <UserProtectedRoute  >
               <UserDashboard />
             </UserProtectedRoute>
           }
@@ -42,9 +42,9 @@ function App() {
         <Route
           path="/user/dashboard/packages"
           element={
-            <UserProtectedRoute isUserAuthenticated={true} >
-              <UserDashboardPackages />
-            </UserProtectedRoute>
+            // <UserProtectedRoute  >
+            <UserDashboardPackages />
+            // </UserProtectedRoute>
           }
         />
       </Routes>

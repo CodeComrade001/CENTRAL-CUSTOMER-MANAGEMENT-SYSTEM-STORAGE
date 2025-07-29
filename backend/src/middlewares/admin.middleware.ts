@@ -1,29 +1,27 @@
+// middleware/adminAuth.ts
+import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
-import { Request } from 'express';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export async function verifyAdminSession(req: Request): Promise<boolean> {
+export async function adminAuthMiddleware(req: Request, res: Response, next: NextFunction) {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
-  const token = req.headers.authorization?.replace("Bearer ", "");
-  if (!token) return false;
+    console.log("Turbo Log  ~ adminAuthMiddleware ~ token:", token);
+    if (!token) return res.status(401).json({ error: 'Unauthorized: No token' });
 
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return false;
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    console.log("Turbo Log  ~ adminAuthMiddleware ~ user:", user);
+    if (error || !user) return res.status(401).json({ error: 'Invalid token' });
 
-  // Example: Check if the user's role is "admin"
-  const { data: profile, error: profileError } = await supabase
-    .from("management.staff")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+    if (user.user_metadata?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Not an admin' });
+    }
 
-  console.log("Turbo Log  ~ verifyAdminSession ~ profileError:", profileError);
-  if (profileError || profile?.role !== "admin" || profile?.role !== "database_administrator") return false;
-
-  // Attach user for later use
-  (req as any).user = user;
-  return true;
+    (req as any).user = user; // attach user to request
+    next(); // go to controller
+  } catch (err) {
+    return res.status(500).json({ error: 'Auth check failed' });
+  }
 }
