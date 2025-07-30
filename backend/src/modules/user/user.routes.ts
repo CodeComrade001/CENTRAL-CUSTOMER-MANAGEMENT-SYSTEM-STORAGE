@@ -37,7 +37,13 @@ export default class UserRoute {
     this.router.post("/signin", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getUserLogin(req, res, next)
     );
-
+    /**
+         * @route GET /signout
+         * @description Log out user
+         */
+    this.router.get("/signout", (req: Request, res: Response, next: NextFunction) => {
+      this.controller.getUserSignOut(req, res, next)
+    });
     /**
      * @route POST /signup
      * @description Signs up a new user
@@ -45,7 +51,7 @@ export default class UserRoute {
     this.router.post("/signup", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getUserSignUp(req, res, next)
     );
-    this.router.get("/validate-admin", userAuthMiddleware)
+    this.router.get("/validate-user", userAuthMiddleware, (req, res) => res.status(200).json({ ok: true }))
     /**
      * @notice middle ware only runs from here all route below are protected 
      */
@@ -57,13 +63,7 @@ export default class UserRoute {
     this.router.get("/details", (req: Request, res: Response, next: NextFunction) => {
       this.controller.getUserDetails(req, res, next)
     });
-    /**
-     * @route GET /signout
-     * @description Log out user
-     */
-    this.router.get("/signout", (req: Request, res: Response, next: NextFunction) => {
-      this.controller.getUserSignOut(req, res, next)
-    });
+
 
 
     /**

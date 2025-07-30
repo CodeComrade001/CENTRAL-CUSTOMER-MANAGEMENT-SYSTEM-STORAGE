@@ -141,11 +141,21 @@ const AnimatedMenuToggle = ({
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeBtn, setActiveBtn] = useState<string>("all_customer")
+  const [activeBtnText, setActiveBtnText] = useState<string>("All Customers")
 
   const mobileSidebarVariants = {
     hidden: { x: "-100%" },
     visible: { x: 0 },
   };
+
+  const bottonSetters = useCallback(
+    (newActiveBtn: string, activeBtnText: string) => {
+      setActiveBtn(newActiveBtn);
+      setActiveBtnText(activeBtnText);
+    },
+    [] // Add dependencies here if setActiveBtn/setActiveBtnText are not stable
+  );
+
 
   const activateBtnAction = useCallback(() => {
     switch (activeBtn) {
@@ -199,7 +209,8 @@ const AdminDashboard = () => {
                 <ul>
                   <li className="mb-2">
                     <button
-                      onClick={() => setActiveBtn("all_customer")}
+                      onClick={() => bottonSetters("all_customers", "All Customers")}
+
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <User className="h-5 w-5" />
                       All Customers
@@ -207,7 +218,7 @@ const AdminDashboard = () => {
                   </li>
                   <li className="mb-2">
                     <button
-                      onClick={() => setActiveBtn("school_management")}
+                      onClick={() => bottonSetters("school_management", "School Mangement")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       School Management System
                     </button>
@@ -216,7 +227,7 @@ const AdminDashboard = () => {
 
                   <li className="mb-2">
                     <button
-                      onClick={() => setActiveBtn("health_management")}
+                      onClick={() => bottonSetters("health_system", "Health Mangement")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <BatteryPlus className="h-5 w-5" />
                       Health management System
@@ -224,7 +235,7 @@ const AdminDashboard = () => {
                   </li>
                   <li className="mb-2">
                     <button
-                      onClick={() => setActiveBtn("cbt_system")}
+                      onClick={() => bottonSetters("cbt_system", "Computer Based Test")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <Computer className="h-5 w-5" />
                       CBT System (Enterprise)
@@ -235,7 +246,7 @@ const AdminDashboard = () => {
                       <ul>
                         <li className="mb-2">
                           <button
-                            onClick={() => setActiveBtn("teacher")}
+                            onClick={() => bottonSetters("teacher", "All School Teachers")}
                             className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                             <BookMinus className="h-5 w-5" />
                             Teacher
@@ -243,7 +254,7 @@ const AdminDashboard = () => {
                         </li>
                         <li className="mb-2">
                           <button
-                            onClick={() => setActiveBtn("student")}
+                            onClick={() => bottonSetters("student", "All School Student")}
                             className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                             <SquarePen className="h-5 w-5" />
                             Student
@@ -284,7 +295,7 @@ const AdminDashboard = () => {
           <ul>
             <li className="mb-2">
               <button
-                onClick={() => setActiveBtn("all_customer")}
+                onClick={() => bottonSetters("all_customers", "All Customers")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <User className="h-5 w-5" />
                 All Customers
@@ -292,7 +303,7 @@ const AdminDashboard = () => {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => setActiveBtn("school_management")}
+                onClick={() => bottonSetters("school_management", "School Mangement")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <University className="h-5 w-5" />
                 School Management System
@@ -302,7 +313,7 @@ const AdminDashboard = () => {
 
             <li className="mb-2">
               <button
-                onClick={() => setActiveBtn("cbt_system")}
+                onClick={() => bottonSetters("cbt_system", "Computer Based Test")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <Computer className="h-5 w-5" />
                 CBT System (Enterprise)
@@ -310,7 +321,7 @@ const AdminDashboard = () => {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => setActiveBtn("health_management")}
+                onClick={() => bottonSetters("health_system", "Health Mangement")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <BatteryPlus className="h-5 w-5" />
                 Health management System
@@ -322,7 +333,7 @@ const AdminDashboard = () => {
                 <ul>
                   <li className="mb-2">
                     <button
-                      onClick={() => setActiveBtn("teacher")}
+                      onClick={() => bottonSetters("teacher", "All School Teachers")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <BookMinus className="h-5 w-5" />
                       Teacher
@@ -330,7 +341,7 @@ const AdminDashboard = () => {
                   </li>
                   <li className="mb-2">
                     <button
-                      onClick={() => setActiveBtn("student")}
+                      onClick={() => bottonSetters("student", "All School Student")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <SquarePen className="h-5 w-5" />
                       Student
@@ -357,7 +368,7 @@ const AdminDashboard = () => {
           <AnimatedMenuToggle toggle={toggleSidebar} isOpen={isOpen} />
         </div>
         <div className="p-6">
-          <h1 className="text-2xl font-bold">Dashboard View</h1>
+          <h1 className="text-2xl font-bold">{activeBtnText} View</h1>
           <div className="text-sm font-medium">
             {/* Additional details and settings can be found here. */}
             {activateBtnAction()}

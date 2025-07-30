@@ -8,23 +8,16 @@ const headers = [
   "school_name",
   "computer_based_test_slot",
   "school_management_slot",
-  "status",
-  "computer_based_test",
-  "school_management",
-  "health_management",
 ];
 
 interface allCustomersDataType {
   id: number;
   email: string;
   school_name: string;
-  computer_based_test_slot: string;
-  school_management_slot: string;
+  computer_based_test_slot: number;
+  school_management_slot: number;
   activate: boolean;
   deactivate: boolean;
-  computer_based_test: boolean;
-  school_management: boolean;
-  health_management: boolean;
   [key: string]: string | number | boolean;
 }
 

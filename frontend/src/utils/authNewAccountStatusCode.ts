@@ -5,6 +5,7 @@ export function getNewAccountStatusMessage(status?: number): string {
   const statusMap: Record<number, string> = {
     200: "✅ Success: New Account Created ",
     400: "❌ Bad Request",
+    409: "❌ Please login Alreagy a registered User",
     401: "❌ Account Creation Failed",
     403: "⛔ Access forbidden",
     404: "❌ User not found",

@@ -8,12 +8,11 @@ export async function adminAuthMiddleware(req: Request, res: Response, next: Nex
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
-    console.log("Turbo Log  ~ adminAuthMiddleware ~ token:", token);
     if (!token) return res.status(401).json({ error: 'Unauthorized: No token' });
 
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    console.log("Turbo Log  ~ adminAuthMiddleware ~ user:", user);
     if (error || !user) return res.status(401).json({ error: 'Invalid token' });
+    console.log("Turbo Log  ~ adminAuthMiddleware ~ user:", user);
 
     if (user.user_metadata?.role !== 'admin') {
       return res.status(403).json({ error: 'Forbidden: Not an admin' });

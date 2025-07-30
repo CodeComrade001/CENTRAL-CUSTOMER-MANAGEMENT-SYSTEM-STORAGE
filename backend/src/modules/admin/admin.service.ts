@@ -23,13 +23,14 @@ export default class AdminImplementation {
   }
 
   public async verifyAdminLogin(email: string, password: string) {
-    const { error } = await this.supabase.auth.signInWithPassword({
+    const { data, error } = await this.supabase.auth.signInWithPassword({
       email: email,
       password: password
     })
     if (error) return { message: false };
 
-    return { message: true };
+    const token = data.session.access_token;
+    return { message: true, token };
   }
 
   public async fetchAdminSignOut() {
@@ -44,35 +45,24 @@ export default class AdminImplementation {
   public async fetchAllCustomers() {
     const { data, error } = await this.supabase
       .from("all_customers")
-      .select(`
-      id,
-      email,
-      school_name,
-      computer_based_test_slot,
-      school_management_slot,
-      activate,
-      deactivate,
-      school_management_slot,
-      subscription(
-        computer_based_test,
-        school_management,
-        health_management,
-      )
-    `)
+      .select(`*`);
+    console.log("Turbo Log  ~ AdminImplementation ~ fetchAllCustomers ~ error:", error);
+    console.log("Turbo Log  ~ AdminImplementation ~ fetchAllCustomers ~ data:", data);
 
     if (error) throw error;
     return data;
   }
 
+
   public async fetchCBTDetails() {
     const { data, error } = await this.supabase
-      .from("view_school_cbt_usage")
+      .from("all_customers")
       .select(`
       id,
       email,
       school_name,
-      conputer_based_test_slot,
-       used_cbt_slot
+      computer_based_test_slot,
+       subscription(school_id)
     `)
       .filter("subscription.computer_based_test", "eq", true);
 
@@ -82,14 +72,15 @@ export default class AdminImplementation {
 
   public async fetchSchoolManagementDetails() {
     const { data, error } = await this.supabase
-      .from("view_school_management_usage")
+      .from("all_customers")
       .select(`
       id,
       email,
       school_name,
       school_management_slot,
-       used_school_management_slot`
-      )
+       subscription(school_id)
+    `)
+      .filter("subscription.school_management", "eq", true);
 
     if (error) throw error;
     return data;
@@ -104,7 +95,7 @@ export default class AdminImplementation {
       email,
       school_name,
       subscription(
-        health_management
+        school_id
       )
     `)
       .filter("subscription.health_management", "eq", true);

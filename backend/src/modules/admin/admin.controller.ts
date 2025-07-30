@@ -12,7 +12,6 @@ export default class AdminController {
 
   constructor() {
     this.adminService = new AdminImplementation(); // Instantiate internally
-    console.log(this.adminService)
   }
 
   /**
@@ -26,15 +25,13 @@ export default class AdminController {
     try {
 
       const { email, password } = req.body
-      const { message } = await this.adminService.verifyAdminLogin(email, password);
-      console.log("Turbo Log  ~ AdminController ~ getAdminLogedIn ~ message:", message);
+      const { message, token } = await this.adminService.verifyAdminLogin(email, password);
       if (message) {
-        return res.status(200).json({ message: "admins log in successful" });
+        return res.status(200).json({ token });
       } else {
-        return res.status(401).json({ message: "Incorrect username or password" });
+        return res.status(401).json({ message: "User Is Unauthorized" });
       }
     } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getAdminLogedIn ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }

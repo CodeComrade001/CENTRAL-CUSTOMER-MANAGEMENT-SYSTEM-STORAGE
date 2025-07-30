@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { type AxiosRequestConfig } from "axios";
 
-
 const baseURL = import.meta.env.VITE_BACKEND_URL || "";
-console.log("Turbo Log  ~ baseURL:", baseURL);
 
 const api = axios.create({
   baseURL,
   withCredentials: true,
   // timeout: 1000,
 })
+
+api.interceptors.request.use(cfg => {
+  const token = localStorage.getItem("user_token");
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
+
 
 // ============================
 // User APIs Endpoints
@@ -19,9 +24,18 @@ export const APi__FetchUserDeails = (config?: AxiosRequestConfig) => {
   return api.get("api/user/details", config)
 }
 
+// ✅ Define a function that attaches the token to the headers
 export const APi__ValidateUser = (config?: AxiosRequestConfig) => {
-  return api.get("api/user/validate-user", config)
-}
+  const token = localStorage.getItem('user_token');
+  return api.get("api/user/validate-user", {
+    ...config,
+    headers: {
+      ...(config?.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 
 export const API__UserSelectedPlan = (config?: AxiosRequestConfig) => {
   return api.get("api/user/selected-plan", config)
@@ -32,7 +46,7 @@ export const API__UserLogIn = (data: { email: string, password: string }, config
 export const API__UserSignUp = (data: { schoolName: string, email: string, password: string }, config?: AxiosRequestConfig) => {
   return api.post("api/user/signup", data, config)
 }
-export const API__UserPlanEdit = (data: { product: string, product_subscription: boolean }, config?: AxiosRequestConfig) => {
+export const API__UserPlanEdit = (data: { id: number, product: string, product_subscription: boolean }, config?: AxiosRequestConfig) => {
   return api.post("api/user/edit-plan", data, config)
 }
 
@@ -100,7 +114,14 @@ export const API__Admin_LogIn = (data: { email: string, password: string }, conf
 
 
 export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => {
-  return api.get("api/user/validate-admin", config)
+  const token = localStorage.getItem('user_token');
+  return api.get("api/admin/validate-admin", {
+    ...config,
+    headers: {
+      ...(config?.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 export const API__Admin_LogOut = (config?: AxiosRequestConfig) => {

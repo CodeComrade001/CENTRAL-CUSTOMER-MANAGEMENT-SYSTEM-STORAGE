@@ -7,6 +7,7 @@ export function getLoginStatusMessage(status?: number): string {
     400: "❌ Bad Request",
     401: "❌ Incorrect email or password",
     403: "⛔ Access forbidden",
+    408: "⛔ Account Disabled",
     404: "❌ User not found",
     429: "🚫 Too many requests. Please try again later.",
     500: "🔥 Server error. Try again later.",

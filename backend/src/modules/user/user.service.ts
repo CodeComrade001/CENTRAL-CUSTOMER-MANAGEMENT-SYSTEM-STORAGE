@@ -45,7 +45,7 @@ export default class UserImplementation {
     try {
       this.supabase = await getSafeSupabase()
     } catch (err) {
-      console.log("Turbo Log  ~ UserImplementation ~ init ~ err:", err);
+      return
     }
   }
 
@@ -60,7 +60,6 @@ export default class UserImplementation {
       if (error) return { message: false };
       return { message: true };
     } catch (err) {
-      console.log("Turbo Log  ~ UserImplementation ~ storeSchoolName ~ err:", err);
       return { message: null };
     }
   }
@@ -71,7 +70,6 @@ export default class UserImplementation {
       if (error) return false;
       return true
     } catch (err) {
-      console.log("Turbo Log  ~ UserImplementation ~ verifySession ~ err:", err);
       return false
     }
   }
@@ -84,20 +82,12 @@ export default class UserImplementation {
         .from("all_customers")
         .select("computer_based_test_slot, school_management_slot");
       if (error) {
-        console.error(
-          "Turbo Log  ~ UserController ~ fetchUserSlot ~ supabase error:",
-          error
-        );
         // You could re-throw here if you want upstream to handle it
         return [];
       }
       // data will be `null` if no rows, so default to empty array
       return data ?? [];
-    } catch (err) {
-      console.error(
-        "Turbo Log  ~ UserController ~ fetchUserSlot ~ unexpected err:",
-        err
-      );
+    } catch {
       // Return empty array to satisfy callers expecting an array
       return [];
     }
@@ -105,7 +95,7 @@ export default class UserImplementation {
 
 
   /**
-   * @notice Fetches user email and company information for initial setup.
+   * @notice Fetches user email and school_name information for initial setup.
    * @returns A list of user details containing email and company name.
    * @throws Error if Supabase query fails.
    */
@@ -113,8 +103,7 @@ export default class UserImplementation {
 
     let { data, error } = await this.supabase
       .from('all_customers')
-      .select('conputer_based_test_slot,school_management_slot')
-    console.log("Turbo Log  ~ UserImplementation ~ fetchUserDetails ~ data:", data);
+      .select('email, school_name,computer_based_test_slot,school_management_slot')
 
     if (error) throw error;
     return data;
@@ -128,13 +117,14 @@ export default class UserImplementation {
    * @throws Error if login fails.
    */
   public async fetchUserLogin(userEmail: string, userPassword: string) {
-    const { error } = await this.supabase.auth.signInWithPassword({
+    const { data, error } = await this.supabase.auth.signInWithPassword({
       email: userEmail,
       password: userPassword
     });
-    console.log("Turbo Log  ~ UserImplementation ~ fetchUserLogin ~ error:", error);
+
     if (error) return { message: false };
-    return { message: true };
+    const token = data.session.access_token;
+    return { message: true, token };
   }
 
   /**
@@ -161,7 +151,7 @@ export default class UserImplementation {
 
     // ✅ Now insert: auth.uid() is available
     const { error: insertError } = await this.supabase.from('all_customers').insert([
-      { company_name: schoolName }
+      { school_name: schoolName }
     ]);
     if (insertError) return { message: false };
 
@@ -178,7 +168,7 @@ export default class UserImplementation {
   public async fetchUserSelectedPlan() {
     const { data, error } = await this.supabase
       .from("subscription")
-      .select("computer_based_test, school_management ,health_management ");
+      .select("id ,computer_based_test, school_management ,health_management ");
     if (error) throw error;
     return data;
   }
@@ -190,11 +180,10 @@ export default class UserImplementation {
    * @throws Error if the update fails.
    */
   public async fetchUserPlanEdit(
+    id: number,
     product_name: string,
     product_subscription: boolean
   ) {
-    console.log("Turbo Log  ~ fetchUserPlanEdit ~ product_name:", product_name);
-    console.log("Turbo Log  ~ fetchUserPlanEdit ~ product_subscription:", product_subscription);
 
     let column: string;
 
@@ -203,7 +192,7 @@ export default class UserImplementation {
         column = "school_management";
         break;
       case "computer_based_test":
-        column = "computer_base_test";
+        column = "computer_based_test";
         break;
       case "health_management":
         column = "health_management";
@@ -215,9 +204,8 @@ export default class UserImplementation {
     // Simply update the column for the current user
     const { error } = await this.supabase
       .from("subscription")
-      .update({ [column]: product_subscription })
+      .update({ [column]: product_subscription }).eq("id", id)
 
-    console.log("Turbo Log ~ fetchUserPlanEdit ~ update error:", error);
 
     if (error) return { message: false };
 
@@ -316,7 +304,6 @@ export default class UserImplementation {
     const { data, error } = await this.supabase.from("student_db").select("id,student_name,student_department,student_class, student_age");
 
     if (error) {
-      console.error("StudentService ~ getAllStudents ~ error:", error.message);
       throw new Error("Failed to fetch students");
     }
 
@@ -327,10 +314,9 @@ export default class UserImplementation {
    * @notice Fetch all registered teachers
    */
   public async getAllTeachers() {
-    const { data, error } = await this.supabase.from("teachers").select("id,teacher_name,teacher_email");
+    const { data, error } = await this.supabase.from("teacher_db").select("id,teacher_name,teacher_email");
 
     if (error) {
-      console.error("StudentService ~ getAllTeachers ~ error:", error.message);
       throw new Error("Failed to fetch teachers");
     }
 
@@ -353,7 +339,6 @@ export default class UserImplementation {
     `);
 
     if (error) {
-      console.error("StudentService ~ getAllCBTStudents ~ error:", error.message);
       throw new Error("Failed to fetch CBT students");
     }
 

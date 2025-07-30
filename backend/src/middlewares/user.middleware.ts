@@ -7,14 +7,13 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 export async function userAuthMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    console.log("Turbo Log  ~ userAuthMiddleware ~ token:", token);
+    // console.log("Turbo Log  ~ userAuthMiddleware ~ token:", token);
 
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized: No token provided' });
     }
 
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    console.log("Turbo Log  ~ userAuthMiddleware ~ user:", user);
 
     if (error || !user) {
       return res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });

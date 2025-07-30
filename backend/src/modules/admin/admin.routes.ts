@@ -4,7 +4,6 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import AdminController from "./admin.controller";
-import validateUserMiddleware from "../auth/auth.middleware"
 import { adminAuthMiddleware } from "../../middlewares/admin.middleware";
 
 export default class AdminRoute {
@@ -33,9 +32,9 @@ export default class AdminRoute {
     );
 
 
-    this.router.get("/validate-admin", adminAuthMiddleware)
+    this.router.get("/validate-admin", adminAuthMiddleware, (req, res) => res.status(200).json({ ok: true }))
 
-    this.router.use(adminAuthMiddleware);
+    // this.router.use(adminAuthMiddleware);
 
     /**
          * @route GET / all-detail admin
