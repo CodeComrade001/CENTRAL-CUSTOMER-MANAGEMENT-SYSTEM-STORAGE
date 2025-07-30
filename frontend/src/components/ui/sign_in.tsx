@@ -1,5 +1,6 @@
 "use client";
 
+import { useUserAuth } from "@/middleware/user/useUserAuth";
 import { API__UserLogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 
 export const UserFullScreenSignIn = () => {
+  const { login } = useUserAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -18,6 +20,7 @@ export const UserFullScreenSignIn = () => {
 
 
   const handleSubmit = async (e: React.FormEvent) => {
+    //  const navigate = useNavigate();
     e.preventDefault();
 
     setSubmitted(true);
@@ -37,8 +40,12 @@ export const UserFullScreenSignIn = () => {
 
     try {
       const response = await API__UserLogIn({ email, password });
+      console.log("Turbo Log  ~ handleSubmit ~ response:", response.status);
+      console.log("Turbo Log  ~ handleSubmit ~ response.data:", response.data.token);
       if (response.status === 200) {
-        navigate("/user/dashboard"); // 👈 your destination route
+        localStorage.setItem("user_token", response.data.token);
+        login(response.data.token);
+        navigate("/user/dashboard")
       }
       setSignInText(getLoginStatusMessage(response.status));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,7 +100,7 @@ export const UserFullScreenSignIn = () => {
           >
             <div>
               <label htmlFor="email" className="block text-sm mb-2">
-                Enter Your User email
+                Enter Your User email : <mark>johndoe@gmail.com</mark>
               </label>
               <input
                 type="email"
@@ -114,7 +121,7 @@ export const UserFullScreenSignIn = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm mb-2">
-                Enter Your User password
+                Enter Your User password <mark>123456789</mark>
               </label>
               <input
                 type="password"

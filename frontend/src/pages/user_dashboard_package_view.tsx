@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { User, BatteryPlus,  Computer, BookMinus, SquarePen } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { User, BatteryPlus, Computer, BookMinus, SquarePen } from "lucide-react";
 import AllUserCbtStudent from "@/extermal_component/user_component/user_cbt";
 import AllUserSchoolStudent from "@/extermal_component/user_component/User_student";
 import AllUserSchoolTeacher from "@/extermal_component/user_component/user_teacher";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { APi__FetchUserDeails, API__UserSelectedPlan } from "@/services/api";
+import UserLogoutButton from "@/extermal_component/user_component/reusable_component/logOutUser";
 
 
 const CollapsibleSection = ({
@@ -137,10 +139,31 @@ const AnimatedMenuToggle = ({
 );
 
 
+type UserPackage = {
+  id: number;
+  school_management: boolean;
+  computer_based_test: boolean;
+  health_management: boolean;
+};
+interface userDetails {
+  email: string;
+  school_name: string;
+  conputer_based_test_slot: number;
+  school_management_slot: number;
+}
+
 
 const UserDashboardPackages = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeBtn, setActiveBtn] = useState<string>("teacher")
+  const [userPackage, setUserPackage] = useState<UserPackage | null>(null);
+  console.log("Turbo Log  ~ UserDashboardPackages ~ userPackage:", userPackage);
+  const [userDetails, setUserDetails] = useState<userDetails>({
+    email: "",
+    school_name: "",
+    conputer_based_test_slot: 0,
+    school_management_slot: 0,
+  })
 
   const mobileSidebarVariants = {
     hidden: { x: "-100%" },
@@ -160,12 +183,43 @@ const UserDashboardPackages = () => {
     }
   }, [activeBtn])
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
+  const getStatusBadge = (status: boolean | null | undefined) => {
+    if (status === true)
+      return <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Activated</span>;
+    if (status === false)
+      return <span className="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">Deactivated</span>;
+    return <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">Not Subscribed</span>;
+  };
 
+  const toggleSidebar = () => setIsOpen(!isOpen);
+  useEffect(() => {
+    (async () => {
+      try {
+        // Fetch selected plan
+        const res = await API__UserSelectedPlan();
+        const { data: planData } = res;
+
+        // Log for debugging
+        console.log("Turbo Log ~ UserDashboardPackages ~ planData:", planData);
+
+        // Fetch user details
+        const user = await APi__FetchUserDeails();
+        const { data: userData } = user;
+
+        // Set states
+        setUserDetails(userData?.[0] ?? null);
+        setUserPackage(planData?.[0] ?? null); // If planData is array, use the first object
+
+      } catch (err) {
+        console.error("Failed to fetch user package", err);
+      }
+    })();
+  }, []);
 
 
   return (
     <div className="flex h-screen">
+      <UserLogoutButton />
       {/* Mobile Sidebar */}
       <AnimatePresence>
         {isOpen && (
@@ -185,47 +239,72 @@ const UserDashboardPackages = () => {
                     <User className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="font-semibold">HextaUI</p>
-                    <p className="text-sm text-gray-500">hi@preetsuthar.me</p>
+                    <p className="font-semibold"> Name:{userDetails.school_name}</p>
+                    <p className="text-sm text-gray-500"> Email:  {userDetails.email}</p>
                   </div>
                 </div>
               </div>
               {/* Navigation Section */}
               <nav className="flex-1 p-4 overflow-y-auto">
                 <ul>
+
+                  {/* Health Management System */}
                   <li className="mb-2">
                     <button
                       onClick={() => setActiveBtn("health_management")}
-                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <BatteryPlus className="h-5 w-5" />
-                      Health management System
+                      className="flex justify-between items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100"
+                    >
+                      <div className="flex gap-2 font-medium text-sm items-center">
+                        <BatteryPlus className="h-5 w-5" />
+                        Health Management System
+                      </div>
+                      {getStatusBadge(userPackage?.health_management)}
                     </button>
                   </li>
+
+                  {/* CBT System */}
                   <li className="mb-2">
                     <button
                       onClick={() => setActiveBtn("cbt_system")}
-                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <Computer className="h-5 w-5" />
-                      CBT System (Enterprise)
+                      className="flex justify-between items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100"
+                    >
+                      <div className="flex gap-2 font-medium text-sm items-center">
+                        <Computer className="h-5 w-5" />
+                        CBT System (Enterprise)
+                      </div>
+                      {getStatusBadge(userPackage?.computer_based_test)}
                     </button>
                   </li>
+
+                  {/* School Management System */}
                   <li className="mb-2">
                     <CollapsibleSection title="School Management System">
+                      {getStatusBadge(userPackage?.computer_based_test)}
                       <ul>
+                        {/* Teacher */}
                         <li className="mb-2">
                           <button
                             onClick={() => setActiveBtn("teacher")}
-                            className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                            <BookMinus className="h-5 w-5" />
-                            Teacher
+                            className="flex justify-between items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100"
+                          >
+                            <div className="flex gap-2 font-medium text-sm items-center">
+                              <BookMinus className="h-5 w-5" />
+                              Teacher
+                            </div>
+
                           </button>
                         </li>
+
+                        {/* Student */}
                         <li className="mb-2">
                           <button
                             onClick={() => setActiveBtn("student")}
-                            className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                            <SquarePen className="h-5 w-5" />
-                            Student
+                            className="flex justify-between items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100"
+                          >
+                            <div className="flex gap-2 font-medium text-sm items-center">
+                              <SquarePen className="h-5 w-5" />
+                              Student
+                            </div>
                           </button>
                         </li>
                       </ul>
@@ -250,12 +329,12 @@ const UserDashboardPackages = () => {
         {/* Profile Section */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gray-200 rounded-full flex  items-center justify-center">
               <User className="h-6 w-6" />
             </div>
-            <div>
-              <p className="font-semibold">HextaUI</p>
-              <p className="text-sm text-gray-500">hi@preetsuthar.me</p>
+            <div  >
+              <p className="font-semibold"> Name:{userDetails.school_name}</p>
+              <p className="text-sm text-gray-500"> Email:  {userDetails.email}</p>
             </div>
           </div>
         </div>
@@ -269,6 +348,7 @@ const UserDashboardPackages = () => {
                 <Computer className="h-5 w-5" />
                 CBT System (Enterprise)
               </button>
+              {getStatusBadge(userPackage?.computer_based_test)}
             </li>
             <li className="mb-2">
               <button
@@ -277,10 +357,12 @@ const UserDashboardPackages = () => {
                 <BatteryPlus className="h-5 w-5" />
                 Health management System
               </button>
+              {getStatusBadge(userPackage?.health_management)}
             </li>
             <li className="mb-2">
               {/* <University className="h-5 w-5" /> */}
               <CollapsibleSection title="School Management System">
+                {getStatusBadge(userPackage?.school_management)}
                 <ul>
                   <li className="mb-2">
                     <button

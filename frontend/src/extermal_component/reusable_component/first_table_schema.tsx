@@ -123,12 +123,12 @@ export default function TableFirstStructure({
           {data.map((row, rowIndex) => {
             const isActive = row.activate == true; // Toggle logic per row
             const isNotActive = row.deactivate == true; // Toggle logic per row
-            setSchoolId(row.id)
 
             return (
               <TableRow key={rowIndex}>
                 {headers.map((header, colIndex) => (
                   <TableCell
+                    onClick={() => setSchoolId(row.id)}  // Only set when user interacts
                     key={colIndex}
                     className={colIndex === headers.length - 1 ? 'text-right' : ''}
                   >

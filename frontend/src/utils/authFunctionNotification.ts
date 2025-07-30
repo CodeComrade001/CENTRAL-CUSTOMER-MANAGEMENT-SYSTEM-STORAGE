@@ -17,6 +17,7 @@ export function getFunctionStatusMessage(status?: number): string {
     403: "⛔ Forbidden - You don't have access",
     404: "❌ Not Found - Resource doesn't exist",
     409: "⚠️ Conflict - Possibly already exists",
+    408: "⚠️ Conflict - Refresh and try again",
     422: "⚠️ Unprocessable - Invalid data format",
     429: "🚫 Too many requests - Slow down",
     500: "🔥 Server error - Try again later",
