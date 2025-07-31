@@ -32,9 +32,10 @@ export default class AdminRoute {
     );
 
 
+
     this.router.get("/validate-admin", adminAuthMiddleware, (req, res) => res.status(200).json({ ok: true }))
 
-    // this.router.use(adminAuthMiddleware);
+    this.router.use(adminAuthMiddleware);
 
     /**
          * @route GET / all-detail admin
@@ -105,7 +106,7 @@ export default class AdminRoute {
          */
 
     this.router.post("/sms/update", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getIncreaseInCBTSlot(req, res, next)
+      this.controller.getIncreaseInSchoolManagementSlot(req, res, next)
     );
     /**
          * @route POST / increase cbt slot 
@@ -113,22 +114,22 @@ export default class AdminRoute {
          */
 
     this.router.post("/cbt/update", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getIncreaseInSchoolManagementSlot(req, res, next)
+      this.controller.getIncreaseInCBTSlot(req, res, next)
     );
     /**
-         * @route POST / school-cbt-student 
+         * @route get / school-cbt-student 
          * @description Incrase slot for customers who needs more slot for student
          */
 
-    this.router.post("/school/student", (req: Request, res: Response, next: NextFunction) =>
+    this.router.get("/school/student", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getSchoolStudent(req, res, next)
     );
     /**
-         * @route POST /school-full-details 
+         * @route get /school-full-details 
          * @description Incrase slot for customers who needs more slot for student
          */
 
-    this.router.post("/school/teachers", (req: Request, res: Response, next: NextFunction) =>
+    this.router.get("/school/teachers", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getSchoolTeacher(req, res, next)
     );
 

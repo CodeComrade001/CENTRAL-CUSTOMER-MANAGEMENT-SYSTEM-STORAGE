@@ -83,8 +83,7 @@ export default function AddStudentModal({ isOpen, onClose, onSubmit }: AddStuden
       await onSubmit(students);
       setLoading(false);
       onClose();
-    } catch (err) {
-      console.error('Submit error:', err);
+    } catch  {
       setLoading(false);
     }
   };

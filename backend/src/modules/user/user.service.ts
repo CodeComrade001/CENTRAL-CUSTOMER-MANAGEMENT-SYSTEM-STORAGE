@@ -74,23 +74,16 @@ export default class UserImplementation {
     }
   }
 
-  protected async fetchUserSlot(): Promise<
-    { computer_based_test_slot: string; school_management_slot: string }[]
-  > {
-    try {
-      const { data, error } = await this.supabase
-        .from("all_customers")
-        .select("computer_based_test_slot, school_management_slot");
-      if (error) {
-        // You could re-throw here if you want upstream to handle it
-        return [];
-      }
-      // data will be `null` if no rows, so default to empty array
-      return data ?? [];
-    } catch {
-      // Return empty array to satisfy callers expecting an array
-      return [];
+  protected async CheckUserAccountIsActive(): Promise<{ activated: boolean }> {
+    const { data, error } = await this.supabase
+      .from("all_customers")
+      .select("activated").single();
+    if (error) {
+      // You could re-throw here if you want upstream to handle it
+      return { activated: false };
     }
+    // data will be `null` if no rows, so default to empty array
+    return data;
   }
 
 
@@ -123,6 +116,10 @@ export default class UserImplementation {
     });
 
     if (error) return { message: false };
+    const validate = await this.CheckUserAccountIsActive()
+    if (!validate.activated) {
+      return { message: false, error: "account_blocked" }
+    }
     const token = data.session.access_token;
     return { message: true, token };
   }
@@ -136,7 +133,7 @@ export default class UserImplementation {
    * @note co.
    */
   public async fetchUserSignUp(schoolName: string, email: string, password: string) {
-    const { data: authData, error: signUpError } = await this.supabase.auth.signUp({
+    const { error: signUpError } = await this.supabase.auth.signUp({
       email: email,
       password: password,
     });
@@ -227,13 +224,16 @@ export default class UserImplementation {
     students: AddStudent | AddStudent[]
   ): Promise<any> {
     const studentArray = Array.isArray(students) ? students : [students];
+    console.log("Turbo Log  ~ UserImplementation ~ createStudents ~ studentArray:", studentArray);
 
     const { data, error } = await this.supabase
       .from('student_db')
       .insert(studentArray)
       .select(); // Optional: remove if not needed
 
+    console.log("Turbo Log  ~ UserImplementation ~ createStudents ~  error:", error);
     if (error) return { message: false };
+    console.log("Turbo Log  ~ UserImplementation ~ createStudents ~ data:", data);
     return { message: true };
   }
 
@@ -270,6 +270,8 @@ export default class UserImplementation {
       .from('teacher_db')
       .insert(teacherArray)
       .select(); // Optional: remove if not needed
+    console.log("Turbo Log  ~ UserImplementation ~ createTeachers ~ error:", error);
+    console.log("Turbo Log  ~ UserImplementation ~ createTeachers ~ data:", data);
 
     if (error) return { message: false };
     return { message: true };

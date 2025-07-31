@@ -12,7 +12,6 @@ export async function adminAuthMiddleware(req: Request, res: Response, next: Nex
 
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-    console.log("Turbo Log  ~ adminAuthMiddleware ~ user:", user);
 
     if (user.user_metadata?.role !== 'admin') {
       return res.status(403).json({ error: 'Forbidden: Not an admin' });

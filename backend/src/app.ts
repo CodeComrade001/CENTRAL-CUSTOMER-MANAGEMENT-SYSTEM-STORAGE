@@ -32,7 +32,7 @@ export default class AppBootstrap {
 
     // CORS config
     this.app.use(cors({
-      origin: ['http://localhost:5173', 'https://cen-cms-ui.vercel.app'],
+      origin: ['https://cen-cms-ui.vercel.app'],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,

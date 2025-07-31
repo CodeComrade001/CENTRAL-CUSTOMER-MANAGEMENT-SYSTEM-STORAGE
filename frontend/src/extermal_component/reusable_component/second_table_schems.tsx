@@ -37,6 +37,7 @@ export default function TableSecondStructure({
         <TableCaption>{tableCaption}</TableCaption>
         <TableHeader>
           <TableRow>
+            <TableHead>count</TableHead>
             {headers.map((header, i) => (
               <TableHead key={i} className={i === headers.length - 1 ? 'text-right' : ''}>
                 {header}
@@ -47,10 +48,12 @@ export default function TableSecondStructure({
         <TableBody>
           {data.map((row, rowIndex) => {
             // const rowId = row.subscriptionid; // Or whatever unique ID you're using
-            const isActive = row.status === 'deactivate'; // Toggle logic per row
 
             return (
               <TableRow key={rowIndex}>
+                <TableCell>
+                  {rowIndex + 1}
+                </TableCell>
                 {headers.map((header, colIndex) => (
                   <TableCell
                     key={colIndex}
@@ -61,17 +64,6 @@ export default function TableSecondStructure({
                 ))}
 
                 {/* Toggle Button Cell at the END of the row */}
-                <TableCell>
-                  <div className="flex flex-col gap-3" >
-                    <div
-                      className={`cursor-pointer w-32 text-center py-1 px-3 rounded-lg font-semibold transition-colors duration-300
-                      ${isActive ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'}
-                      `}
-                    >
-                      {isActive ? 'Active' : 'Deactivated'}
-                    </div>
-                  </div>
-                </TableCell>
               </TableRow>
             );
           })}

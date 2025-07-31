@@ -9,6 +9,7 @@ import SubscribedSchoolsCbtPackage from "./admin_component/cbt_management";
 import SubscribedSchoolsHealthPackage from "./admin_component/health_management";
 import AllSchoolTeacher from "./admin_component/teacher_table";
 import AllSchoolStudent from "./admin_component/student_table";
+import AdminLogoutButton from "./admin_component/logOutAdmin";
 
 
 
@@ -180,6 +181,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen">
+      <AdminLogoutButton />
       {/* Mobile Sidebar */}
       <AnimatePresence>
         {isOpen && (

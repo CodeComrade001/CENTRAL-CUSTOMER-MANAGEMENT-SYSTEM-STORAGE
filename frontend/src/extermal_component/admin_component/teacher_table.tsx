@@ -3,9 +3,7 @@ import TableSecondStructure from "../reusable_component/second_table_schems";
 import { API__Admin_SchoolTeachers } from "@/services/api";
 
 const headers = [
-  'id',
   'school_name',
-  'email',
   'teacher_name',
   'teacher_email'
 ];
@@ -13,7 +11,6 @@ const headers = [
 interface allTeacherDataType {
   id: number
   school_name: string;
-  email: string;
   teacher_name: string;
   teacher_email: string;
 
@@ -28,10 +25,9 @@ export default function AllSchoolTeacher() {
     async function fetchAllDetails() {
       try {
         const admin = await API__Admin_SchoolTeachers();
-        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin.data);
         setAllCustomersTeacher(admin.data); // <-- you forgot to update state
-      } catch (err) {
-        console.log("Turbo Log  ~ fetchAllDetails ~ err:", err);
+      } catch {
+        setAllCustomersTeacher([]); // <-- you forgot to update state
       }
     }
     fetchAllDetails();

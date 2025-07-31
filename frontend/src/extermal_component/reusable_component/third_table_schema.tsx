@@ -37,6 +37,7 @@ export default function TableThirdStructure({
         <TableCaption>{tableCaption}</TableCaption>
         <TableHeader>
           <TableRow>
+            <TableHead>count</TableHead>
             {headers.map((header, i) => (
               <TableHead key={i} className={i === headers.length - 1 ? 'text-right' : ''}>
                 {header}
@@ -49,6 +50,9 @@ export default function TableThirdStructure({
             // const rowId = row.subscriptionid; // Or whatever unique ID you're using
             return (
               <TableRow key={rowIndex}>
+                <TableCell>
+                  {rowIndex + 1}
+                </TableCell>
                 {headers.map((header, colIndex) => (
                   <TableCell
                     key={colIndex}

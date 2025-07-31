@@ -59,8 +59,8 @@ export default function AllUserSchoolStudent() {
         const refreshed = await API__GetAllStudents();
         setAllStudent(refreshed.data);
         setModalOpen(false);
-      } catch (err) {
-        console.error('Error adding students:', err);
+      } catch {
+        setAllStudent([]);
       } finally {
         setLoading(false);
       }

@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 export const UserFullScreenSignIn = () => {
   const { login } = useUserAuth();
+  console.log("Turbo Log  ~ UserFullScreenSignIn ~ login:", login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -40,14 +41,13 @@ export const UserFullScreenSignIn = () => {
 
     try {
       const response = await API__UserLogIn({ email, password });
-      console.log("Turbo Log  ~ handleSubmit ~ response:", response.status);
-      console.log("Turbo Log  ~ handleSubmit ~ response.data:", response.data.token);
       if (response.status === 200) {
         localStorage.setItem("user_token", response.data.token);
         login(response.data.token);
         navigate("/user/dashboard")
       }
       setSignInText(getLoginStatusMessage(response.status));
+      login(response.data.token);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const status = error?.response?.status;

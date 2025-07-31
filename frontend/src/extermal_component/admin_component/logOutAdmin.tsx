@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useUserAuth } from "@/middleware/user/useUserAuth";
-import { API__UserSignOut } from "@/services/api";
+import { API__Admin_LogOut } from "@/services/api";
+import { useAdminAuth } from "@/middleware/admin/useAdminAuth";
 
-const UserLogoutButton = () => {
-  const { logout } = useUserAuth();
+const AdminLogoutButton = () => {
+  const { logout } = useAdminAuth();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
@@ -12,14 +12,14 @@ const UserLogoutButton = () => {
     setStatus("idle");
 
     try {
-      const res = await API__UserSignOut();
+      const res = await API__Admin_LogOut();
       if (res.status === 200) {
         logout(); // Clear context/localStorage
         setStatus("success");
       } else {
         setStatus("error");
       }
-    } catch (err) {
+    } catch {
       setStatus("error");
     } finally {
       setLoading(false);
@@ -49,4 +49,4 @@ const UserLogoutButton = () => {
   );
 };
 
-export default UserLogoutButton;
+export default AdminLogoutButton;
