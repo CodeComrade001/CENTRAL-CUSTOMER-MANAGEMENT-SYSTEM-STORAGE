@@ -2,7 +2,6 @@
 import axios, { type AxiosRequestConfig } from "axios";
 
 const baseURL = import.meta.env.VITE_BACKEND_URL || "";
-console.log("Turbo Log  ~ baseURL:", baseURL);
 
 const api = axios.create({
   baseURL,
