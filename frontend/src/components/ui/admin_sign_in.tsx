@@ -1,6 +1,6 @@
 "use client";
 
-import { useAminAuth } from "@/middleware/admin/useAdminAuth";
+import { useAdminAuth } from "@/middleware/admin/useAdminAuth";
 import { API__Admin_LogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 
 export const AdminFullScreenSignIn = () => {
-  const { login } = useAminAuth();
+  const { login } = useAdminAuth();
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [userNameError, setUserNameError] = useState("");
@@ -100,7 +100,7 @@ export const AdminFullScreenSignIn = () => {
               <label htmlFor="email" className="block text-sm mb-2">
                 Enter Your Admin Username :
                 <span className="ml-2 italic text-gray-500 text-xs align-middle">
-                  demo username: <mark>davidibeanusi009@gmail.com</mark>
+                  demo username: <mark>adminaccount@gmail.com</mark>
                 </span>
               </label>
               <input
@@ -124,7 +124,7 @@ export const AdminFullScreenSignIn = () => {
               <label htmlFor="password" className="block text-sm mb-2">
                 Enter Your Admin password:
                 <span className="ml-2 italic text-gray-500 text-xs align-middle">
-                  demo password:<mark>Demopassword123</mark>
+                  demo password:<mark>Admin123456789</mark>
                 </span>
               </label>
               <input

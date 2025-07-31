@@ -164,6 +164,7 @@ const UserDashboardPackages = () => {
     conputer_based_test_slot: 0,
     school_management_slot: 0,
   })
+  console.log("Turbo Log  ~ UserDashboardPackages ~ userDetails:", userDetails);
 
   const mobileSidebarVariants = {
     hidden: { x: "-100%" },
@@ -205,6 +206,8 @@ const UserDashboardPackages = () => {
         // Fetch user details
         const user = await APi__FetchUserDeails();
         const { data: userData } = user;
+        console.log("Turbo Log  ~ UserDashboardPackages ~ userData:", userData);
+
 
         // Set states
         setUserDetails(userData?.[0] ?? null);
@@ -239,8 +242,8 @@ const UserDashboardPackages = () => {
                     <User className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="font-semibold"> Name:{userDetails.school_name}</p>
-                    <p className="text-sm text-gray-500"> Email:  {userDetails.email}</p>
+                    <p className="font-semibold"> Name:{userDetails.school_name ?? "Not Found"}</p>
+                    <p className="text-sm text-gray-500"> Email:  {userDetails.email ?? "Not Found"}</p>
                   </div>
                 </div>
               </div>
@@ -333,8 +336,8 @@ const UserDashboardPackages = () => {
               <User className="h-6 w-6" />
             </div>
             <div  >
-              <p className="font-semibold"> Name:{userDetails.school_name}</p>
-              <p className="text-sm text-gray-500"> Email:  {userDetails.email}</p>
+              <p className="font-semibold"> Name:{userDetails.school_name ?? "Not Found"}</p>
+              <p className="text-sm text-gray-500"> Email:  {userDetails.email ?? "Not Found"}</p>
             </div>
           </div>
         </div>

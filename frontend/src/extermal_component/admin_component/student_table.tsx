@@ -3,7 +3,6 @@ import TableSecondStructure from "../reusable_component/second_table_schems";
 import { useEffect, useState } from "react";
 
 const headers = [
-  'id',
   'email',
   'school_name',
   'student_name',
@@ -14,7 +13,6 @@ const headers = [
 
 interface allStudentDataType {
   id: number
-  email: string
   school_name: string
   student_name: string
   student_department: string
@@ -31,10 +29,9 @@ export default function AllSchoolStudent() {
     async function fetchAllDetails() {
       try {
         const admin = await API__Admin_SchoolCBT_Students();
-        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin.data);
         setAllCustomersStudent(admin.data); // <-- you forgot to update state
-      } catch (err) {
-        console.log("Turbo Log  ~ fetchAllDetails ~ err:", err);
+      } catch {
+        setAllCustomersStudent([]); // <-- you forgot to update state
       }
     }
     fetchAllDetails();

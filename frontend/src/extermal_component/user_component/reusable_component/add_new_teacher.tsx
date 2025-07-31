@@ -82,8 +82,7 @@ export default function AddTeacherModal({ isOpen, onClose, onSubmit }: AddTeache
       await onSubmit(teachers);
       setLoading(false);
       onClose();
-    } catch (err) {
-      console.error('Submit error:', err);
+    } catch  {
       setLoading(false);
     }
   };

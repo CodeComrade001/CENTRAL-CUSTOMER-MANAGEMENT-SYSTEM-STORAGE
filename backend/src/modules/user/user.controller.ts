@@ -40,8 +40,10 @@ export default class UserController {
   public async getUserLogin(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      const { message, token } = await this.userService.fetchUserLogin(email, password);
-      if (message) {
+      const { message, token, error } = await this.userService.fetchUserLogin(email, password);
+      if (error) {
+        return res.status(408).json({ message: "Account Disabled" })
+      } else if (message) {
         return res.status(200).json({ token: token })
       } else {
         return res.status(401).json({ message: "incorrect email or password " });

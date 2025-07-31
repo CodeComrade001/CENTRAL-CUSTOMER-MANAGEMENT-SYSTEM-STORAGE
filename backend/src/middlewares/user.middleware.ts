@@ -7,7 +7,6 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 export async function userAuthMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    // console.log("Turbo Log  ~ userAuthMiddleware ~ token:", token);
 
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized: No token provided' });
@@ -23,7 +22,6 @@ export async function userAuthMiddleware(req: Request, res: Response, next: Next
     (req as any).user = user;
     next();
   } catch (err) {
-    console.error("Auth middleware error:", err);
     return res.status(500).json({ error: 'Internal Server Error during authentication' });
   }
 }

@@ -3,7 +3,6 @@ import TableFirstStructure from "../reusable_component/first_table_schema";
 import { useEffect, useState } from "react";
 
 const headers = [
-  "school_id",
   "email",
   "school_name",
   "computer_based_test_slot",
@@ -28,10 +27,9 @@ export default function AllRegisteredCustomers() {
     async function fetchAllDetails() {
       try {
         const admin = await API__Admin_AllCustomers();
-        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin.data);
-        setAllCustomers(admin.data); // <-- you forgot to update state
-      } catch (err) {
-        console.log("Turbo Log  ~ fetchAllDetails ~ err:", err);
+        setAllCustomers(admin.data);
+      } catch {
+        setAllCustomers([]);
       }
     }
     fetchAllDetails();

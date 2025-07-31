@@ -28,10 +28,9 @@ export default function AllUserCbtStudent() {
     async function fetchAllDetails() {
       try {
         const admin = await API__GetCBTStudents();
-        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin.data);
         setAllCbtStudent(admin.data); // <-- you forgot to update state
-      } catch (err) {
-        console.log("Turbo Log  ~ fetchAllDetails ~ err:", err);
+      } catch {
+        setAllCbtStudent([]);
       }
     }
     fetchAllDetails();

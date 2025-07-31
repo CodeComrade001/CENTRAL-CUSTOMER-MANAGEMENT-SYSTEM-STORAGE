@@ -104,7 +104,6 @@ export default function UserDashboard() {
     }
 
     const id = userPackage.id;
-    console.log("Turbo Log  ~ activatePackageForUser ~ id:", id);
 
     try {
       const res = await API__UserPlanEdit({
@@ -130,14 +129,9 @@ export default function UserDashboard() {
 
   useEffect(() => {
     (async () => {
-      try {
-        const res = await API__UserSelectedPlan();
-        console.log("Turbo Log  ~ UserDashboard ~ res:", res);
-        const { data } = res;
-        setUserPackage(data?.[0] ?? null); // Assumes it's an array, grabs the first object
-      } catch (err) {
-        console.error("Failed to fetch user package", err);
-      }
+      const res = await API__UserSelectedPlan();
+      const { data } = res;
+      setUserPackage(data?.[0] ?? null); // Assumes it's an array, grabs the first object
     })();
   }, []);
 

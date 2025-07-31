@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { APi__Admin_ValidateAdmin } from "../../services/api";
+import { APi__ValidateUser } from "../../services/api";
 import userAuthContext from "./userAuthContext";
 
 export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
@@ -17,7 +17,7 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        const validate = await APi__Admin_ValidateAdmin();
+        const validate = await APi__ValidateUser();
         if (validate.status === 200) {
           setIsAuthenticated(true);
         } else {

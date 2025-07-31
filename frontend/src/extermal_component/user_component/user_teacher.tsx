@@ -27,8 +27,8 @@ export default function AllUserSchoolTeacher() {
       try {
         const admin = await API__GetAllTeachers();
         setAllTeacher(admin.data);
-      } catch (err) {
-        console.error('Turbo Log  ~ fetchAllDetails ~ err:', err);
+      } catch  {
+        setAllTeacher([]);
       }
     }
     fetchAllDetails();

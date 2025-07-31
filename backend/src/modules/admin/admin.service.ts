@@ -15,11 +15,7 @@ export default class AdminImplementation {
    * @description creates an new instance of a database and ensure that a connect was established
    */
   private async init() {
-    try {
-      this.supabase = await getSafeSupabase()
-    } catch (err) {
-      console.error("Turbo Log  ~ init ~ err:", err)
-    }
+    this.supabase = await getSafeSupabase()
   }
 
   public async verifyAdminLogin(email: string, password: string) {
@@ -33,6 +29,9 @@ export default class AdminImplementation {
     return { message: true, token };
   }
 
+
+
+
   public async fetchAdminSignOut() {
 
     const { error } = await this.supabase.auth.signOut()
@@ -45,9 +44,7 @@ export default class AdminImplementation {
   public async fetchAllCustomers() {
     const { data, error } = await this.supabase
       .from("all_customers")
-      .select(`*`);
-    console.log("Turbo Log  ~ AdminImplementation ~ fetchAllCustomers ~ error:", error);
-    console.log("Turbo Log  ~ AdminImplementation ~ fetchAllCustomers ~ data:", data);
+      .select(`id,email,school_name,computer_based_test_slot,school_management_slot, activated`);
 
     if (error) throw error;
     return data;
@@ -58,18 +55,23 @@ export default class AdminImplementation {
     const { data, error } = await this.supabase
       .from("all_customers")
       .select(`
-      id,
+       id,
       email,
       school_name,
-      computer_based_test_slot,
-       subscription(school_id)
+      subscription (
+        school_id,
+        computer_based_test,
+        school_management,
+        health_management
+      )
     `)
-      .filter("subscription.computer_based_test", "eq", true);
+      .eq("subscription.computer_based_test", true);
 
     if (error) throw error;
     return data;
   }
 
+  // School-management slot
   public async fetchSchoolManagementDetails() {
     const { data, error } = await this.supabase
       .from("all_customers")
@@ -77,16 +79,19 @@ export default class AdminImplementation {
       id,
       email,
       school_name,
-      school_management_slot,
-       subscription(school_id)
-    `)
-      .filter("subscription.school_management", "eq", true);
-
+      subscription (
+        school_id,
+        computer_based_test,
+        school_management,
+        health_management
+        )
+        `)
+      .eq("subscription.school_management", true);
     if (error) throw error;
-    return data;
+    return data
   }
 
-
+  // Health-management only
   public async fetchHealthManagementDetails() {
     const { data, error } = await this.supabase
       .from("all_customers")
@@ -94,50 +99,53 @@ export default class AdminImplementation {
       id,
       email,
       school_name,
-      subscription(
-        school_id
-      )
-    `)
-      .filter("subscription.health_management", "eq", true);
-
+      subscription (
+        school_id,
+        computer_based_test,
+        school_management,
+        health_management
+        )
+        `)
+      .eq("subscription.health_management", true);
     if (error) throw error;
-    return data;
+    return data
   }
+
 
 
   public async fetch_CustomerAccountActivation(userIdToBeUpdated: string) {
 
     const { data, error } = await this.supabase
       .from('all_customers')
-      .update({ activate: true, deactivate: false })
-      .eq('user_id', userIdToBeUpdated)
+      .update({ activated: true })
+      .eq('id', userIdToBeUpdated)
       .select()
 
-    if (error) throw error
-    return data
+    if (error) return { message: false }
+    return { message: true }
   }
 
 
   public async fetch_CustomerAccountDeactivation(userIdToBeUpdated: string) {
     const { data, error } = await this.supabase
       .from('all_customers')
-      .update({ activate: false, deactivate: true })
-      .eq('user_id', userIdToBeUpdated)
+      .update({ activated: false })
+      .eq('id', userIdToBeUpdated)
       .select()
-    if (error) return false
-    return true
+    if (error) return { message: false }
+    return { message: true }
   }
 
 
   public async fetch_IncreaseCBTSlot(slotValue: number, schoolId: number) {
-    const { data, error } = await this.supabase.from("all_customers").update({ "conputer_based_test_slot": slotValue })
+    const { data, error } = await this.supabase.from("all_customers").update({ "computer_based_test_slot": slotValue })
       .eq("user_id", schoolId)
     if (error) return false
     return true
   }
 
   public async fetch_IncreaseSchoolManagementSlot(slotValue: number, schoolId: number) {
-    const { data, error } = await this.supabase.from("all_customers").update({ "school_management": slotValue })
+    const { data, error } = await this.supabase.from("all_customers").update({ "school_management_slot": slotValue })
       .eq("user_id", schoolId)
     if (error) return false
     return true
@@ -151,7 +159,9 @@ export default class AdminImplementation {
       student_department,
       student_class,
       student_age,
-      all_customer(school_name , email)
+      school_name,
+      student_name,
+      all_customers( school_id)
       `)
     if (error) throw error
     return data
@@ -159,11 +169,13 @@ export default class AdminImplementation {
 
 
   public async fetchAllSchoolTeacher() {
-    const { data, error } = await this.supabase.from("teacher_db").select(`  all_customer(school_name , email)
+    const { data, error } = await this.supabase.from("teacher_db").select(`  
       id,
       teacher_name,
       teacher_email,
-       all_customer(school_name , email)
+      school_name,
+      all_customers(school_id)
+      school_name in all_customers
       `)
     if (error) throw error
     return data

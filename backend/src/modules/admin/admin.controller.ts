@@ -36,6 +36,7 @@ export default class AdminController {
     }
   }
 
+
   public async getAdminLoggedOut(req: Request, res: Response, next: NextFunction) {
     try {
 
@@ -43,8 +44,7 @@ export default class AdminController {
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getAdminLogedIn ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -54,8 +54,7 @@ export default class AdminController {
     try {
       const admins = await this.adminService.fetchCBTDetails();
       return res.status(200).json(admins);
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -64,8 +63,7 @@ export default class AdminController {
     try {
       const admins = await this.adminService.fetchAllCustomers();
       return res.status(200).json(admins);
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -74,8 +72,7 @@ export default class AdminController {
     try {
       const admins = await this.adminService.fetchSchoolManagementDetails();
       return res.status(200).json(admins);
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -84,8 +81,7 @@ export default class AdminController {
     try {
       const admins = await this.adminService.fetchSchoolManagementDetails();
       return res.status(200).json(admins);
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getAllDetails ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -95,11 +91,10 @@ export default class AdminController {
     try {
       const { schoolId } = req.body
       const admins = await this.adminService.fetch_CustomerAccountActivation(schoolId);
-      if (admins) {
+      if (admins.message) {
         return res.status(200).json({ message: "customer account activated" });
       }
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getCustomerActivation ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -109,11 +104,10 @@ export default class AdminController {
     try {
       const { schoolId } = req.body
       const admins = await this.adminService.fetch_CustomerAccountDeactivation(schoolId);
-      if (admins) {
+      if (admins.message) {
         return res.status(200).json({ message: "customer account deactivated" });
       }
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getCustomerDeactivation ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -126,8 +120,7 @@ export default class AdminController {
       if (admins) {
         return res.status(200).json({ message: "customer cbt slot increased" });
       }
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getIncreaseInSlot ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -139,8 +132,7 @@ export default class AdminController {
       if (admins) {
         return res.status(200).json({ message: "customer cbt slot increased" });
       }
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getIncreaseInSlot ~ err:", err);
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -149,11 +141,10 @@ export default class AdminController {
 
   public async getSchoolStudent(req: Request, res: Response, next: NextFunction) {
     try {
-      const { schoolId } = req.body
+      // const { schoolId } = req.body
       const admins = await this.adminService.fetchAllSchoolStudent();
       return res.status(200).json(admins);
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getSchoolStudentForCBT ~ (err:", (err));
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -161,11 +152,10 @@ export default class AdminController {
 
   public async getSchoolTeacher(req: Request, res: Response, next: NextFunction) {
     try {
-      const { schoolId } = req.body
+      // const { schoolId } = req.body
       const admins = await this.adminService.fetchAllSchoolTeacher();
       return res.status(200).json(admins);
-    } catch (err) {
-      console.log("Turbo Log  ~ AdminController ~ getSchoolManagementFullDetails ~ (err:", (err));
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
