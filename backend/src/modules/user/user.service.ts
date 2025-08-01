@@ -224,16 +224,13 @@ export default class UserImplementation {
     students: AddStudent | AddStudent[]
   ): Promise<any> {
     const studentArray = Array.isArray(students) ? students : [students];
-    console.log("Turbo Log  ~ UserImplementation ~ createStudents ~ studentArray:", studentArray);
 
     const { data, error } = await this.supabase
       .from('student_db')
       .insert(studentArray)
       .select(); // Optional: remove if not needed
 
-    console.log("Turbo Log  ~ UserImplementation ~ createStudents ~  error:", error);
     if (error) return { message: false };
-    console.log("Turbo Log  ~ UserImplementation ~ createStudents ~ data:", data);
     return { message: true };
   }
 
@@ -270,8 +267,6 @@ export default class UserImplementation {
       .from('teacher_db')
       .insert(teacherArray)
       .select(); // Optional: remove if not needed
-    console.log("Turbo Log  ~ UserImplementation ~ createTeachers ~ error:", error);
-    console.log("Turbo Log  ~ UserImplementation ~ createTeachers ~ data:", data);
 
     if (error) return { message: false };
     return { message: true };
