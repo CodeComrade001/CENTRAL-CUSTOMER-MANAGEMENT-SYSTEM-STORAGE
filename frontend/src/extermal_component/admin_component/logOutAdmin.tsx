@@ -27,7 +27,7 @@ const AdminLogoutButton = () => {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-50">
+    <div className="absolute top-5 right-10 z-50">
       <button
         onClick={handleLogout}
         disabled={loading}

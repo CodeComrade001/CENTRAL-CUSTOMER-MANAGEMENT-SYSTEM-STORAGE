@@ -180,8 +180,8 @@ const AdminDashboard = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
-    <div className="flex h-screen">
-      <AdminLogoutButton />
+    <div className="flex h-screen w-screen">
+
       {/* Mobile Sidebar */}
       <AnimatePresence>
         {isOpen && (
@@ -365,12 +365,14 @@ const AdminDashboard = () => {
       {/* Main Content Area */}
       <div className="flex-1 ml-0 md:ml-[20%] transition-all duration-300">
         {/* Top bar for mobile toggle */}
-        <div className="p-4 bg-gray-100 border-b border-gray-200 md:hidden flex justify-between items-center">
+        <div className="p-4 bg-gray-100  border-b border-gray-200 md:hidden flex justify-between items-center">
           <h1 className="text-xl font-bold">Main Content</h1>
+
           <AnimatedMenuToggle toggle={toggleSidebar} isOpen={isOpen} />
         </div>
-        <div className="p-6">
+        <div className="p-6 relative ">
           <h1 className="text-2xl font-bold">{activeBtnText} View</h1>
+          <AdminLogoutButton />
           <div className="text-sm font-medium">
             {/* Additional details and settings can be found here. */}
             {activateBtnAction()}

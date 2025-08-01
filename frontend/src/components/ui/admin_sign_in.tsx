@@ -41,9 +41,9 @@ export const AdminFullScreenSignIn = () => {
       const email = username
       const response = await API__Admin_LogIn({ email, password });
       if (response.status === 200) {
-        localStorage.setItem("user_token", response.data.token);
-        login(response.data.token);
-        navigate("/admin/dashboard/"); // 👈 your destination route
+        await localStorage.setItem("user_token", response.data.token);
+        await login(response.data.token);
+        await navigate("/admin/dashboard/"); // 👈 your destination route
       }
       setSignInText(getLoginStatusMessage(response.status));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
