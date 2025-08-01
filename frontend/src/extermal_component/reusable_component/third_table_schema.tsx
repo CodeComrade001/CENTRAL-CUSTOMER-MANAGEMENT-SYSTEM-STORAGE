@@ -61,17 +61,6 @@ export default function TableThirdStructure({
                     {row[header.toLowerCase().replace(/\s/g, '')] || '-'}
                   </TableCell>
                 ))}
-
-                {/* Toggle Button Cell at the END of the row */}
-                <TableCell>
-                  <div className="flex flex-col gap-3" >
-                    <div
-                      className="cursor-pointer w-32 text-center py-2 px-4 rounded-lg font-semibold transition-colors duration-300 bg-black text-white hover:bg-gray-800"
-                    >
-                      Add
-                    </div>
-                  </div>
-                </TableCell>
               </TableRow>
             );
           })}

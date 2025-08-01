@@ -4,7 +4,7 @@ import { useUserAuth } from "@/middleware/user/useUserAuth";
 import { API__UserLogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -42,12 +42,17 @@ export const UserFullScreenSignIn = () => {
     try {
       const response = await API__UserLogIn({ email, password });
       if (response.status === 200) {
+        // Save token to localStorage
         localStorage.setItem("user_token", response.data.token);
-        login(response.data.token);
-        navigate("/user/dashboard")
+
+        // Login into global state
+        await login(response.data.token);
+
+        // Now redirect
+        navigate("/user/dashboard");
+
       }
       setSignInText(getLoginStatusMessage(response.status));
-      login(response.data.token);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const status = error?.response?.status;
@@ -56,6 +61,14 @@ export const UserFullScreenSignIn = () => {
       setSubmitted(false);
     }
   };
+
+  useEffect(() => {
+
+    const token = localStorage.getItem("user_token");
+    if (token) {
+      login(token); // Restore session
+    }
+  }, [login]);
 
 
   return (

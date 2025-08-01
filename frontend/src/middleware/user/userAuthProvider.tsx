@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { APi__ValidateUser } from "../../services/api";
 import userAuthContext from "./userAuthContext";
+import { Outlet } from "react-router-dom";
 
 export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("user_token"));
@@ -13,7 +14,7 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
       if (!token) {
         setIsAuthenticated(false);
         setLoading(false);
-        return;
+        return <Outlet />;
       }
 
       try {
@@ -33,13 +34,13 @@ export const UserAuthProvider = ({ children }: { children: ReactNode }) => {
     fetchUserVerification();
   }, [token]); // rerun when token changes
 
-  const login = (newToken: string) => {
-    localStorage.setItem("user_token", newToken);
+  const login = async (newToken: string) => {
+    await localStorage.setItem("user_token", newToken);
     setToken(newToken);
   };
 
-  const logout = () => {
-    localStorage.removeItem("user_token");
+  const logout = async () => {
+    await localStorage.removeItem("user_token");
     setToken(null);
     setIsAuthenticated(false);
   };

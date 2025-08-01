@@ -1,6 +1,4 @@
 import {
-  BellIcon,
-  CalendarIcon,
   FileTextIcon,
   GlobeIcon,
   InputIcon,
@@ -43,36 +41,6 @@ const features = [
     cta: "See how it works",
     background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
     className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
-  },
-  {
-    Icon: CalendarIcon,
-    id: "CalendarIcon",
-    name: "Calendar",
-    description: "Use the calendar to filter your files by date.",
-    href: "/",
-    cta: "Learn more",
-    background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
-    className: "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2",
-  },
-  {
-    Icon: BellIcon,
-    name: "Real-time Notifications",
-    id: "Real-time Notifications",
-    description: "Stay informed instantly when patients, students, or users take action — alerts, mentions, and system updates.",
-    href: "/user/dashboard/packages",
-    cta: "Learn more",
-    background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
-    className: "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4",
-  },
-  {
-    Icon: CalendarIcon,
-    name: "Contact Us & Support",
-    id: "Contact Us & Support",
-    description: "Need help or want a demo? Our team is ready to assist and walk you through any of the systems.",
-    href: "/user/dashboard/packages",
-    cta: "Reach out",
-    background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
-    className: "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2",
   }
 ];
 
@@ -136,9 +104,9 @@ export default function UserDashboard() {
   }, []);
 
   return (
-    <div className="flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full h-screen">
       <UserLogoutButton />
-      <BentoGrid className="lg:grid-rows-3">
+      <BentoGrid >
         {features.map((feature) => {
           const productId = feature.id as CoreProduct;
           const isCore = CORE_PRODUCTS.includes(productId);
@@ -155,12 +123,12 @@ export default function UserDashboard() {
               : "bg-red-600";
 
           return (
-            <div key={feature.id} className="p-2">
+            <div key={feature.id} className="p-2 relative">
               <BentoCard {...feature} />
               {isCore && (
                 <button
                   onClick={() => activatePackageForUser(productId)}
-                  className={`mt-2 px-4 py-1 rounded text-white ${buttonColor}`}
+                  className={`mt-2 px-4 py-1  absolute  bottom-5 right-10 rounded text-white ${buttonColor}`}
                 >
                   {statusLabel}
                 </button>

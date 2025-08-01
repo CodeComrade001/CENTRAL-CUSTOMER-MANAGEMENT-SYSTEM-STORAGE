@@ -1,69 +1,72 @@
-# React + TypeScript + Vite
+# Central Customer Management System (CCMS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A centralized platform designed to manage multiple SaaS services for schools, enabling registration, data storage, and access management across various educational and health-focused solutions.
 
-Currently, two official plugins are available:
+## 🧩 Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+CCMS allows schools to register and use different service packages tailored for educational and institutional needs. The system is currently focused on providing:
 
-## Expanding the ESLint configuration
+1. **School Management System (SaaS)** – for managing teachers, students, and school-related data.
+2. **Computer-Based Testing (CBT) System (SaaS)** – register students for CBT, manage exam sessions, and track participation.
+3. **Health Management System (EMR)** – under active development and not yet available.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+> ⚠️ Note: Payment functionality has **not** been implemented. All packages are currently available for **free** during the development phase.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## ✅ Functional Features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 🏫 School Management System
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- Register a school with basic info.
+- Add, edit, and delete teachers and students.
+- View school details.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 🧪 Computer-Based Testing System
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Register students for CBT sessions.
+- Store and manage CBT-related student data.
+
+### 🧑‍💼 Admin Dashboard
+
+- View all registered schools.
+- See all teachers and their respective schools.
+- Monitor packages used by each school.
+- Allocate CBT slots to schools.
+- Deactivate accounts that fail to meet payment requirements (placeholder logic; no payment integration yet).
+
+---
+
+## 🚧 Under Development
+
+### 🚑 Health Management System (EMR)
+
+- Electronic Medical Records functionality is currently in progress.
+- Not yet available for use.
+
+### 💳 Payment System
+
+- No billing or subscription management is active.
+- Schools can access all packages for free until payments are enforced.
+
+---
+
+## 🔒 Authentication & Access Control
+
+- Schools must log in to access their data.
+- Admin users have elevated privileges to manage and monitor all schools.
+
+---
+## 🚀 Live Site
+Url : https://cen-cms-ui.vercel.app
+
+## 🚀 How to Run Locally
+
+## 🧪 Quick Setup (Bash)
+
+```bash
+git clone https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE.git
+cd ccms-frontend
+npm install
+echo "VITE_API_URL=http://localhost:3000" > .env
+npm run dev
