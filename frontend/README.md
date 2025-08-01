@@ -57,8 +57,10 @@ CCMS allows schools to register and use different service packages tailored for 
 - Admin users have elevated privileges to manage and monitor all schools.
 
 ---
+
 ## 🚀 Live Site
-Url : https://cen-cms-ui.vercel.app
+
+Url : <https://cen-cms-ui.vercel.app>
 
 ## 🚀 How to Run Locally
 

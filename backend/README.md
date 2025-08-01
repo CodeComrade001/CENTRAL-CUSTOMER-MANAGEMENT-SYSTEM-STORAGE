@@ -31,6 +31,7 @@ echo "VITE_API_URL=http://localhost:3000 " > .env
 # Start the frontend server
 npm run dev
 ```
+
 ## 🚀 How to Run Backend Locally
 
 ```bash
@@ -51,6 +52,7 @@ echo "SUPABASE_SERVICE_ROLE_KEY=your-secret-service-role-key" >> .env
 npm run dev
 
 ```
+
 ## 🚀 Admin Routes
 
 - **POST** `/admin/login` – Log in as admin  
