@@ -9,12 +9,13 @@ const api = axios.create({
   // timeout: 1000,
 })
 
-api.interceptors.request.use(cfg => {
-  const token = localStorage.getItem("user_token");
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use((cfg) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem("user_token");
+    if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  }
   return cfg;
 });
-
 
 // ============================
 // User APIs Endpoints
@@ -24,16 +25,9 @@ export const APi__FetchUserDeails = (config?: AxiosRequestConfig) => {
   return api.get("api/user/details", config)
 }
 
-// ✅ Define a function that attaches the token to the headers
-export const APi__ValidateUser = (config?: AxiosRequestConfig) => {
-  const token = localStorage.getItem('user_token');
-  return api.get("api/user/validate-user", {
-    ...config,
-    headers: {
-      ...(config?.headers || {}),
-      Authorization: `Bearer ${token}`,
-    },
-  });
+//  Define a function that attaches the token to the headers
+export const API__ValidateUser = (config?: AxiosRequestConfig) => {
+  return api.get("api/user/validate-user", config);
 };
 
 
@@ -113,15 +107,8 @@ export const API__Admin_LogIn = (data: { email: string, password: string }, conf
 }
 
 
-export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => {
-  const token = localStorage.getItem('user_token');
-  return api.get("api/admin/validate-admin", {
-    ...config,
-    headers: {
-      ...(config?.headers || {}),
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => 
+  return api.get("api/admin/validate-admin");
 }
 
 export const API__Admin_LogOut = (config?: AxiosRequestConfig) => {
