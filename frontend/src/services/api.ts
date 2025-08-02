@@ -26,7 +26,7 @@ export const APi__FetchUserDeails = (config?: AxiosRequestConfig) => {
 }
 
 //  Define a function that attaches the token to the headers
-export const API__ValidateUser = (config?: AxiosRequestConfig) => {
+export const APi__ValidateUser = (config?: AxiosRequestConfig) => {
   return api.get("api/user/validate-user", config);
 };
 
