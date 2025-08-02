@@ -107,8 +107,8 @@ export const API__Admin_LogIn = (data: { email: string, password: string }, conf
 }
 
 
-export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => 
-  return api.get("api/admin/validate-admin");
+export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/validate-admin", config);
 }
 
 export const API__Admin_LogOut = (config?: AxiosRequestConfig) => {
