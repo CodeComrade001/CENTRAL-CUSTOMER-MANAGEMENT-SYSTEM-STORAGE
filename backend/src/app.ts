@@ -16,6 +16,7 @@ export default class AppBootstrap {
 
   constructor() {
     this.app = express();
+    this.app.set('trust proxy', true);
     this.setupMiddleware();
     this.setupRoutes();
     this.setupErrorHandlers();
