@@ -139,14 +139,14 @@ export default class AdminImplementation {
 
   public async fetch_IncreaseCBTSlot(slotValue: number, schoolId: number) {
     const { data, error } = await this.supabase.from("all_customers").update({ "computer_based_test_slot": slotValue })
-      .eq("user_id", schoolId)
+      .eq("id", schoolId)
     if (error) return false
     return true
   }
 
   public async fetch_IncreaseSchoolManagementSlot(slotValue: number, schoolId: number) {
     const { data, error } = await this.supabase.from("all_customers").update({ "school_management_slot": slotValue })
-      .eq("user_id", schoolId)
+      .eq("id", schoolId)
     if (error) return false
     return true
   }
@@ -160,8 +160,7 @@ export default class AdminImplementation {
       student_class,
       student_age,
       school_name,
-      student_name,
-      all_customers( school_id)
+      student_name
       `)
     if (error) throw error
     return data
@@ -173,9 +172,7 @@ export default class AdminImplementation {
       id,
       teacher_name,
       teacher_email,
-      school_name,
-      all_customers(school_id)
-      school_name in all_customers
+      school_name
       `)
     if (error) throw error
     return data
