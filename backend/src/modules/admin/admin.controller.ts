@@ -25,9 +25,9 @@ export default class AdminController {
     try {
 
       const { email, password } = req.body
-      const { message, token } = await this.adminService.verifyAdminLogin(email, password);
+      const { message } = await this.adminService.verifyAdminLogin(email, password);
       if (message) {
-        return res.status(200).json({ token });
+        return res.status(200).json({ token: "Pass the token here" });
       } else {
         return res.status(401).json({ message: "User Is Unauthorized" });
       }

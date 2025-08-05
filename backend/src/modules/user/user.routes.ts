@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import UserController from "./user.controller";
-import { userAuthMiddleware } from "../../middlewares/user.middleware";
+// import { userAuthMiddleware } from "../../middlewares/user.middleware";
 
 export default class UserRoute {
   public router: Router;
@@ -51,11 +51,11 @@ export default class UserRoute {
     this.router.post("/signup", (req: Request, res: Response, next: NextFunction) =>
       this.controller.getUserSignUp(req, res, next)
     );
-    this.router.get("/validate-user", userAuthMiddleware, (req, res) => res.status(200).json({ ok: true }))
+    this.router.get("/validate-user", (req, res) => res.status(200).json({ ok: true }))
     /**
      * @notice middle ware only runs from here all route below are protected 
      */
-    this.router.use(userAuthMiddleware);
+    // this.router.use(userAuthMiddleware);
     /**
      * @route GET /details
      * @description Retrieves user saved details

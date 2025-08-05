@@ -35,6 +35,7 @@ function App() {
                 </ProtectedAdminRoute >
               }
             />
+            <Route />
             <Route
               path="/user/dashboard"
               element={

@@ -1,34 +1,27 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import dotenv from 'dotenv'
+import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-const URL = process.env.SUPABASE_URL
-const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-/**
- * @description  Creates a connection between the backend and the supabase 
- */
+const pool = new Pool({
+  user: process.env.POSTGRES_USER,
+  host: process.env.POSTGRES_HOST || 'localhost',
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+  port: Number(process.env.POSTGRES_PORT) || 5432, // Always internal 5432
+});
 
-export default async function CreateSupabaseConnection(): Promise<SupabaseClient | undefined> {
+export async function connectToPostgres(): Promise<Pool> {
   try {
-    if (typeof URL === 'string' && typeof KEY === 'string' && URL && KEY) {
-      const supabase = createClient(URL, KEY)
-      return supabase
-    } else {
-      throw new Error('Missing or invalid Supabase environment variables')
-    }
-  } catch (err) {
-    console.error('Turbo Log ~ CreateSupabaseConnection ~ err:', err)
+    const client = await pool.connect();
+    await client.query('SELECT NOW()'); // Test query
+    console.log('✅ Connected to PostgreSQL successfully ');
+    client.release();
+    return pool;
+  } catch (error) {
+    console.error('❌ Failed to connect to PostgreSQL:', error);
+    process.exit(1); // Exit app if DB fails
   }
 }
 
-/**
- * @description Ensures that a  valid conection is created before export.
- */
-export async function getSafeSupabase(): Promise<SupabaseClient> {
-  const client = await CreateSupabaseConnection()
-  if (!client) {
-    throw new Error("Failed to create Supabase client: missing URL or KEY")
-  }
-  return client
-}
+export default pool;

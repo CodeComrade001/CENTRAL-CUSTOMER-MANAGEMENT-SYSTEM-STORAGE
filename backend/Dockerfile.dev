@@ -1,6 +1,6 @@
 FROM node:lts-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
 RUN npm install -g ts-node nodemon typescript && npm install --legacy-peer-deps

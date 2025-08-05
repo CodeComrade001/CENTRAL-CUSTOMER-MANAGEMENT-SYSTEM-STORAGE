@@ -1,0 +1,82 @@
+name: Customer_Storage
+services:
+  postgres:
+    image: postgres:15
+    container_name: cen_cms_pg_image
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:5432" # external:internal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: cen_cms_adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: cen_cms_api_image
+    container_name: cen_cms_api
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    ports:
+      - "${CEN_CMS_API_PORT}:5000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: src/app
+          ignore:
+            - node_modules/
+            - frontend/
+        - action: rebuild
+          path: package.json
+
+  web:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    image: cen_cms_web_image
+    container_name: cen_cms_web
+    restart: always
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - api
+    develop:
+      watch:
+        - action: sync
+          path: ../frontend
+          target: src/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+
+volumes:
+  pgdata:

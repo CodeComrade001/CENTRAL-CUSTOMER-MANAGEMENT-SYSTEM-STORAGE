@@ -24,6 +24,7 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
+    "pg": "^8.16.3",
     "xss-clean": "^0.1.4",
     "xss-clean-types": "^1.0.2"
   },
@@ -31,6 +32,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",
+    "@types/pg": "^8.15.5",
     "nodemon": "^3.1.10",
     "supabase": "^2.31.8",
     "ts-node": "^10.9.2",

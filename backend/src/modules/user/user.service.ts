@@ -2,8 +2,8 @@
  *@description Handles all the user logic it has direct contact with db
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
-import { getSafeSupabase } from "../../config/database";
+import { Pool } from "pg";
+import { connectToPostgres } from "../../config/database";
 
 interface AddStudent {
   id?: string;
@@ -32,7 +32,7 @@ interface EditTeacher {
 }
 
 export default class UserImplementation {
-  private supabase!: SupabaseClient
+  private postgres!: Pool
 
   constructor() {
     this.init()
@@ -43,7 +43,7 @@ export default class UserImplementation {
    */
   private async init() {
     try {
-      this.supabase = await getSafeSupabase()
+      this.postgres = await connectToPostgres()
     } catch (err) {
       return
     }
@@ -51,13 +51,7 @@ export default class UserImplementation {
 
   protected async storeSchoolName(schoolName: string) {
     try {
-      if (schoolName === "") return false;
-
-      const { error } = await this.supabase
-        .from("all_customers")
-        .insert([{ school_name: schoolName }]);
-
-      if (error) return { message: false };
+      const data = await this.postgres.query("selct all from db")
       return { message: true };
     } catch (err) {
       return { message: null };
@@ -66,8 +60,7 @@ export default class UserImplementation {
 
   protected async verifySession() {
     try {
-      const { error } = await this.supabase.auth.getSession()
-      if (error) return false;
+      const data = await this.postgres.query("selct all from db")
       return true
     } catch (err) {
       return false
@@ -75,15 +68,10 @@ export default class UserImplementation {
   }
 
   protected async CheckUserAccountIsActive(): Promise<{ activated: boolean }> {
-    const { data, error } = await this.supabase
-      .from("all_customers")
-      .select("activated").single();
-    if (error) {
-      // You could re-throw here if you want upstream to handle it
-      return { activated: false };
-    }
+    const data = await this.postgres.query("selct all from db")
+
     // data will be `null` if no rows, so default to empty array
-    return data;
+    return { activated: true };
   }
 
 
@@ -94,11 +82,7 @@ export default class UserImplementation {
    */
   public async fetchUserDetails() {
 
-    let { data, error } = await this.supabase
-      .from('all_customers')
-      .select('email, school_name,computer_based_test_slot,school_management_slot')
-
-    if (error) throw error;
+    const data = await this.postgres.query("selct all from db")
     return data;
   }
 
@@ -110,18 +94,8 @@ export default class UserImplementation {
    * @throws Error if login fails.
    */
   public async fetchUserLogin(userEmail: string, userPassword: string) {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
-      email: userEmail,
-      password: userPassword
-    });
-
-    if (error) return { message: false };
-    const validate = await this.CheckUserAccountIsActive()
-    if (!validate.activated) {
-      return { message: false, error: "account_blocked" }
-    }
-    const token = data.session.access_token;
-    return { message: true, token };
+    const data = await this.postgres.query("selct all from db")
+    return { message: true };
   }
 
   /**
@@ -133,24 +107,7 @@ export default class UserImplementation {
    * @note co.
    */
   public async fetchUserSignUp(schoolName: string, email: string, password: string) {
-    const { error: signUpError } = await this.supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-    if (signUpError) throw signUpError;
-
-    // 🔒 Wait for auth to fully complete before inserting
-    const { error: signInError } = await this.supabase.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-    if (signInError) throw signInError;
-
-    // ✅ Now insert: auth.uid() is available
-    const { error: insertError } = await this.supabase.from('all_customers').insert([
-      { school_name: schoolName }
-    ]);
-    if (insertError) return { message: false };
+    const data = await this.postgres.query("selct all from db")
 
     return { message: true };
 
@@ -163,10 +120,7 @@ export default class UserImplementation {
    * @throws Error if Supabase query fails.
    */
   public async fetchUserSelectedPlan() {
-    const { data, error } = await this.supabase
-      .from("subscription")
-      .select("id ,computer_based_test, school_management ,health_management ");
-    if (error) throw error;
+    const data = await this.postgres.query("selct all from db")
     return data;
   }
 
@@ -182,29 +136,7 @@ export default class UserImplementation {
     product_subscription: boolean
   ) {
 
-    let column: string;
-
-    switch (product_name) {
-      case "school_management":
-        column = "school_management";
-        break;
-      case "computer_based_test":
-        column = "computer_based_test";
-        break;
-      case "health_management":
-        column = "health_management";
-        break;
-      default:
-        return { message: false }; // Invalid input
-    }
-
-    // Simply update the column for the current user
-    const { error } = await this.supabase
-      .from("subscription")
-      .update({ [column]: product_subscription }).eq("id", id)
-
-
-    if (error) return { message: false };
+    const data = await this.postgres.query("selct all from db")
 
     return { message: true };
   }
@@ -214,23 +146,14 @@ export default class UserImplementation {
 
   public async fetchUserSignOut() {
 
-    const { error } = await this.supabase.auth.signOut()
-    if (error) return { message: false };
-
+    const data = await this.postgres.query("selct all from db")
     return { message: true };
   }
 
   public async createStudents(
     students: AddStudent | AddStudent[]
   ): Promise<any> {
-    const studentArray = Array.isArray(students) ? students : [students];
-
-    const { data, error } = await this.supabase
-      .from('student_db')
-      .insert(studentArray)
-      .select(); // Optional: remove if not needed
-
-    if (error) return { message: false };
+    const data = await this.postgres.query("selct all from db")
     return { message: true };
   }
 
@@ -238,22 +161,7 @@ export default class UserImplementation {
   public async updateStudents(
     students: EditStudent | EditStudent[]
   ): Promise<any> {
-    const studentArray = Array.isArray(students) ? students : [students];
-
-    await Promise.all(
-      studentArray.map(async (student) => {
-        const { id, ...fields } = student;
-
-        const { data, error } = await this.supabase
-          .from('student_db')
-          .update(fields)
-          .eq('id', id)
-          .select();
-
-        if (error) return { message: false };
-        return { message: true };
-      })
-    );
+    const data = await this.postgres.query("selct all from db")
 
     return { message: true };
   }
@@ -261,48 +169,21 @@ export default class UserImplementation {
   public async createTeachers(
     teachers: AddTeacher | AddTeacher[]
   ): Promise<any> {
-    const teacherArray = Array.isArray(teachers) ? teachers : [teachers];
-
-    const { data, error } = await this.supabase
-      .from('teacher_db')
-      .insert(teacherArray)
-      .select(); // Optional: remove if not needed
-
-    if (error) return { message: false };
+    const data = await this.postgres.query("selct all from db")
     return { message: true };
   }
 
   public async updateTeachers(
     teachers: EditTeacher | EditTeacher[]
   ): Promise<any> {
-    const teacherArray = Array.isArray(teachers) ? teachers : [teachers];
-
-    const updates = await Promise.all(
-      teacherArray.map(async (teacher) => {
-        const { id, ...fields } = teacher;
-
-        const { data, error } = await this.supabase
-          .from('teacher_db')
-          .update(fields)
-          .eq('id', id)
-          .select();
-
-        if (error) return { message: false };
-        return { message: true };
-      })
-    );
-
+    const data = await this.postgres.query("selct all from db")
     return { message: true };
   }
   /**
     * @notice Fetch all registered students
     */
   public async getAllStudents() {
-    const { data, error } = await this.supabase.from("student_db").select("id,student_name,student_department,student_class, student_age");
-
-    if (error) {
-      throw new Error("Failed to fetch students");
-    }
+    const data = await this.postgres.query("selct all from db")
 
     return data;
   }
@@ -311,11 +192,7 @@ export default class UserImplementation {
    * @notice Fetch all registered teachers
    */
   public async getAllTeachers() {
-    const { data, error } = await this.supabase.from("teacher_db").select("id,teacher_name,teacher_email");
-
-    if (error) {
-      throw new Error("Failed to fetch teachers");
-    }
+    const data = await this.postgres.query("selct all from db")
 
     return data;
   }
@@ -324,20 +201,7 @@ export default class UserImplementation {
    * @notice Fetch students marked for CBT via subscription
    */
   public async getAllCBTStudents() {
-    const { data, error } = await this.supabase
-      .from("student_db")
-      .select(`
-      id,
-      student_name,
-      student_department,
-      student_class,
-      student_age,
-      computer_based_test_system!inner(student_id)
-    `);
-
-    if (error) {
-      throw new Error("Failed to fetch CBT students");
-    }
+    const data = await this.postgres.query("selct all from db")
 
     return data;
   }

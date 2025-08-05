@@ -41,10 +41,11 @@ export const UserFullScreenSignIn = () => {
 
     try {
       const response = await API__UserLogIn({ email, password });
+      console.log("testing new function")
       if (response.status === 200) {
         // Save token to localStorage
         localStorage.setItem("user_token", response.data.token);
-
+        console.log("Turbo Log  ~ handleSubmit ~ loginToken:",);
         // Login into global state
         await login(response.data.token);
 
