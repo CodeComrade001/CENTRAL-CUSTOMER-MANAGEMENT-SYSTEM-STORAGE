@@ -1,3 +1,4 @@
+import * as z from "zod";
 export interface SMSpayload {
   customer_id: string; //sch_*****
   school_name: string; //ogoekeog
@@ -29,3 +30,35 @@ export interface HMSpayload {
   last_payment: string, //date
   is_verified: boolean
 }
+
+/*//////////////////////////////////////////////////////////////
+                         ALL ADMIN ZOD SCHEMA
+    //////////////////////////////////////////////////////////////*/
+
+const loginInAdmin = z.object({
+  username: z.string(),
+  password: z.string(),
+})
+
+const customerAccess = z.object({
+  customer_id: z.string(),
+  status: z.boolean(),
+})
+
+const packageUpdate = z.object({
+  customer_id: z.string(),
+  newPackage: z.string(),
+})
+
+const slotUpdate = z.object({
+  customer_id: z.string(),
+  newSlot: z.number(),
+})
+
+
+
+
+
+
+
+export { loginInAdmin, customerAccess, packageUpdate, slotUpdate }

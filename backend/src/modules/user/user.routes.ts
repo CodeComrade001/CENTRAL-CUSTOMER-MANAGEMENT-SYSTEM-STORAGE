@@ -4,7 +4,6 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import UserController from "./user.controller";
-// import { userAuthMiddleware } from "../../middlewares/user.middleware";
 
 export default class UserRoute {
   public router: Router;
@@ -26,9 +25,10 @@ export default class UserRoute {
     return this.router;
   }
 
-  /**
-   * @notice Defines all user-related HTTP routes
-   */
+  /*//////////////////////////////////////////////////////////////
+                          ALL USER POST REQUEST
+    //////////////////////////////////////////////////////////////*/
+
   private initializeRoutes(): void {
     /**
      * @route POST /signup/sms

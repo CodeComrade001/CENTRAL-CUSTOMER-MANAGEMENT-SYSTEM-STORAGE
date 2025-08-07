@@ -27,9 +27,9 @@ export default class AdminRoute {
       this.controller.post__adminSignIn(req, res, next)
     );
 
-    this.router.post("/new-account", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.post__adminNewAccount(req, res, next)
-    );
+    // this.router.post("/new-account", (req: Request, res: Response, next: NextFunction) =>
+    //   this.controller.post__adminNewAccount(req, res, next)
+    // );
 
 
 

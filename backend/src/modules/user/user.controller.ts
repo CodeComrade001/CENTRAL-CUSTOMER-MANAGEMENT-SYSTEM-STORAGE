@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import UserImplementation from "./user.service";
+import { validateCBT, validateHMS, validateSMS } from "./user.model";
 
 /**
  * @title UserController
@@ -21,14 +22,22 @@ export default class UserController {
    */
   public async post__UserSignUpForSMS(req: Request, res: Response, next: NextFunction) {
     try {
-      const { payload } = req.body;
-      const { message } = await this.userService.fetchUserSignUpForSMS(payload);
+      const payload = req.body;
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForSMS ~ payload:", payload);
+      const validationResult = await validateSMS.safeParseAsync(payload);
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForSMS ~ validationResult:", validationResult);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const { message } = await this.userService.fetchUserSignUpForSMS(validationResult.data);
       if (message) {
-        return res.status(200).json({ token: "fetch the token here" })
-      } else {
-        return res.status(401).json({ message: "incorrect email or password " });
+        return res.status(200).json({ message: "Account has been created successfully" })
       }
     } catch (err) {
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForSMS ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -38,14 +47,22 @@ export default class UserController {
    */
   public async post__UserSignUpForHMS(req: Request, res: Response, next: NextFunction) {
     try {
-      const { payload } = req.body;
-      const { message } = await this.userService.fetchUserSignUpForHMS(payload);
+      const payload = req.body;
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForHMS ~ payload:", payload);
+      const validationResult = await validateHMS.safeParseAsync(payload);
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForHMS ~ validationResult:", validationResult);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const { message } = await this.userService.fetchUserSignUpForHMS(validationResult.data);
       if (message) {
-        return res.status(200).json({ token: "fetch the token here" })
-      } else {
-        return res.status(401).json({ message: "incorrect email or password " });
+        return res.status(200).json({ message: "Account has been created successfully" })
       }
     } catch (err) {
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForHMS ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -55,14 +72,22 @@ export default class UserController {
    */
   public async post__UserSignUpForCBT(req: Request, res: Response, next: NextFunction) {
     try {
-      const { payload } = req.body;
-      const { message } = await this.userService.fetchUserSignUpForCBT(payload);
+      const payload = req.body;
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForCBT ~ payload:", payload);
+      const validationResult = await validateCBT.safeParseAsync(payload);
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForCBT ~ validationResult:", validationResult);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const { message } = await this.userService.fetchUserSignUpForCBT(validationResult.data);
       if (message) {
-        return res.status(200).json({ token: "fetch the token here" })
-      } else {
-        return res.status(401).json({ message: "incorrect email or password " });
+        return res.status(200).json({ message: "Account has been created successfully" })
       }
     } catch (err) {
+      console.log("Turbo Log  ~ UserController ~ post__UserSignUpForCBT ~ err:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }

@@ -1,18 +1,14 @@
-// src/app.ts
 import express, { Express, Request, Response, NextFunction } from "express";
 import AdminRoute from "./modules/admin/admin.routes";
 import UserRoute from "./modules/user/user.routes";
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-// import xssClean from 'xss-clean';
 import hpp from 'hpp';
 import { limitPayload } from "./middlewares/limitPayload";
 import session from "express-session";
 import pg from "pg";
 import connectPgSimple from "connect-pg-simple";
-
-// dotenv.config();
 
 export default class AppBootstrap {
   private app: Express;
@@ -46,7 +42,7 @@ export default class AppBootstrap {
       session({
         store: new PgSession({
           pool: new pg.Pool({ connectionString: process.env.DATABASE_URL }),
-          tableName: "sessions"
+          tableName: "session"
         }),
         secret: process.env.SESSION_SECRET || "supersecretkey",
         resave: false,

@@ -3,6 +3,7 @@
  */
 import { Request, Response, NextFunction } from "express";
 import AdminImplementation from "./admin.service";
+import { customerAccess, loginInAdmin, packageUpdate, slotUpdate } from "./admin.model";
 
 
 
@@ -24,32 +25,37 @@ export default class AdminController {
   public async post__adminSignIn(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const { email, password } = req.body
-      const { message } = await this.adminService.adminSignIn(email, password);
-      if (message) {
-        return res.status(200).json({ token: "Pass the token here" });
-      } else {
-        return res.status(401).json({ message: "User Is Unauthorized" });
+      const payload = req.body
+      const validationResult = await loginInAdmin.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
       }
-    } catch (err) {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-  public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
-    try {
-
-      const { username, role, email, password } = req.body
-      const { id } = await this.adminService.adminNewAccount(username, role, email, password);
-
+      const { id } = await this.adminService.adminSignIn(validationResult.data);
       req.session.userId = id; // fixed: use id from service
       req.session.role = "admin";
       res.status(201).json({ success: true, message: "Account created", session: req.session });
-
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
+
+  // // public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
+  // //   try {
+
+  // //     // const { username, role, email, password } = req.body
+  // //     const { id } = await this.adminService.adminNewAccount();
+
+  // //     req.session.userId = id; // fixed: use id from service
+  // //     req.session.role = "admin";
+  // //     res.status(201).json({ success: true, message: "Account created", session: req.session });
+
+  // //   } catch (err) {
+  // //     return res.status(500).json({ error: "Internal Server Error" });
+  // //   }
+  // }
 
   public async delete__adminSignOut(req: Request, res: Response, next: NextFunction) {
     try {
@@ -108,8 +114,15 @@ export default class AdminController {
 
   public async patch__customerAccountAccessForSMS(req: Request, res: Response, next: NextFunction) {
     try {
-      const { customer_id, status } = req.body
-      const admins = await this.adminService.changeCustomerAccesForSMS(customer_id, status);
+      const payload = req.body
+      const validationResult = await customerAccess.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const admins = await this.adminService.changeCustomerAccesForSMS(validationResult.data);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
@@ -120,8 +133,15 @@ export default class AdminController {
 
   public async patch__customerAccountAccessForHMS(req: Request, res: Response, next: NextFunction) {
     try {
-      const { customer_id, status } = req.body
-      const admins = await this.adminService.changeCustomerAccesForHMS(customer_id, status);
+      const payload = req.body
+      const validationResult = await customerAccess.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const admins = await this.adminService.changeCustomerAccesForHMS(validationResult.data);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
@@ -132,8 +152,15 @@ export default class AdminController {
 
   public async patch__customerAccountAccessForCBT(req: Request, res: Response, next: NextFunction) {
     try {
-      const { customer_id, status } = req.body
-      const admins = await this.adminService.changeCustomerAccesForCBT(customer_id, status);
+      const payload = req.body
+      const validationResult = await customerAccess.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const admins = await this.adminService.changeCustomerAccesForCBT(validationResult.data);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
@@ -144,8 +171,15 @@ export default class AdminController {
 
   public async patch__updatePackageForHMS(req: Request, res: Response, next: NextFunction) {
     try {
-      const { customer_id, newPackage } = req.body
-      const admins = await this.adminService.updateCustomerPackageForHMS(customer_id, newPackage);
+      const payload = req.body
+      const validationResult = await packageUpdate.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const admins = await this.adminService.updateCustomerPackageForHMS(validationResult.data);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
@@ -156,8 +190,15 @@ export default class AdminController {
 
   public async patch__updatePackageForSMS(req: Request, res: Response, next: NextFunction) {
     try {
-      const { customer_id, newPackage } = req.body
-      const admins = await this.adminService.updateCustomerPackageForSMS(customer_id, newPackage);
+      const payload = req.body
+      const validationResult = await packageUpdate.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const admins = await this.adminService.updateCustomerPackageForSMS(validationResult.data);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
@@ -168,8 +209,15 @@ export default class AdminController {
 
   public async patch__updateSLotForCBT(req: Request, res: Response, next: NextFunction) {
     try {
-      const { customer_id, slotValue } = req.body
-      const admins = await this.adminService.updateCustomerSlotForCBT(customer_id, slotValue);
+      const payload = req.body
+      const validationResult = await slotUpdate.safeParseAsync(payload);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: "Validation failed",
+          issues: validationResult.error.format(),
+        });
+      }
+      const admins = await this.adminService.updateCustomerSlotForCBT(validationResult.data);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }

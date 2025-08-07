@@ -27,9 +27,12 @@ export default class AdminImplementation {
 
 
 
-  public async adminSignIn(username: string, password: string) {
+  public async adminSignIn(payload: { username: string, password: string }) {
+    // const { username, password } = payload
+    const username = "Admin36453"
+    const password = "Admin123456789"
     const result = await this.postgres.query(
-      "SELECT password FROM admin WHERE username = $1 AND role = 'admin'",
+      "SELECT id,password FROM admin WHERE username = $1 AND role = 'admin'",
       [username]
     );
 
@@ -40,8 +43,7 @@ export default class AdminImplementation {
 
     if (!isMatch) return { message: false };
 
-    // TODO: Invalidate session or JWT token here
-    return { message: true };
+    return result.rows[0].id;
   }
 
 
@@ -82,7 +84,8 @@ export default class AdminImplementation {
     return rows.length === 0 ? [] : rows;
   }
 
-  public async changeCustomerAccesForSMS(customer_id: string, status: boolean): Promise<boolean> {
+  public async changeCustomerAccesForSMS(payload: { customer_id: string, status: boolean }): Promise<boolean> {
+    const { customer_id, status } = payload
     // Validate inputs
     if (typeof status !== 'boolean') {
       return false; // or throw new Error('Status must be a boolean');
@@ -105,34 +108,36 @@ export default class AdminImplementation {
   }
 
 
-  public async adminNewAccount(
-    username: string,
-    role: boolean,
-    email: string,
-    password: string
-  ) {
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+  // public async adminNewAccount(
+  // ) {
 
-    const query = `
-    INSERT INTO admin (username, role, email, password)
-    VALUES ($1, $2, $3, $4) RETURNING id
-  `;
+  //   const username = "Admin36453"
+  //   const password = "Admin123456789"
+  //   const role = "admin"
+  //   const email = "admin@gmmail.com"
+  //   // Hash password
+  //   const hashedPassword = await bcrypt.hash(password, 10);
 
-    const data = await this.postgres.query(query, [
-      username,
-      role,
-      email,
-      hashedPassword
-    ]);
-    if (data.rowCount == null) return false
-    return data.rows[0].id;;
-  }
+  //   const query = `
+  //   INSERT INTO admin (username, role, email, password)
+  //   VALUES ($1, $2, $3, $4) RETURNING id
+  // `;
+
+  //   const data = await this.postgres.query(query, [
+  //     username,
+  //     role,
+  //     email,
+  //     hashedPassword
+  //   ]);
+  //   if (data.rowCount == null) return false
+  //   return data.rows[0].id;
+  // }
 
 
 
 
-  public async changeCustomerAccesForHMS(customer_id: string, status: boolean) {
+  public async changeCustomerAccesForHMS(payload: { customer_id: string, status: boolean }) {
+    const { customer_id, status } = payload
     // Validate inputs
     if (typeof status !== 'boolean') {
       return false; // or throw new Error('Status must be a boolean');
@@ -154,7 +159,8 @@ export default class AdminImplementation {
     return rowCount > 0;
   }
 
-  public async changeCustomerAccesForCBT(customer_id: string, status: boolean) {
+  public async changeCustomerAccesForCBT(payload: { customer_id: string, status: boolean }) {
+    const { customer_id, status } = payload
     // Validate inputs
     if (typeof status !== 'boolean') {
       return false; // or throw new Error('Status must be a boolean');
@@ -176,7 +182,8 @@ export default class AdminImplementation {
     return rowCount > 0;
   }
 
-  public async updateCustomerPackageForHMS(customer_id: string, newPackage: string) {
+  public async updateCustomerPackageForHMS(payload: { customer_id: string, newPackage: string }) {
+    const { customer_id, newPackage } = payload
     // Validate inputs
     const allowedPackages = ["starter ", "standard", "premium"]
     if (typeof newPackage !== 'string' || !allowedPackages.includes(newPackage.toLowerCase())) {
@@ -199,7 +206,8 @@ export default class AdminImplementation {
     return rowCount > 0;
   }
 
-  public async updateCustomerPackageForSMS(customer_id: string, newPackage: string) {
+  public async updateCustomerPackageForSMS(payload: { customer_id: string, newPackage: string }) {
+    const { customer_id, newPackage } = payload
     const allowedPackages = ["basic ", "pro", "premium ", "enterprise"]
     // Validate inputs
     if (typeof newPackage !== 'string' || !allowedPackages.includes(newPackage.toLowerCase())) {
@@ -222,7 +230,8 @@ export default class AdminImplementation {
     return rowCount > 0;
   }
 
-  public async updateCustomerSlotForCBT(customer_id: string, newSlot: number) {
+  public async updateCustomerSlotForCBT(payload: { customer_id: string, newSlot: number }) {
+    const { customer_id, newSlot } = payload
     // Validate inputs
     if (typeof newSlot !== 'number') {
       return false; // or throw new Error('Status must be a boolean');

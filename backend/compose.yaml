@@ -2,6 +2,8 @@ name: Customer_Storage
 services:
   postgres:
     image: postgres:15
+    env_file:
+      - .env
     container_name: cen_cms_pg_image
     restart: always
     shm_size: 128mb
@@ -25,6 +27,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     image: cen_cms_api_image
     container_name: cen_cms_api
     restart: always
@@ -35,7 +39,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: ${POSTGRES_PORT}
     ports:
-      - "${CEN_CMS_API_PORT}:5000"
+      - "${CEN_CMS_API_PORT}:${CEN_CMS_API_PORT}"
     depends_on:
       - postgres
     develop:
@@ -53,6 +57,8 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     image: cen_cms_web_image
     container_name: cen_cms_web
     restart: always
