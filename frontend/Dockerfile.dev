@@ -1,8 +1,15 @@
-# Use Node Alpine for a small image size
+# Use Node 20 with Alpine for smaller size but modern crypto API
 FROM node:lts-alpine
 
+# Install file-watching prerequisites
+RUN apk add  \
+  bash \
+  coreutils \
+  busybox-extras \
+  inotify-tools
+
 # Set working directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Install dependencies first (leveraging cache)
 COPY package*.json ./
@@ -10,6 +17,8 @@ RUN npm install
 
 # Copy the rest of the project files
 COPY . .
+
+RUN chown -R node /usr/src/app
 
 # Expose Vite's default dev server port
 EXPOSE 5173

@@ -14,6 +14,7 @@ import { AdminAuthProvider } from "./middleware/admin/adminAuthProvider"
 import { UserAuthProvider } from "./middleware/user/userAuthProvider"
 
 function App() {
+  console.log("app has started")
 
   return (
     <>

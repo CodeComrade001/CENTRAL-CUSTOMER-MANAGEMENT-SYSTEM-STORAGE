@@ -21,11 +21,11 @@ export default class AdminController {
    */
 
 
-  public async getAdminLogedIn(req: Request, res: Response, next: NextFunction) {
+  public async post__adminSignIn(req: Request, res: Response, next: NextFunction) {
     try {
 
       const { email, password } = req.body
-      const { message } = await this.adminService.verifyAdminLogin(email, password);
+      const { message } = await this.adminService.adminSignIn(email, password);
       if (message) {
         return res.status(200).json({ token: "Pass the token here" });
       } else {
@@ -36,11 +36,140 @@ export default class AdminController {
     }
   }
 
-
-  public async getAdminLoggedOut(req: Request, res: Response, next: NextFunction) {
+  public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const admins = await this.adminService.fetchAdminSignOut();
+      const { username, role, email, password } = req.body
+      const { id } = await this.adminService.adminNewAccount(username, role, email, password);
+
+      req.session.userId = id; // fixed: use id from service
+      req.session.role = "admin";
+      res.status(201).json({ success: true, message: "Account created", session: req.session });
+
+    } catch (err) {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async delete__adminSignOut(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { message } = await this.adminService.adminSignOut();
+      if (message) {
+        req.session.destroy(err => {
+          if (err) return res.status(500).json({ error: "Logout failed" });
+          res.clearCookie("connect.sid");
+          res.json({ message: "Logged out" });
+        });
+        return res.status(200).json({ token: "Pass the token here" });
+      } else {
+        return res.status(401).json({ message: "User Is Unauthorized" });
+      }
+    } catch (err) {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+
+  public async get__allCustomersForSMS(req: Request, res: Response, next: NextFunction) {
+    try {
+
+      const admins = await this.adminService.fetchAllCustomersForSMS();
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async get__allCustomersForCBT(req: Request, res: Response, next: NextFunction) {
+    try {
+
+      const admins = await this.adminService.fetchAllCustomersForCBT();
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async get__allCustomersForHMS(req: Request, res: Response, next: NextFunction) {
+    try {
+
+      const admins = await this.adminService.fetchAllCustomersForHMS();
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async patch__customerAccountAccessForSMS(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { customer_id, status } = req.body
+      const admins = await this.adminService.changeCustomerAccesForSMS(customer_id, status);
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async patch__customerAccountAccessForHMS(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { customer_id, status } = req.body
+      const admins = await this.adminService.changeCustomerAccesForHMS(customer_id, status);
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async patch__customerAccountAccessForCBT(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { customer_id, status } = req.body
+      const admins = await this.adminService.changeCustomerAccesForCBT(customer_id, status);
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async patch__updatePackageForHMS(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { customer_id, newPackage } = req.body
+      const admins = await this.adminService.updateCustomerPackageForHMS(customer_id, newPackage);
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async patch__updatePackageForSMS(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { customer_id, newPackage } = req.body
+      const admins = await this.adminService.updateCustomerPackageForSMS(customer_id, newPackage);
+      if (admins) {
+        return res.status(200).json({ message: "admins log out successful" });
+      }
+    } catch {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+  public async patch__updateSLotForCBT(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { customer_id, slotValue } = req.body
+      const admins = await this.adminService.updateCustomerSlotForCBT(customer_id, slotValue);
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
@@ -50,114 +179,6 @@ export default class AdminController {
   }
 
 
-  public async getCBTAllDetails(req: Request, res: Response, next: NextFunction) {
-    try {
-      const admins = await this.adminService.fetchCBTDetails();
-      return res.status(200).json(admins);
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
 
-  public async getAllCustomers(req: Request, res: Response, next: NextFunction) {
-    try {
-      const admins = await this.adminService.fetchAllCustomers();
-      return res.status(200).json(admins);
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-  public async getSchoolManagementAllDetails(req: Request, res: Response, next: NextFunction) {
-    try {
-      const admins = await this.adminService.fetchSchoolManagementDetails();
-      return res.status(200).json(admins);
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-  public async getHealthManagementAllDetails(req: Request, res: Response, next: NextFunction) {
-    try {
-      const admins = await this.adminService.fetchSchoolManagementDetails();
-      return res.status(200).json(admins);
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-
-  public async getCustomerActivated(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { schoolId } = req.body
-      const admins = await this.adminService.fetch_CustomerAccountActivation(schoolId);
-      if (admins.message) {
-        return res.status(200).json({ message: "customer account activated" });
-      }
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-
-  public async getCustomerDeactivated(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { schoolId } = req.body
-      const admins = await this.adminService.fetch_CustomerAccountDeactivation(schoolId);
-      if (admins.message) {
-        return res.status(200).json({ message: "customer account deactivated" });
-      }
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-
-  public async getIncreaseInCBTSlot(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { slotValue, schoolId } = req.body
-      const admins = await this.adminService.fetch_IncreaseCBTSlot(slotValue, schoolId);
-      if (admins) {
-        return res.status(200).json({ message: "customer cbt slot increased" });
-      }
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-  public async getIncreaseInSchoolManagementSlot(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { slotValue, schoolId } = req.body
-      const admins = await this.adminService.fetch_IncreaseSchoolManagementSlot(slotValue, schoolId);
-      if (admins) {
-        return res.status(200).json({ message: "customer cbt slot increased" });
-      }
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-
-
-  public async getSchoolStudent(req: Request, res: Response, next: NextFunction) {
-    try {
-      // const { schoolId } = req.body
-      const admins = await this.adminService.fetchAllSchoolStudent();
-      return res.status(200).json(admins);
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
-
-
-  public async getSchoolTeacher(req: Request, res: Response, next: NextFunction) {
-    try {
-      // const { schoolId } = req.body
-      const admins = await this.adminService.fetchAllSchoolTeacher();
-      return res.status(200).json(admins);
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
 
 }

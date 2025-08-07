@@ -1,18 +1,10 @@
 FROM node:lts-alpine
-
+ENV NODE_ENV=production
 WORKDIR /usr/src/app
-
-COPY package*.json ./
-RUN npm install -g ts-node nodemon typescript && npm install --legacy-peer-deps
-
+COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
+RUN npm install --production --silent && mv node_modules ../
 COPY . .
-
-# Set env variable inside container (can be overridden by Compose)
-ARG CEN_CMS_API_PORT
-ENV CEN_CMS_API_PORT=${CEN_CMS_API_PORT}
-
-EXPOSE ${CEN_CMS_API_PORT}
-
+EXPOSE 3000
+RUN chown -R node /usr/src/app
 USER node
-
-CMD ["nodemon", "--watch", "src", "--ext", "ts,json", "--exec", "ts-node", "src/index.ts"]
+CMD ["npm", "start"]

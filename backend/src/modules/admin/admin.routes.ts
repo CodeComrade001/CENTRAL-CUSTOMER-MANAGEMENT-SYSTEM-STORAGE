@@ -23,117 +23,70 @@ export default class AdminRoute {
 
   private initializeRoutes() {
 
-    /**
-         * @route POST / logs-in 
-         * @description Authtenticate Admin before logging in
-         */
     this.router.post("/login", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getAdminLogedIn(req, res, next)
+      this.controller.post__adminSignIn(req, res, next)
+    );
+
+    this.router.post("/new-account", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.post__adminNewAccount(req, res, next)
     );
 
 
 
-    this.router.get("/validate-admin", (req, res) => res.status(200).json({ ok: true }))
+    // this.router.get("/validate-admin", (req, res) => res.status(200).json({ ok: true }))
 
     // this.router.use(adminAuthMiddleware);
 
-    /**
-         * @route GET / all-detail admin
-         * @description Retrieves all customer details
-         */
 
-    this.router.get("/customer/all", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getAllCustomers(req, res, next)
-    );
-
-    /**
-         * @route GET / logOut admin
-         * @description Retrieves all customer details
-         */
-
-    this.router.get("/signout", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getAdminLoggedOut(req, res, next)
-    );
-
-    /**
-         * @route GET / school mamagement details admin
-         * @description Retrieves all school management details
-         */
+    /*//////////////////////////////////////////////////////////////
+                           ALL GET REQUEST
+    //////////////////////////////////////////////////////////////*/
 
     this.router.get("/sms/all", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getSchoolManagementAllDetails(req, res, next)
+      this.controller.get__allCustomersForSMS(req, res, next)
     );
-
-    /**
-         * @route GET / cbt all details 
-         * @description Retrieves all cbt customer details
-         */
-
     this.router.get("/cbt/all", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getCBTAllDetails(req, res, next)
+      this.controller.get__allCustomersForCBT(req, res, next)
     );
-
-    /**
-         * @route GET / health all details 
-         * @description Retrieves all health management subscribers customer details
-         */
-
     this.router.get("/hms/all", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getHealthManagementAllDetails(req, res, next)
+      this.controller.get__allCustomersForHMS(req, res, next)
     );
 
-    /**
-         * @route POST /activate-customer 
-         * @description Activate a customer who has made payment
-         */
+    /*//////////////////////////////////////////////////////////////
+                 ADMIN ACCOUNT == ACTIVATION AND DEACTIVATION
+     //////////////////////////////////////////////////////////////*/
 
-    this.router.post("/customer/activate", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getCustomerActivated(req, res, next)
+    this.router.patch("/sms/verify", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.patch__customerAccountAccessForSMS(req, res, next)
+    );
+    this.router.patch("/hms/verify", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.patch__customerAccountAccessForHMS(req, res, next)
+    );
+    this.router.patch("/cbt/verify", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.patch__customerAccountAccessForCBT(req, res, next)
     );
 
-    /**
-         * @route POST / deactivate-customer 
-         * @description deactivate customer who refused to pa
-         */
+    /*//////////////////////////////////////////////////////////////
+                  ADMIN ACCOUNT == UPDATING PACKAGE
+    //////////////////////////////////////////////////////////////*/
 
-    this.router.post("/customer/deactivate", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getCustomerDeactivated(req, res, next)
+    this.router.patch("/hms/package", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.patch__updatePackageForHMS(req, res, next)
+    );
+    this.router.patch("/sms/package", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.patch__updatePackageForSMS(req, res, next)
+    );
+    this.router.patch("/cbt/slot", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.patch__updateSLotForCBT(req, res, next)
     );
 
-    /**
-         * @route POST / Increase sms slot 
-         * @description Incrase slot for customers who needs more slot for student
-         */
 
-    this.router.post("/sms/update", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getIncreaseInSchoolManagementSlot(req, res, next)
+    /*//////////////////////////////////////////////////////////////
+                 ADMIN ACCOUNT == ALL DELETE REQUEST
+    //////////////////////////////////////////////////////////////*/
+
+    this.router.delete("/signout", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.delete__adminSignOut(req, res, next)
     );
-    /**
-         * @route POST / increase cbt slot 
-         * @description Incrase slot for customers who needs more slot for student
-         */
-
-    this.router.post("/cbt/update", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getIncreaseInCBTSlot(req, res, next)
-    );
-    /**
-         * @route get / school-cbt-student 
-         * @description Incrase slot for customers who needs more slot for student
-         */
-
-    this.router.get("/school/student", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getSchoolStudent(req, res, next)
-    );
-    /**
-         * @route get /school-full-details 
-         * @description Incrase slot for customers who needs more slot for student
-         */
-
-    this.router.get("/school/teachers", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.getSchoolTeacher(req, res, next)
-    );
-
-    // add more routes here, e.g.
-    // this.router.post("/test-connection", this.controller.createAdmin.bind(this.controller));
   }
 }

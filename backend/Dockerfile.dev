@@ -1,6 +1,13 @@
 FROM node:lts-alpine
 
-WORKDIR /app
+# Install file-watching prerequisites
+RUN apk add  \
+  bash \
+  coreutils \
+  busybox-extras \
+  inotify-tools
+
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm install -g ts-node nodemon typescript && npm install --legacy-peer-deps
@@ -11,8 +18,10 @@ COPY . .
 ARG CEN_CMS_API_PORT
 ENV CEN_CMS_API_PORT=${CEN_CMS_API_PORT}
 
+RUN chown -R node /usr/src/app
+
 EXPOSE ${CEN_CMS_API_PORT}
 
 USER node
 
-CMD ["nodemon", "--watch", "src", "--ext", "ts,json", "--exec", "ts-node", "src/index.ts"]
+CMD ["npm", "run", "dev"]

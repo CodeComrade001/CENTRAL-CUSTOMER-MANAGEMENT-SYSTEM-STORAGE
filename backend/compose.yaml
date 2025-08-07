@@ -36,16 +36,13 @@ services:
       POSTGRES_PORT: ${POSTGRES_PORT}
     ports:
       - "${CEN_CMS_API_PORT}:5000"
-    volumes:
-      - .:/app
-      - /app/node_modules
     depends_on:
       - postgres
     develop:
       watch:
         - action: sync
           path: .
-          target: src/app
+          target: /usr/src/app
           ignore:
             - node_modules/
             - frontend/
@@ -61,10 +58,7 @@ services:
     restart: always
     ports:
       - "5173:5173"
-    volumes:
-      - ../frontend:/app
-      - /app/node_modules
-    working_dir: /app
+    working_dir: /usr/src/app
     command: npm run dev -- --host 0.0.0.0
     depends_on:
       - api
@@ -72,7 +66,7 @@ services:
       watch:
         - action: sync
           path: ../frontend
-          target: src/app
+          target: /usr/src/app
           ignore:
             - node_modules/
         - action: rebuild

@@ -8,6 +8,9 @@ import rateLimit from 'express-rate-limit';
 // import xssClean from 'xss-clean';
 import hpp from 'hpp';
 import { limitPayload } from "./middlewares/limitPayload";
+import session from "express-session";
+import pg from "pg";
+import connectPgSimple from "connect-pg-simple";
 
 // dotenv.config();
 
@@ -26,6 +29,7 @@ export default class AppBootstrap {
   }
 
   private setupMiddleware() {
+    const PgSession = connectPgSimple(session);
     // Core body parsers
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
@@ -37,7 +41,24 @@ export default class AppBootstrap {
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
     }));
-
+    //session
+    this.app.use(
+      session({
+        store: new PgSession({
+          pool: new pg.Pool({ connectionString: process.env.DATABASE_URL }),
+          tableName: "sessions"
+        }),
+        secret: process.env.SESSION_SECRET || "supersecretkey",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: process.env.NODE_ENV === "production", // HTTPS only in prod
+          httpOnly: true, // prevents JS access to cookie
+          sameSite: "lax", // helps against CSRF
+          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        }
+      })
+    );
     // Security middlewares
     this.app.use(helmet()); // HTTP header protection
     // this.app.use(xssClean()); // Sanitize user input against XSS
