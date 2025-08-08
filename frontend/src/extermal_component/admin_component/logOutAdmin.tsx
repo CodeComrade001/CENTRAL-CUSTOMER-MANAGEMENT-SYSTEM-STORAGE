@@ -1,9 +1,8 @@
+import { api__admin_logOutAdmin } from "@/services/api";
 import { useState } from "react";
-import { API__Admin_LogOut } from "@/services/api";
-import { useAdminAuth } from "@/middleware/admin/useAdminAuth";
 
 const AdminLogoutButton = () => {
-  const { logout } = useAdminAuth();
+  // const { logout } = useAdminAuth();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
@@ -12,9 +11,9 @@ const AdminLogoutButton = () => {
     setStatus("idle");
 
     try {
-      const res = await API__Admin_LogOut();
+      const res = await api__admin_logOutAdmin();
       if (res.status === 200) {
-        logout(); // Clear context/localStorage
+        // logout(); // Clear context/localStorage
         setStatus("success");
       } else {
         setStatus("error");

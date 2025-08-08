@@ -32,7 +32,7 @@ export default class AppBootstrap {
 
     // CORS config
     this.app.use(cors({
-      origin: ['https://cen-cms-ui.vercel.app'],
+      origin: ['https://cen-cms-ui.vercel.app', 'http://localhost:5173'],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
@@ -44,14 +44,15 @@ export default class AppBootstrap {
           pool: new pg.Pool({ connectionString: process.env.DATABASE_URL }),
           tableName: "session"
         }),
-        secret: process.env.SESSION_SECRET || "supersecretkey",
+        secret: process.env.SESSION_SECRET!,
         resave: false,
         saveUninitialized: false,
         cookie: {
-          secure: process.env.NODE_ENV === "production", // HTTPS only in prod
-          httpOnly: true, // prevents JS access to cookie
-          sameSite: "lax", // helps against CSRF
-          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+          secure: false, // localhost = HTTP
+          httpOnly: true,
+          path: "admin/dashboard",
+          sameSite: "lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000
         }
       })
     );
@@ -91,8 +92,8 @@ export default class AppBootstrap {
     });
 
     this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-      console.error("App Error:", err.message);
-      res.status(500).json({ error: "Internal Server Error" });
+      console.error("App internal Error:", err.message);
+      res.status(500).json({ error: "Internal Server from app Error" });
     });
   }
 }

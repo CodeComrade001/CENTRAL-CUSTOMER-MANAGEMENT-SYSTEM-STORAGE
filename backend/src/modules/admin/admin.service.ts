@@ -28,11 +28,13 @@ export default class AdminImplementation {
 
 
   public async adminSignIn(payload: { username: string, password: string }) {
-    // const { username, password } = payload
-    const username = "Admin36453"
-    const password = "Admin123456789"
+    const { username, password } = payload
+    // const username = "Admin36453"
+    // const password = "Admin123456789"
+    // console.log("Turbo Log  ~ AdminImplementation ~ adminSignIn ~ username:", username);
+    // console.log("Turbo Log  ~ AdminImplementation ~ adminSignIn ~ password:", password);
     const result = await this.postgres.query(
-      "SELECT id,password FROM admin WHERE username = $1 AND role = 'admin'",
+      "SELECT id,role, email,password FROM admin WHERE username = $1 AND role = 'admin'",
       [username]
     );
 
@@ -43,12 +45,12 @@ export default class AdminImplementation {
 
     if (!isMatch) return { message: false };
 
-    return result.rows[0].id;
+    return { message: true, id: result.rows[0].id, data: result.rows[0] };
   }
 
 
   public async fetchAllCustomersForSMS() {
-    const query = `SELECT customer_id,school_name,package,renewal_date,student_count,staff_count,last_payment_date,is_verified,
+    const query = `SELECT customer_id,school_name,package,renewal_date,student_count,staff_count,last_payment_date,is_verified
     FROM school_management
     ORDER BY created_at ASC
     LIMIT 50
@@ -56,12 +58,12 @@ export default class AdminImplementation {
 
     const { rows } = await this.postgres.query(query);
 
-    return rows.length === 0 ? [] : rows;
+    return { rows: rows.length === 0 ? [] : rows };
   }
 
 
   public async fetchAllCustomersForHMS() {
-    const query = `SELECT customer_id,hospital_name,package,renewal_date,last_payment,is_verified,
+    const query = `SELECT customer_id,hospital_name,package,renewal_date,last_payment,is_verified
     FROM health_management
     ORDER BY created_at ASC
     LIMIT 50
@@ -69,11 +71,11 @@ export default class AdminImplementation {
 
     const { rows } = await this.postgres.query(query);
 
-    return rows.length === 0 ? [] : rows;
+    return { rows: rows.length === 0 ? [] : rows };
   }
 
   public async fetchAllCustomersForCBT() {
-    const query = `SELECT customer_id,center_name,available_slot,used_slot,is_verified,number_of_servers,last_slot_purchase,last_login,
+    const query = `SELECT customer_id,center_name,available_slot,used_slot,is_verified,number_of_servers,last_slot_purchase,last_login
     FROM cbt_management
     ORDER BY created_at ASC
     LIMIT 50
@@ -81,7 +83,7 @@ export default class AdminImplementation {
 
     const { rows } = await this.postgres.query(query);
 
-    return rows.length === 0 ? [] : rows;
+    return { rows: rows.length === 0 ? [] : rows };
   }
 
   public async changeCustomerAccesForSMS(payload: { customer_id: string, status: boolean }): Promise<boolean> {

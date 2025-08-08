@@ -1,7 +1,6 @@
 "use client";
 
-import { useAdminAuth } from "@/middleware/admin/useAdminAuth";
-import { API__Admin_LogIn } from "@/services/api";
+import { api__admin_LogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
 import { useState } from "react";
@@ -9,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 
 export const AdminFullScreenSignIn = () => {
-  const { login } = useAdminAuth();
+  // const { login } = useAdminAuth();
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [userNameError, setUserNameError] = useState("");
@@ -38,11 +37,11 @@ export const AdminFullScreenSignIn = () => {
     }
 
     try {
-      const email = username
-      const response = await API__Admin_LogIn({ email, password });
+
+      const response = await api__admin_LogIn({ username, password });
       if (response.status === 200) {
         await localStorage.setItem("user_token", response.data.token);
-        await login(response.data.token);
+        // await login(response.data.token);
         await navigate("/admin/dashboard/"); // 👈 your destination route
       }
       setSignInText(getLoginStatusMessage(response.status));

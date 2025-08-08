@@ -67,7 +67,7 @@ export default class AdminRoute {
     );
 
     /*//////////////////////////////////////////////////////////////
-                  ADMIN ACCOUNT == UPDATING PACKAGE
+                  ADMIN ACCOUNT == UPDATING PACKAGE AND SLOT
     //////////////////////////////////////////////////////////////*/
 
     this.router.patch("/hms/package", (req: Request, res: Response, next: NextFunction) =>

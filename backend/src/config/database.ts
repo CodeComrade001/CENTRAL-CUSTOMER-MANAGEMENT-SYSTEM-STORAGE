@@ -5,16 +5,17 @@ dotenv.config();
 
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
-  host: process.env.POSTGRES_HOST || 'localhost',
+  // TODO for docker host: process.env.POSTGRES_HOST || 'localhost',
+  host: 'localhost',
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
-  port: Number(process.env.POSTGRES_PORT) || 5432, // Always internal 5432
+  //  for docker port: Number(process.env.POSTGRES_PORT) || 5432, // Always internal 5432
+  port: Number(process.env.POSTGRES_EXTERNAL_PORT) || 5432,
 });
 
 export async function connectToPostgres(): Promise<Pool> {
   try {
     const client = await pool.connect();
-    await client.query('SELECT NOW()'); // Test query
     console.log('✅ Connected to PostgreSQL successfully ');
     client.release();
     return pool;

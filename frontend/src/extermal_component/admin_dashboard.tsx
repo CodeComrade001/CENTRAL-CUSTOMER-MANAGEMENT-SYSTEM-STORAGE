@@ -3,12 +3,7 @@
 import { useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, BatteryPlus, University, Computer, BookMinus, SquarePen } from "lucide-react";
-import AllRegisteredCustomers from "./admin_component/all_customers";
 import SubscribedSchoolManagementPackage from "./admin_component/school_management";
-import SubscribedSchoolsCbtPackage from "./admin_component/cbt_management";
-import SubscribedSchoolsHealthPackage from "./admin_component/health_management";
-import AllSchoolTeacher from "./admin_component/teacher_table";
-import AllSchoolStudent from "./admin_component/student_table";
 import AdminLogoutButton from "./admin_component/logOutAdmin";
 
 
@@ -160,20 +155,10 @@ const AdminDashboard = () => {
 
   const activateBtnAction = useCallback(() => {
     switch (activeBtn) {
-      case "all_customer":
-        return < AllRegisteredCustomers />
       case "school_management":
         return <SubscribedSchoolManagementPackage />
-      case "cbt_system":
-        return <SubscribedSchoolsCbtPackage />
-      case "health_system":
-        return <SubscribedSchoolsHealthPackage />
-      case "teacher":
-        return <AllSchoolTeacher />
-      case "student":
-        return <AllSchoolStudent />
       default:
-        return <AllRegisteredCustomers />
+        return <SubscribedSchoolManagementPackage />
     }
   }, [activeBtn])
 

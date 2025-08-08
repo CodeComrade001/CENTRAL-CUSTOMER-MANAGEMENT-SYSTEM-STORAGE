@@ -33,28 +33,33 @@ export default class AdminController {
           issues: validationResult.error.format(),
         });
       }
-      const { id } = await this.adminService.adminSignIn(validationResult.data);
+      const { id, message, data } = await this.adminService.adminSignIn(payload);
+      if (!message) {
+        return res.status(404).json({ message: "Unauthorised user" });
+      }
       req.session.userId = id; // fixed: use id from service
       req.session.role = "admin";
-      res.status(201).json({ success: true, message: "Account created", session: req.session });
+      // res.status(201).json({ message: "Account created", data });
+      // for testing purpose 
+      res.status(201).json({ message: "Account created", session: req.session, data });
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
-  // // public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
-  // //   try {
+  // public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
+  //   try {
 
-  // //     // const { username, role, email, password } = req.body
-  // //     const { id } = await this.adminService.adminNewAccount();
+  // const { username, role, email, password } = req.body
+  //     const { id } = await this.adminService.adminNewAccount();
 
-  // //     req.session.userId = id; // fixed: use id from service
-  // //     req.session.role = "admin";
-  // //     res.status(201).json({ success: true, message: "Account created", session: req.session });
+  //     req.session.userId = id; // fixed: use id from service
+  //     req.session.role = "admin";
+  //     res.status(201).json({ success: true, message: "Account created", session: req.session });
 
-  // //   } catch (err) {
-  // //     return res.status(500).json({ error: "Internal Server Error" });
-  // //   }
+  //   } catch (err) {
+  //     return res.status(500).json({ error: "Internal Server Error" });
+  //   }
   // }
 
   public async delete__adminSignOut(req: Request, res: Response, next: NextFunction) {
@@ -79,21 +84,21 @@ export default class AdminController {
   public async get__allCustomersForSMS(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const admins = await this.adminService.fetchAllCustomersForSMS();
-      if (admins) {
-        return res.status(200).json({ message: "admins log out successful" });
+      const {rows} = await this.adminService.fetchAllCustomersForSMS();
+      if (rows) {
+        return res.status(200).json({ rows });
       }
-    } catch {
-      return res.status(500).json({ error: "Internal Server Error" });
+    } catch (error) {
+      return res.status(500).json({ error: `Internal Server Error: ${error}` });
     }
   }
 
   public async get__allCustomersForCBT(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const admins = await this.adminService.fetchAllCustomersForCBT();
-      if (admins) {
-        return res.status(200).json({ message: "admins log out successful" });
+      const {rows} = await this.adminService.fetchAllCustomersForCBT();
+      if (rows) {
+        return res.status(200).json({ rows });
       }
     } catch {
       return res.status(500).json({ error: "Internal Server Error" });
@@ -103,9 +108,9 @@ export default class AdminController {
   public async get__allCustomersForHMS(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const admins = await this.adminService.fetchAllCustomersForHMS();
-      if (admins) {
-        return res.status(200).json({ message: "admins log out successful" });
+      const {rows} = await this.adminService.fetchAllCustomersForHMS();
+      if (rows) {
+        return res.status(200).json({ rows });
       }
     } catch {
       return res.status(500).json({ error: "Internal Server Error" });

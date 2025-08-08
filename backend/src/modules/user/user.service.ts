@@ -64,7 +64,6 @@ export default class UserImplementation {
 
       return { message: true };
     } catch (err) {
-      console.error("DB Insert Error:", err); // Log for debugging
       return { error: "Failed to insert data." };
     }
   }
@@ -88,7 +87,7 @@ export default class UserImplementation {
     try {
       const query = `
       INSERT INTO health_management (
-        school_name, package, renewal_date, student_count, staff_count, last_payment_date
+        hospital_name, package, renewal_date, last_payment
       ) VALUES ($1, $2, $3, $4)
     `;
 
@@ -99,11 +98,14 @@ export default class UserImplementation {
         last_payment,
       ];
 
-      await this.postgres.query(query, values);
+      const result = await this.postgres.query(query, values);
+      if (result.rowCount == null || result.rowCount === 0) {
 
+        return { message: false };
+      }
       return { message: true };
+
     } catch (err) {
-      console.error("DB Insert Error:", err); // Log for debugging
       return { error: "Failed to insert data." };
     }
   }
@@ -121,7 +123,7 @@ export default class UserImplementation {
     try {
       const query = `
       INSERT INTO cbt_management (
-        school_name, package, renewal_date, student_count, staff_count, last_payment_date
+        center_name, available_slot, used_slot, last_slot_purchase,last_login
       ) VALUES ($1, $2, $3, $4, $5) 
     `;
 
@@ -133,11 +135,13 @@ export default class UserImplementation {
         last_login,
       ];
 
-      await this.postgres.query(query, values);
+      const result = await this.postgres.query(query, values);
+      if (result.rowCount == null || result.rowCount === 0) {
 
+        return { message: false };
+      }
       return { message: true };
     } catch (err) {
-      console.error("DB Insert Error:", err); // Log for debugging
       return { error: "Failed to insert data." };
     }
   }

@@ -1,144 +1,241 @@
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileTextIcon,
-  GlobeIcon,
-  InputIcon,
-} from "@radix-ui/react-icons";
-
-import { BentoCard, BentoGrid } from "@/components/ui/bento-grid";
-import { useEffect, useState } from "react";
-import { API__UserPlanEdit, API__UserSelectedPlan } from "@/services/api";
-import { getFunctionStatusMessage } from "@/utils/authFunctionNotification";
-import UserLogoutButton from "./user_component/reusable_component/logOutUser";
-
-
-const features = [
-  {
-    Icon: FileTextIcon,
-    id: "school_management",
-    name: "School Management System",
-    description: "A powerful SaaS solution for managing school records, students, staff, results, and attendance — all in one place.",
-    href: "/user/dashboard/packages",
-    cta: "Explore system",
-    background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
-    className: "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3",
-  },
-  {
-    Icon: InputIcon,
-    id: "computer_based_test",
-    name: "CBT System ",
-    description: "A scalable Computer-Based Testing platform now upgraded with enterprise-level analytics and security.",
-    href: "/user/dashboard/packages",
-    cta: "View CBT suite",
-    background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
-    className: "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
-  },
-  {
-    Icon: GlobeIcon,
-    name: "Health management System",
-    id: "health_management",
-    description: "A secure Electronic Medical Record (EMR) system designed for hospitals, clinics, and health centers.",
-    href: "/user/dashboard/packages",
-    cta: "See how it works",
-    background: <img className="absolute -right-20 -top-20 opacity-60" title="background image" />,
-    className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
-  }
-];
+  api__user_sgnupForSMS,
+  api__user_sgnupForHMS,
+  api__user_sgnupForCBT,
+} from "../services/api"; // adjust path
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertToolbar,
+} from '@/components/alert';
+import { CircleCheckBig, MoveRight } from "lucide-react";
+import { Button } from "@/components/ui/button"
 
 
-type CoreProduct = "school_management" | "computer_based_test" | "health_management";
+export default function USerSignUpCard() {
+  const HMS_PACKAGES = ["starter", "standard", "premium"];
+  const SMS_PACKAGES = ["basic", "pro", "premium", "enterprise"];
 
-type UserPackage = {
-  id: number;
-  school_management: boolean;
-  computer_based_test: boolean;
-  health_management: boolean;
-};
+  const [formData, setFormData] = useState({
+    systemType: "",
+    package: "",
+    school_name: "",
+    hospital_name: "",
+    center_name: "",
+    renewal_date: "",
+    staff_count: 0,
+    student_count: 0,
+    last_payment_date: "",
+    last_payment: "",
+    available_slot: "",
+    used_slot: 0,
+    last_slot_purchase: "",
+    last_login: "",
+  });
 
-const CORE_PRODUCTS: CoreProduct[] = ["school_management", "computer_based_test", "health_management"];
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [notificationText, setShowNotificationText] = useState<{ text: string, textType: string }>({ text: "", textType: "" });
+  let notificationTimer: ReturnType<typeof setTimeout>;
 
-export default function UserDashboard() {
-  const [userPackage, setUserPackage] = useState<UserPackage | null>(null);
-  const [packageCondition, setPackageCondition] = useState<Record<string, string>>({});
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  async function activatePackageForUser(product: string) {
-    if (!CORE_PRODUCTS.includes(product as CoreProduct)) return;
 
-    const isCurrentlyActive = userPackage?.[product as CoreProduct];
-    setPackageCondition((prev) => ({ ...prev, [product]: "⏳ Updating..." }));
+  const showNotificationWithDelay = () => {
+    clearTimeout(notificationTimer);
+    notificationTimer = setTimeout(() => {
+      setShowNotificationText({ text: "", textType: "" });
+    }, 3000);
+  };
 
-    const msg = getFunctionStatusMessage(408);
-    if (!userPackage || userPackage.id === undefined) {
-      return setPackageCondition((prev) => ({ ...prev, [product]: msg }));
+  const handleSubmit = async () => {
+    if ((!formData.systemType || !formData.package) && formData.systemType == "SMS") {
+      showNotificationWithDelay()
+      return setShowNotificationText({ text: "Please select a system type and package", textType: "destructive" });
     }
-
-    const id = userPackage.id;
+    if ((!formData.systemType || !formData.package) && formData.systemType == "HMS") {
+      showNotificationWithDelay()
+      return setShowNotificationText({ text: "Please select a system type and package", textType: "destructive" });
+    }
+    setLoading(true);
 
     try {
-      const res = await API__UserPlanEdit({
-        id,
-        product,
-        product_subscription: !isCurrentlyActive,
-      });
-
-      const msg = getFunctionStatusMessage(res.status);
-      setPackageCondition((prev) => ({ ...prev, [product]: msg }));
-
-      if (res.status === 200) {
-        const updated = await API__UserSelectedPlan();
-        setUserPackage(updated.data?.[0] ?? null); // Safe fallback if array is empty
+      let res;
+      if (formData.systemType === "SMS") {
+        res = await api__user_sgnupForSMS({
+          school_name: formData.school_name,
+          package: formData.package,
+          renewal_date: formData.renewal_date,
+          staff_count: Number(formData.staff_count),
+          student_count: Number(formData.student_count),
+          last_payment_date: formData.last_payment_date,
+        });
+      } else if (formData.systemType === "HMS") {
+        res = await api__user_sgnupForHMS({
+          hospital_name: formData.hospital_name,
+          package: formData.package,
+          renewal_date: formData.renewal_date,
+          last_payment: formData.last_payment,
+        });
+      } else if (formData.systemType === "CBT") {
+        res = await api__user_sgnupForCBT({
+          center_name: formData.center_name,
+          available_slot: Number(formData.available_slot),
+          used_slot: Number(formData.used_slot),
+          last_slot_purchase: formData.last_slot_purchase,
+          last_login: formData.last_login,
+        });
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      const status = error?.response?.status;
-      const msg = getFunctionStatusMessage(status);
-      setPackageCondition((prev) => ({ ...prev, [product]: msg }));
-    }
-  }
 
-  useEffect(() => {
-    (async () => {
-      const res = await API__UserSelectedPlan();
-      const { data } = res;
-      setUserPackage(data?.[0] ?? null); // Assumes it's an array, grabs the first object
-    })();
-  }, []);
+      if (res?.status === 200) {
+        setShowNotificationText({ text: "Account Created Successfully. Navigate to admin Dashboard.", textType: "success" });
+        setSuccess(true);
+      }
+    } catch (err) {
+      console.error(err);
+      setShowNotificationText({ text: "Server Errror. Please try again.", textType: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPackageOptions = () => {
+    if (formData.systemType === "HMS") return HMS_PACKAGES;
+    if (formData.systemType === "SMS") return SMS_PACKAGES;
+    return [];
+  };
 
   return (
-    <div className="flex justify-center items-center w-full h-screen">
-      <UserLogoutButton />
-      <BentoGrid >
-        {features.map((feature) => {
-          const productId = feature.id as CoreProduct;
-          const isCore = CORE_PRODUCTS.includes(productId);
-          const isActive = isCore && userPackage?.[productId];
-          const statusLabel =
-            packageCondition[productId] ||
-            (isCore ? (isActive ? "Activated" : "Deactivated") : "");
+    <div className="flex relative flex-col justify-center items-center min-h-screen bg-gray-50 p-4">
 
-          // Determine button color
-          const buttonColor = !userPackage
-            ? "bg-blue-500"
-            : isActive
-              ? "bg-green-600"
-              : "bg-red-600";
+      {notificationText.text !== "" &&
+        <div className="mx-auto">
 
-          return (
-            <div key={feature.id} className="p-2 relative">
-              <BentoCard {...feature} />
-              {isCore && (
-                <button
-                  onClick={() => activatePackageForUser(productId)}
-                  className={`mt-2 px-4 py-1  absolute  bottom-5 right-10 rounded text-white ${buttonColor}`}
+          <Alert variant={notificationText.textType as 'secondary' | 'primary' | 'destructive' | 'success' | 'info' | 'warning'
+
+          } close={true}>
+            <AlertIcon>
+              <CircleCheckBig />
+            </AlertIcon>
+            <AlertTitle>{notificationText.text}</AlertTitle>
+            <AlertToolbar>
+            </AlertToolbar>
+          </Alert>
+        </div>
+      }
+      <AnimatePresence>
+        {!success ? (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+          >
+            <h1 className="text-2xl font-bold text-center mb-4">
+              Central Customer Management System
+            </h1>
+            <p className="text-gray-600 text-center text-sm mb-6">
+              Store, organize, and access your customer data securely.
+            </p>
+
+            {/* System Type Dropdown */}
+            <select
+              title="System Type"
+              name="systemType"
+              value={formData.systemType}
+              onChange={(e) => {
+                setFormData({ ...formData, systemType: e.target.value, package: "" });
+              }}
+              className="w-full p-2 border rounded-lg mb-4"
+            >
+              <option value="">Select System</option>
+              <option value="SMS">School Management System (SMS)</option>
+              <option value="HMS">Hospital Management System (HMS)</option>
+              <option value="CBT">CBT Center Management</option>
+            </select>
+
+            {/* Package Dropdown */}
+            {(formData.systemType === "SMS" || formData.systemType === "HMS") && (
+              <select
+                title="Select package"
+                name="package"
+                value={formData.package}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg mb-4"
+              >
+                <option value="">Select Package</option>
+                {getPackageOptions().map((pkg) => (
+                  <option key={pkg} value={pkg}>
+                    {pkg}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Conditional Fields */}
+            {formData.systemType === "SMS" && (
+              <>
+                <input name="school_name" placeholder="School Name" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="renewal_date" placeholder="Renewal Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="staff_count" placeholder="Staff Count" type="number" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="student_count" placeholder="Student Count" type="number" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="last_payment_date" placeholder="Last Payment Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+              </>
+            )}
+
+            {formData.systemType === "HMS" && (
+              <>
+                <input name="hospital_name" placeholder="Hospital Name" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="renewal_date" placeholder="Renewal Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="last_payment" placeholder="Last Payment Amount" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+              </>
+            )}
+
+            {formData.systemType === "CBT" && (
+              <>
+                <input name="center_name" placeholder="Center Name" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="available_slot" placeholder="Available Slot" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="used_slot" placeholder="Used Slot" type="number" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="last_slot_purchase" placeholder="Last Slot Purchase Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="last_login" placeholder="Last Login Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+              </>
+            )}
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
+            >
+              {loading ? "Signing up..." : "Sign Up"}
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            className="bg-green-50 border border-green-300 p-6 rounded-xl shadow-md max-w-sm w-full text-center"
+          >
+            <h2 className="text-xl font-bold text-green-700">🎉 Signup Successful!</h2>
+            <p className="text-green-600 mt-2">
+              You have successfully signed up. Welcome to CCMSS!
+              <Button size="lg" className="mx-5 gap-4">
+                <a
+                  href="/admin/dashboard"
                 >
-                  {statusLabel}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </BentoGrid>
+                  Next
+                </a>
+                <MoveRight className="w-4 h-4" />
+              </Button>
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-export { UserDashboard };
