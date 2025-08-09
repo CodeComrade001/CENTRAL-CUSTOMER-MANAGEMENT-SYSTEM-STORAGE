@@ -2,74 +2,14 @@
 
 import { useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, BatteryPlus, University, Computer, BookMinus, SquarePen } from "lucide-react";
+import { User, BatteryPlus, University, Computer } from "lucide-react";
 import SubscribedSchoolManagementPackage from "./admin_component/school_management";
 import AdminLogoutButton from "./admin_component/logOutAdmin";
+import SubscribedCBTManagementPackage from "./admin_component/cbt_management";
+import SubscribedHealthManagementPackage from "./admin_component/health_management";
 
 
 
-const CollapsibleSection = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="mb-4">
-      <button
-        className="w-full flex items-center justify-between py-2 px-4 rounded-xl hover:bg-gray-100"
-        onClick={() => setOpen(!open)}
-      >
-        <span className="font-semibold">{title}</span>
-        {open ? <XIcon /> : <MenuIcon />}
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="p-2">{children}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-
-const MenuIcon = () => (
-  <motion.svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <motion.line x1="3" y1="12" x2="21" y2="12" />
-  </motion.svg>
-);
-
-const XIcon = () => (
-  <motion.svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <motion.line x1="18" y1="6" x2="6" y2="18" />
-    <motion.line x1="6" y1="6" x2="18" y2="18" />
-  </motion.svg>
-);
 
 const AnimatedMenuToggle = ({
   toggle,
@@ -136,8 +76,8 @@ const AnimatedMenuToggle = ({
 
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeBtn, setActiveBtn] = useState<string>("all_customer")
-  const [activeBtnText, setActiveBtnText] = useState<string>("All Customers")
+  const [activeBtn, setActiveBtn] = useState<string>("health_management")
+  const [activeBtnText, setActiveBtnText] = useState<string>("School Mangement")
 
   const mobileSidebarVariants = {
     hidden: { x: "-100%" },
@@ -157,6 +97,10 @@ const AdminDashboard = () => {
     switch (activeBtn) {
       case "school_management":
         return <SubscribedSchoolManagementPackage />
+      case "cbt_management":
+        return <SubscribedCBTManagementPackage />
+      case "health_management":
+        return <SubscribedHealthManagementPackage />
       default:
         return <SubscribedSchoolManagementPackage />
     }
@@ -194,15 +138,7 @@ const AdminDashboard = () => {
               {/* Navigation Section */}
               <nav className="flex-1 p-4 overflow-y-auto">
                 <ul>
-                  <li className="mb-2">
-                    <button
-                      onClick={() => bottonSetters("all_customers", "All Customers")}
 
-                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <User className="h-5 w-5" />
-                      All Customers
-                    </button>
-                  </li>
                   <li className="mb-2">
                     <button
                       onClick={() => bottonSetters("school_management", "School Mangement")}
@@ -214,7 +150,7 @@ const AdminDashboard = () => {
 
                   <li className="mb-2">
                     <button
-                      onClick={() => bottonSetters("health_system", "Health Mangement")}
+                      onClick={() => bottonSetters("health_management", "Health Mangement")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <BatteryPlus className="h-5 w-5" />
                       Health management System
@@ -222,34 +158,13 @@ const AdminDashboard = () => {
                   </li>
                   <li className="mb-2">
                     <button
-                      onClick={() => bottonSetters("cbt_system", "Computer Based Test")}
+                      onClick={() => bottonSetters("cbt_management", "Computer Based Test")}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <Computer className="h-5 w-5" />
                       CBT System (Enterprise)
                     </button>
                   </li>
-                  <li className="mb-2">
-                    <CollapsibleSection title="School Management System">
-                      <ul>
-                        <li className="mb-2">
-                          <button
-                            onClick={() => bottonSetters("teacher", "All School Teachers")}
-                            className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                            <BookMinus className="h-5 w-5" />
-                            Teacher
-                          </button>
-                        </li>
-                        <li className="mb-2">
-                          <button
-                            onClick={() => bottonSetters("student", "All School Student")}
-                            className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                            <SquarePen className="h-5 w-5" />
-                            Student
-                          </button>
-                        </li>
-                      </ul>
-                    </CollapsibleSection>
-                  </li>
+
                 </ul>
               </nav>
               {/* Footer / Action Button */}
@@ -282,14 +197,6 @@ const AdminDashboard = () => {
           <ul>
             <li className="mb-2">
               <button
-                onClick={() => bottonSetters("all_customers", "All Customers")}
-                className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                <User className="h-5 w-5" />
-                All Customers
-              </button>
-            </li>
-            <li className="mb-2">
-              <button
                 onClick={() => bottonSetters("school_management", "School Mangement")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <University className="h-5 w-5" />
@@ -300,7 +207,7 @@ const AdminDashboard = () => {
 
             <li className="mb-2">
               <button
-                onClick={() => bottonSetters("cbt_system", "Computer Based Test")}
+                onClick={() => bottonSetters("cbt_management", "Computer Based Test")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <Computer className="h-5 w-5" />
                 CBT System (Enterprise)
@@ -308,34 +215,11 @@ const AdminDashboard = () => {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => bottonSetters("health_system", "Health Mangement")}
+                onClick={() => bottonSetters("health_management", "Health Mangement")}
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                 <BatteryPlus className="h-5 w-5" />
                 Health management System
               </button>
-            </li>
-            <li className="mb-2">
-              {/* <University className="h-5 w-5" /> */}
-              <CollapsibleSection title="School Management System">
-                <ul>
-                  <li className="mb-2">
-                    <button
-                      onClick={() => bottonSetters("teacher", "All School Teachers")}
-                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <BookMinus className="h-5 w-5" />
-                      Teacher
-                    </button>
-                  </li>
-                  <li className="mb-2">
-                    <button
-                      onClick={() => bottonSetters("student", "All School Student")}
-                      className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                      <SquarePen className="h-5 w-5" />
-                      Student
-                    </button>
-                  </li>
-                </ul>
-              </CollapsibleSection>
             </li>
           </ul>
         </nav>

@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from "react";
-import { api__admin_fetchAllCustomerForSMS } from "@/services/api";
+import { api__admin_fetchAllCustomerForCBT } from "@/services/api";
 import type { ColumnDef } from "../reusable_component/table";
 import GenericTable from "../reusable_component/table";
 
 interface Customer {
-  customer_id: string;
-  school_name: string;
-  package: string;
-  renewal_date: string;
-  student_count: number;
-  staff_count: number;
-  last_payment_date: string;
-  is_verified: boolean;
+  customer_id: string,
+  center_name: string,
+  available_slot: number,
+  used_slot: number,
+  number_of_server: number,
+  last_slot_purchase: string,
+  last_login: string
+  is_verified: boolean,
 }
 
 function ordinal(n: number) {
@@ -21,7 +21,7 @@ function ordinal(n: number) {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-export default function SubscribedSchoolManagementPackage() {
+export default function SubscribedCBTManagementPackage() {
   const [allSMSCustomer, setAllSMSCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +35,7 @@ export default function SubscribedSchoolManagementPackage() {
     async function fetchAllDetails() {
       setLoading(true);
       try {
-        const admin = await api__admin_fetchAllCustomerForSMS();
+        const admin = await api__admin_fetchAllCustomerForCBT();
         const { rows } = admin.data ?? {};
         setAllSMSCustomers(rows || []);
       } catch (err) {
@@ -77,14 +77,13 @@ export default function SubscribedSchoolManagementPackage() {
   // Columns mapping for GenericTable
   const columns: ColumnDef<Customer>[] = [
     { key: "customer_id", label: "Customer ID", sortable: true, editable: false, type: "string" },
-    { key: "school_name", label: "School Name", sortable: true, editable: false, type: "string" },
-    { key: "package", label: "Package", sortable: true, editable: true, type: "string" },
-    { key: "renewal_date", label: "Renewal Date", sortable: true, editable: false, type: "date" },
-    { key: "student_count", label: "Students", sortable: true, editable: false, type: "number" },
-    { key: "staff_count", label: "Staff", sortable: true, editable: false, type: "number" },
-    { key: "last_payment_date", label: "Last Payment", sortable: true, editable: false, type: "date" },
-    // boolean column - GenericTable renders boolean as colored badge and edit control (select)
-    { key: "is_verified", label: "Verified", sortable: true, editable: true, type: "boolean" },
+    { key: "center_name", label: "Center Name", sortable: true, editable: false, type: "string" },
+    { key: "available_slot", label: "Avaiable Slot", sortable: true, editable: true, type: "number" },
+    { key: "used_slot", label: "Used Slot", sortable: true, editable: false, type: "number" },
+    { key: "number_of_server", label: "No Of Servers", sortable: true, editable: false, type: "number" },
+    { key: "last_slot_purchase", label: "Last Slot Purchase", sortable: true, editable: false, type: "date" },
+    { key: "last_login", label: "Last Login", sortable: true, editable: false, type: "date" },
+    { key: "is_verified", label: "status", sortable: true, editable: true, type: "boolean" },
   ];
 
   // onUpdate passed to GenericTable. It MUST return a "status" to be treated as success in GenericTable.

@@ -75,7 +75,7 @@ export default class AdminImplementation {
   }
 
   public async fetchAllCustomersForCBT() {
-    const query = `SELECT customer_id,center_name,available_slot,used_slot,is_verified,number_of_servers,last_slot_purchase,last_login
+    const query = `SELECT customer_id,center_name,available_slot,used_slot,is_verified,number_of_server,last_slot_purchase,last_login
     FROM cbt_management
     ORDER BY created_at ASC
     LIMIT 50

@@ -84,7 +84,7 @@ export default class AdminController {
   public async get__allCustomersForSMS(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const {rows} = await this.adminService.fetchAllCustomersForSMS();
+      const { rows } = await this.adminService.fetchAllCustomersForSMS();
       if (rows) {
         return res.status(200).json({ rows });
       }
@@ -96,7 +96,8 @@ export default class AdminController {
   public async get__allCustomersForCBT(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const {rows} = await this.adminService.fetchAllCustomersForCBT();
+      const { rows } = await this.adminService.fetchAllCustomersForCBT();
+      console.log("Turbo Log  ~ AdminController ~ get__allCustomersForCBT ~ rows:", rows);
       if (rows) {
         return res.status(200).json({ rows });
       }
@@ -108,7 +109,7 @@ export default class AdminController {
   public async get__allCustomersForHMS(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const {rows} = await this.adminService.fetchAllCustomersForHMS();
+      const { rows } = await this.adminService.fetchAllCustomersForHMS();
       if (rows) {
         return res.status(200).json({ rows });
       }

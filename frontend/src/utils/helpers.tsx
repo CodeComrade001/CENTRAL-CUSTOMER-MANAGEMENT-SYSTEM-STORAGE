@@ -6,6 +6,7 @@ export type State = {
   sort: SortState;
   filters: FilterState;
   editingId: string | null;
+  filteringColumn: string;
   loading: boolean;
   rows: SchoolManagementRow[]; // current page rows
   total: number; // total rows available (server-side) or filtered total (client-side)
@@ -17,6 +18,7 @@ export type Action =
   | { type: "SET_PAGE_SIZE"; payload: number }
   | { type: "SET_SORT"; payload: SortState }
   | { type: "SET_FILTER"; payload: FilterState }
+  | { type: "SET_COLUMN_FOR_FILTER"; payload: string }
   | { type: "SET_ROWS"; payload: { rows: SchoolManagementRow[]; total: number } }
   | { type: "START_EDIT"; payload: string }
   | { type: "STOP_EDIT" }
@@ -40,6 +42,8 @@ export function reducer(state: State, action: Action): State {
       return { ...state, editingId: action.payload };
     case "STOP_EDIT":
       return { ...state, editingId: null };
+    case "SET_COLUMN_FOR_FILTER":
+      return { ...state, filteringColumn: action.payload };
     case "UPDATE_LOCAL_ROW":
       return {
         ...state,
