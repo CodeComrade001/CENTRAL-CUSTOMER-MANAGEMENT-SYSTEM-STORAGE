@@ -50,7 +50,7 @@ export default class AppBootstrap {
         cookie: {
           secure: false, // localhost = HTTP
           httpOnly: true,
-          path: "admin/dashboard",
+          path: "/",
           sameSite: "lax",
           maxAge: 7 * 24 * 60 * 60 * 1000
         }

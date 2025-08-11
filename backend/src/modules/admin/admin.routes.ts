@@ -4,6 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import AdminController from "./admin.controller";
+import { adminAuthMiddleware } from "../../middlewares/admin.middleware";
 // import { adminAuthMiddleware } from "../../middlewares/admin.middleware";
 
 export default class AdminRoute {
@@ -33,9 +34,19 @@ export default class AdminRoute {
 
 
 
-    // this.router.get("/validate-admin", (req, res) => res.status(200).json({ ok: true }))
+    this.router.get("/validate-admin", adminAuthMiddleware, (req, res) => {
+      res.status(200).json({ ok: true });
+    });
 
-    // this.router.use(adminAuthMiddleware);
+    /*//////////////////////////////////////////////////////////////
+                 ADMIN ACCOUNT == ALL DELETE REQUEST
+    //////////////////////////////////////////////////////////////*/
+
+    this.router.delete("/signout", (req: Request, res: Response, next: NextFunction) =>
+      this.controller.delete__adminSignOut(req, res)
+    );
+
+    this.router.use(adminAuthMiddleware);
 
 
     /*//////////////////////////////////////////////////////////////
@@ -81,12 +92,6 @@ export default class AdminRoute {
     );
 
 
-    /*//////////////////////////////////////////////////////////////
-                 ADMIN ACCOUNT == ALL DELETE REQUEST
-    //////////////////////////////////////////////////////////////*/
 
-    this.router.delete("/signout", (req: Request, res: Response, next: NextFunction) =>
-      this.controller.delete__adminSignOut(req, res, next)
-    );
   }
 }

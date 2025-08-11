@@ -4,6 +4,7 @@
 import { Request, Response, NextFunction } from "express";
 import AdminImplementation from "./admin.service";
 import { customerAccess, loginInAdmin, packageUpdate, slotUpdate } from "./admin.model";
+import pool from "../../config/database";
 
 
 
@@ -33,16 +34,38 @@ export default class AdminController {
           issues: validationResult.error.format(),
         });
       }
-      const { id, message, data } = await this.adminService.adminSignIn(payload);
+      const { id, message } = await this.adminService.adminSignIn(payload);
       if (!message) {
         return res.status(404).json({ message: "Unauthorised user" });
       }
-      req.session.userId = id; // fixed: use id from service
-      req.session.role = "admin";
-      // res.status(201).json({ message: "Account created", data });
-      // for testing purpose 
-      res.status(201).json({ message: "Account created", session: req.session, data });
-    } catch (err) {
+
+      const sessionVal = await new Promise<void>((resolve, reject) => {
+        req.session.regenerate(async (err) => {
+          if (err) return reject(err);
+          req.session.userId = id; // keep as string for DB
+          req.session.role = "admin";
+          // ... set other session fields like role
+          // ensure session is saved before returning control
+          const saveSession = req.session.save(async (saveErr) => {
+            if (saveErr) return reject(saveErr);
+            try {
+              // defensive DB update: write user_id column for this sid
+              const UpdateSessionForLogin = await pool.query(`UPDATE "session" SET user_id = $1 WHERE sid = $2`, [
+                String(id),
+                req.sessionID
+              ]);
+              const { rowCount } = UpdateSessionForLogin
+              if (rowCount !== 0 || rowCount !== null) {
+                return res.status(200).json({ message: "Account login successful" });
+              }
+            } catch {
+              return res.status(500).json({ error: "Internal Server Error" });
+            }
+            resolve();
+          });
+        });
+      });
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -62,18 +85,27 @@ export default class AdminController {
   //   }
   // }
 
-  public async delete__adminSignOut(req: Request, res: Response, next: NextFunction) {
+  public async delete__adminSignOut(req: Request, res: Response) {
+    const sid = req.sessionID;
     try {
-      const { message } = await this.adminService.adminSignOut();
-      if (message) {
-        req.session.destroy(err => {
-          if (err) return res.status(500).json({ error: "Logout failed" });
-          res.clearCookie("connect.sid");
-          res.json({ message: "Logged out" });
+
+      // defensive delete first (returns count)
+      const del = await this.adminService.adminSignOut(sid); // returns true if deleted
+
+      // then destroy session object
+      const destroyed = await new Promise<boolean>((resolve, reject) => {
+        req.session.destroy(err => (err ? reject(err) : resolve(true)));
+      });
+
+      if (del && destroyed) {
+        res.clearCookie("connect.sid", {
+          path: "/",
+          httpOnly: true,
+          sameSite: "lax",
+          secure: false,
         });
-        return res.status(200).json({ token: "Pass the token here" });
-      } else {
-        return res.status(401).json({ message: "User Is Unauthorized" });
+
+        return res.status(200).json({ message: "Log Out successful" });
       }
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
@@ -88,8 +120,8 @@ export default class AdminController {
       if (rows) {
         return res.status(200).json({ rows });
       }
-    } catch (error) {
-      return res.status(500).json({ error: `Internal Server Error: ${error}` });
+    } catch {
+      return res.status(500).json({ error: `Internal Server Error` });
     }
   }
 
@@ -97,7 +129,6 @@ export default class AdminController {
     try {
 
       const { rows } = await this.adminService.fetchAllCustomersForCBT();
-      console.log("Turbo Log  ~ AdminController ~ get__allCustomersForCBT ~ rows:", rows);
       if (rows) {
         return res.status(200).json({ rows });
       }
@@ -208,7 +239,7 @@ export default class AdminController {
       if (admins) {
         return res.status(200).json({ message: "admins log out successful" });
       }
-    } catch {
+    } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }

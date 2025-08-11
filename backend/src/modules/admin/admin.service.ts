@@ -20,8 +20,48 @@ export default class AdminImplementation {
     this.postgres = await connectToPostgres()
   }
 
-  public async adminSignOut() {
-    return { message: true };
+  protected normalizeSid(raw?: string | null): string | null {
+    if (!raw) return null;
+    if (raw.startsWith("s:")) {
+      const dot = raw.indexOf(".");
+      return dot === -1 ? raw.slice(2) : raw.slice(2, dot);
+    }
+    return raw;
+  }
+
+  public async adminSignOut(rawSid: string) {
+    try {
+      const sid = this.normalizeSid(rawSid);
+      if (!sid) {
+        console.warn("adminSignOut: invalid sid", rawSid);
+        return false;
+      }
+
+
+      // RETURNING ensures you get rows back on delete in all clients
+      const checkIfSessionExist = await this.postgres.query(`SELECT * FROM session WHERE sid =$1`, [sid])
+      if (checkIfSessionExist.rows.length === 0) {
+        // session does not exist
+        return false
+      }
+
+      const result = await this.postgres.query(
+        `DELETE FROM session WHERE sid = $1 RETURNING sid`,
+        [sid]
+      );
+
+
+      // Some clients set result.rowCount, some set result.rows.length; handle both.
+      const count =
+        (typeof result.rowCount === "number" ? result.rowCount : null) ??
+        (Array.isArray(result.rows) ? result.rows.length : 0);
+
+
+      return count > 0;
+    } catch (err) {
+      console.error("adminSignOut error:", err);
+      return false;
+    }
   }
 
 
@@ -31,8 +71,6 @@ export default class AdminImplementation {
     const { username, password } = payload
     // const username = "Admin36453"
     // const password = "Admin123456789"
-    // console.log("Turbo Log  ~ AdminImplementation ~ adminSignIn ~ username:", username);
-    // console.log("Turbo Log  ~ AdminImplementation ~ adminSignIn ~ password:", password);
     const result = await this.postgres.query(
       "SELECT id,role, email,password FROM admin WHERE username = $1 AND role = 'admin'",
       [username]
@@ -45,7 +83,7 @@ export default class AdminImplementation {
 
     if (!isMatch) return { message: false };
 
-    return { message: true, id: result.rows[0].id, data: result.rows[0] };
+    return { message: true, id: result.rows[0].id };
   }
 
 
@@ -188,14 +226,14 @@ export default class AdminImplementation {
     const { customer_id, newPackage } = payload
     // Validate inputs
     const allowedPackages = ["starter ", "standard", "premium"]
-    if (typeof newPackage !== 'string' || !allowedPackages.includes(newPackage.toLowerCase())) {
+    if (!allowedPackages.includes(newPackage.toLowerCase())) {
       return false; // or throw new Error('Status must be a string' or invalid package);
     }
     if (!/^hms_\d+$/.test(customer_id)) {
       return false; // or throw new Error('Invalid customer_id format');
     }
 
-    const query = `UPDATE cbt_management
+    const query = `UPDATE health_management
     SET package = $1
     WHERE customer_id = $2
   `;
@@ -210,19 +248,19 @@ export default class AdminImplementation {
 
   public async updateCustomerPackageForSMS(payload: { customer_id: string, newPackage: string }) {
     const { customer_id, newPackage } = payload
-    const allowedPackages = ["basic ", "pro", "premium ", "enterprise"]
+    const allowedPackages = ["basic", "pro", "premium", "enterprise"]
     // Validate inputs
-    if (typeof newPackage !== 'string' || !allowedPackages.includes(newPackage.toLowerCase())) {
+    if (!allowedPackages.includes(newPackage.toLowerCase())) {
       return false; // or throw new Error('Status must be a string or invalid package');
     }
     if (!/^sch_\d+$/.test(customer_id)) {
       return false; // or throw new Error('Invalid customer_id format');
     }
 
-    const query = `UPDATE cbt_management
+    const query = `UPDATE school_management
     SET package = $1
     WHERE customer_id = $2
-  `;
+    `;
 
     const data = await this.postgres.query(query, [newPackage, customer_id]);
 
@@ -234,10 +272,7 @@ export default class AdminImplementation {
 
   public async updateCustomerSlotForCBT(payload: { customer_id: string, newSlot: number }) {
     const { customer_id, newSlot } = payload
-    // Validate inputs
-    if (typeof newSlot !== 'number') {
-      return false; // or throw new Error('Status must be a boolean');
-    }
+
     if (!/^cbt_\d+$/.test(customer_id)) {
       return false; // or throw new Error('Invalid customer_id format');
     }

@@ -76,7 +76,7 @@ const AnimatedMenuToggle = ({
 
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeBtn, setActiveBtn] = useState<string>("health_management")
+  const [activeBtn, setActiveBtn] = useState<string>("school_management")
   const [activeBtnText, setActiveBtnText] = useState<string>("School Mangement")
 
   const mobileSidebarVariants = {
@@ -108,6 +108,7 @@ const AdminDashboard = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
+
   return (
     <div className="flex h-screen w-screen">
 
@@ -120,7 +121,7 @@ const AdminDashboard = () => {
             exit="hidden"
             variants={mobileSidebarVariants}
             transition={{ duration: 0.3 }}
-            className="md:hidden fixed inset-0 z-50 bg-white text-black"
+            className="md:hidden w-[50%] fixed inset-0 z-50 bg-white text-black"
           >
             <div className="flex flex-col h-full">
               {/* Profile Section */}
@@ -141,7 +142,10 @@ const AdminDashboard = () => {
 
                   <li className="mb-2">
                     <button
-                      onClick={() => bottonSetters("school_management", "School Mangement")}
+                      onClick={() => {
+                        toggleSidebar()
+                        return bottonSetters("school_management", "School Mangement")
+                      }}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       School Management System
                     </button>
@@ -150,7 +154,10 @@ const AdminDashboard = () => {
 
                   <li className="mb-2">
                     <button
-                      onClick={() => bottonSetters("health_management", "Health Mangement")}
+                      onClick={() => {
+                        toggleSidebar()
+                        return bottonSetters("health_management", "Health Mangement")
+                      }}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <BatteryPlus className="h-5 w-5" />
                       Health management System
@@ -158,7 +165,10 @@ const AdminDashboard = () => {
                   </li>
                   <li className="mb-2">
                     <button
-                      onClick={() => bottonSetters("cbt_management", "Computer Based Test")}
+                      onClick={() => {
+                        toggleSidebar()
+                        return bottonSetters("cbt_management", "Computer Based Test")
+                      }}
                       className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                       <Computer className="h-5 w-5" />
                       CBT System (Enterprise)

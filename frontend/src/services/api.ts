@@ -75,6 +75,13 @@ export const api__admin_fetchAllCustomerForSMS = (config?: AxiosRequestConfig) =
   return api.get("api/admin/sms/all", config)
 }
 
+export const api__admin_validateAdmin = (config?: AxiosRequestConfig) => {
+  return api.get("api/admin/validate-admin", {
+    ...config,
+    withCredentials: true
+  })
+}
+
 export const api__admin_fetchAllCustomerForCBT = (config?: AxiosRequestConfig) => {
   return api.get("api/admin/cbt/all", config)
 }
@@ -104,29 +111,23 @@ export const api__admin_changeCustomerVerificationForCBT = (data: { customer_id:
 //////////////////////////////////////////////////////////////*/
 
 
-export const api__admin_changeCustomerPackageForHMS = (data: { customer_id: string, newPackage: boolean }, config?: AxiosRequestConfig) => {
+export const api__admin_changeCustomerPackageForHMS = (data: { customer_id: string, newPackage: string }, config?: AxiosRequestConfig) => {
   return api.patch("api/admin/hms/package", data, config)
 }
 
-export const api__admin_changeCustomerPackageForSMS = (data: { customer_id: string, newPackage: boolean }, config?: AxiosRequestConfig) => {
+export const api__admin_changeCustomerPackageForSMS = (data: { customer_id: string, newPackage: string }, config?: AxiosRequestConfig) => {
   return api.patch("api/admin/sms/package", data, config)
 }
 
-export const api__admin_changeSlotForCBT = (data: { customer_id: string, snewSlot: number }, config?: AxiosRequestConfig) => {
+export const api__admin_changeSlotForCBT = (data: { customer_id: string, newSlot: number }, config?: AxiosRequestConfig) => {
   return api.patch("api/admin/cbt/slot", data, config)
 }
 
-export const api__admin_logOutAdmin = (config?: AxiosRequestConfig) => {
-  return api.delete("api/admin/signout", config)
-}
+/*//////////////////////////////////////////////////////////////
+          ADMIN DELETE REQUEST END ROUTE FOR UPDATING PACKAGE
+//////////////////////////////////////////////////////////////*/
 
-export const APi__Admin_ValidateAdmin = (config?: AxiosRequestConfig) => {
-  const token = localStorage.getItem('user_token');
-  return api.get("api/admin/validate-admin", {
-    ...config,
-    headers: {
-      ...(config?.headers || {}),
-      Authorization: `Bearer ${token}`,
-    },
-  });
-}
+export const api__admin_logOutAdmin = (config?: AxiosRequestConfig) => {
+  return api.delete("/api/admin/signout", { withCredentials: true, ...config });
+};
+

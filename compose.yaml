@@ -1,9 +1,10 @@
 name: Customer_Storage
 services:
   postgres:
+    context: ./backend
     image: postgres:15
     env_file:
-      - .env
+      - ./backend/.env
     container_name: cen_cms_pg_image
     restart: always
     shm_size: 128mb
@@ -25,7 +26,7 @@ services:
 
   api:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.dev
     env_file:
       - .env
@@ -55,7 +56,7 @@ services:
 
   web:
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile.dev
     env_file:
       - .env

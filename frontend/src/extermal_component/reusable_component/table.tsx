@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useReducer } from "react";
 import { reducer, formatDate as helperFormatDate } from "@/utils/helpers";
+import DbLoading from "./DBloading";
 
 /**
  * Column definition for the generic table.
@@ -16,15 +17,19 @@ export type ColumnDef<T = any> = {
   label: string;
   sortable?: boolean;
   editable?: boolean;
-  type?: "string" | "number" | "date" | "boolean";
+  type?: "string" | "number" | "date" | "boolean" | "dropdown_column";
   render?: (value: any, row: T, editing: boolean) => React.ReactNode;
 };
 
+type ColumnDropdownDef<K = string, V = string | number> = {
+  key: K;
+  columnVal: V[];
+};
 type FetchArgs = { page: number; pageSize: number; filters: any; sort: any };
 type FetchResult<T> = { rows: T[]; total: number };
 
 type GenericTableProps<T = any> = {
-  data?: T[]; // local client data
+  data?: T[]; // local client data.
   columns?: ColumnDef<T>[];
   serverSide?: boolean;
   fetchData?: (args: FetchArgs) => Promise<FetchResult<T>>;
@@ -33,6 +38,7 @@ type GenericTableProps<T = any> = {
   initialPageSize?: number;
   pageSizeOptions?: number[];
   className?: string;
+  columnDropdowns?: ColumnDropdownDef<string, string | number>[] | Record<string, (string | number)[]>;
   // optional formatter for date display (value) => string
   formatDateFn?: (v?: any) => string;
 };
@@ -50,6 +56,7 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
     initialPageSize = 25,
     pageSizeOptions = [10, 25, 50, 100],
     className = "",
+    columnDropdowns = [], // <- ADD THIS
     formatDateFn,
   } = props;
 
@@ -105,6 +112,7 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
     const spaced = s.replace(/[-/,]/g, " ");
     const d2 = new Date(spaced);
     if (!Number.isNaN(d2.getTime())) return d2;
+
 
     return null;
   }
@@ -288,20 +296,17 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
       // update local copy always on success
       if (ok) {
         dispatch({ type: "UPDATE_LOCAL_ROW", payload: row });
-        // show prompt as requested (simple confirm)
-        const confirmed = window.confirm(`${message}\n\nClick OK to continue.`);
         onAlert?.(message, true);
-        // close editing only if user confirmed (makes prompt "accepted")
-        if (confirmed) stopEditing();
+        stopEditing()
       } else {
         const errMsg = (result && result.message) || "Failed to update";
         onAlert?.(errMsg, false);
-        alert(errMsg);
+        stopEditing()
       }
     } catch (err) {
       console.error(err);
       onAlert?.("Failed to save. See console for details.", false);
-      alert("Failed to save. See console for details.");
+      stopEditing()
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -310,7 +315,7 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
   const rowsToRender: T[] = state.rows || [];
 
   // helper to render cell default value (format dates, booleans)
-  const renderCellValue = (col: ColumnDef<T>, row: T, editing: boolean) => {
+  const renderCellValue = (col: ColumnDef<T>, row: T, editing: boolean, dropDowns?: ColumnDropdownDef<string, string | number>[] | Record<string, (string | number)[]>) => {
     const key = col.key;
     const val = (row as any)[key];
     if (editing && col.editable) {
@@ -325,6 +330,33 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
           >
             <option value="true">true</option>
             <option value="false">false</option>
+          </select>
+        );
+      }
+      if (col.type === "dropdown_column") {
+        // handle both shapes: array-of-defs OR record lookup
+        let dropdownVals: (string | number)[] | undefined;
+        if (Array.isArray(dropDowns)) {
+          const def = dropDowns.find((dd) => String(dd.key) === col.key);
+          dropdownVals = def?.columnVal;
+        } else if (dropDowns && typeof dropDowns === "object") {
+          dropdownVals = (dropDowns as Record<string, (string | number)[]>)[col.key];
+        }
+
+        if (!dropdownVals || !dropdownVals.length) return val; // fallback if no dropdown defined
+
+        return (
+          <select
+            title="select cell"
+            value={val ?? ""}
+            onChange={(e) => onChangeCell(row.customer_id!, key, e.target.value)}
+            className="p-1 border rounded"
+          >
+            {dropdownVals.map((opt, index) => (
+              <option key={index} value={opt}>
+                {opt}
+              </option>
+            ))}
           </select>
         );
       }
@@ -440,9 +472,9 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
       </div>
 
       {/* TABLE (fills container, scrolls if overflow) */}
-      <div className="w-full h-full bg-white rounded-lg shadow-sm overflow-auto">
-        <table className="min-w-full divide-y" style={{ tableLayout: "auto" }}>
-          <thead className="bg-gray-50">
+      <div className="w-full h-full bg-white relative rounded-lg shadow-sm overflow-auto">
+        <table className="min-w-full divide-y " style={{ tableLayout: "auto" }}>
+          <thead className="bg-gray-50 sticky">
             <tr>
               <th className="px-3 py-2 text-left text-sm font-medium text-gray-700">No</th>
               {columns.map((c) => (
@@ -461,13 +493,17 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
             {state.loading ? (
               <tr>
                 <td colSpan={columns.length + 1} className="p-6 text-center text-gray-500">
-                  Loading...
+                  <div style={{ height: 600 }}>
+                    <DbLoading message="Storing Data..." />
+                  </div>
                 </td>
               </tr>
             ) : rowsToRender.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + 1} className="p-6 text-center text-gray-500">
-                  No rows to display
+                  <div style={{ height: 600 }}>
+                    <DbLoading message="No more row to display" />
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -479,7 +515,7 @@ export default function GenericTable<T extends { [k: string]: any; customer_id?:
 
                     {columns.map((col) => (
                       <td key={String(col.key)} className="px-3 py-2 text-sm">
-                        {col.render ? col.render((row as any)[col.key], row, editing) : renderCellValue(col, row, editing)}
+                        {col.render ? col.render((row as any)[col.key], row, editing) : renderCellValue(col, row, editing, columnDropdowns)}
                       </td>
                     ))}
 

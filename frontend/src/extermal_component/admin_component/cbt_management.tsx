@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from "react";
-import { api__admin_fetchAllCustomerForCBT } from "@/services/api";
+import { api__admin_changeCustomerVerificationForCBT, api__admin_changeSlotForCBT, api__admin_fetchAllCustomerForCBT } from "@/services/api";
 import type { ColumnDef } from "../reusable_component/table";
 import GenericTable from "../reusable_component/table";
 
@@ -38,8 +38,7 @@ export default function SubscribedCBTManagementPackage() {
         const admin = await api__admin_fetchAllCustomerForCBT();
         const { rows } = admin.data ?? {};
         setAllSMSCustomers(rows || []);
-      } catch (err) {
-        console.error("Error fetching data:", err);
+      } catch {
         setAllSMSCustomers([]);
       } finally {
         setLoading(false);
@@ -90,18 +89,62 @@ export default function SubscribedCBTManagementPackage() {
   // Here we optimistic-update local state and return the expected shape.
   async function handleUpdate(updatedRow: Customer) {
     try {
-      // TODO: replace with real update API call if you have one — e.g.
-      // await api__admin_updateCustomer(updatedRow)
-      // and return that API's response (or {status:200, message:'OK'}).
+      const id = updatedRow.customer_id;
+      if (!id) return { status: 400, message: "Missing customer_id" };
 
-      // For now: update local state
-      setAllSMSCustomers((prev) => prev.map((r) => (r.customer_id === updatedRow.customer_id ? updatedRow : r)));
+      // snapshot current row from state
+      const existing = allSMSCustomer.find((r) => r.customer_id === id);
+      if (!existing) {
+        return { status: 404, message: "Row not found locally" };
+      }
 
-      // simulate server success response
+      // detect which fields actually changed (only check editable fields)
+      const changedIsVerified = existing.is_verified !== updatedRow.is_verified;
+      const changedPackage = existing.available_slot !== updatedRow.available_slot;
+
+      // nothing changed — no API call, no state update
+      if (!changedIsVerified && !changedPackage) {
+        return { status: 200, message: "No changes detected for user  verification" };
+      }
+
+      // prepare API calls for only the changed fields
+      const calls: Promise<any>[] = [];
+      if (changedIsVerified) {
+        // api__admin_changeCustomerVerificationForSMS expects { customer_id, status }
+        calls.push(api__admin_changeCustomerVerificationForCBT({ customer_id: id, status: updatedRow.is_verified }));
+      }
+      if (changedPackage) {
+        // api__admin_changeCustomerPackageForSMS expects { customer_id, newPackage }
+        calls.push(api__admin_changeSlotForCBT({ customer_id: id, newSlot: updatedRow.available_slot }));
+      }
+
+      // execute calls in parallel and capture any failures
+      const results = await Promise.allSettled(calls);
+
+      // If any call failed -> abort and return failure (no local mutation)
+      const rejected = results.find((r) => r.status === "rejected");
+      if (rejected) {
+        return { status: 500, message: "Failed to update on server (see console)" };
+      }
+
+      // Optionally inspect fulfilled results for non-200 shapes if needed.
+      // For now treat any fulfilled as success (you can add shape checks here).
+      // Merge only changed fields into the existing local row
+      setAllSMSCustomers((prev) =>
+        prev.map((r) =>
+          r.customer_id === id
+            ? {
+              ...r,
+              // keep everything else exactly the same, only apply what's changed
+              ...(changedIsVerified ? { is_verified: updatedRow.is_verified } : {}),
+              ...(changedPackage ? { available_slot: updatedRow.available_slot } : {}),
+            }
+            : r
+        )
+      );
+
       return { status: 200, message: "Saved successfully" };
-    } catch (err) {
-      console.error("Update failed:", err);
-      // return failure shape
+    } catch {
       return { status: 500, message: "Update failed" };
     }
   }

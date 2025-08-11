@@ -1,10 +1,13 @@
+import { useAdminAuth } from "@/middleware/admin/useAuth";
 import { api__admin_logOutAdmin } from "@/services/api";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogoutButton = () => {
-  // const { logout } = useAdminAuth();
+  const { refreshValidation } = useAdminAuth();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -13,8 +16,10 @@ const AdminLogoutButton = () => {
     try {
       const res = await api__admin_logOutAdmin();
       if (res.status === 200) {
-        // logout(); // Clear context/localStorage
+        await localStorage.removeItem("adminToken"); // safer than clear()
+        await refreshValidation()
         setStatus("success");
+        return navigate("/admin/login");
       } else {
         setStatus("error");
       }
