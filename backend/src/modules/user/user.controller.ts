@@ -34,6 +34,7 @@ export default class UserController {
       if (message) {
         return res.status(200).json({ message: "Account has been created successfully" })
       }
+      return res.status(400).json({ error: "Could not create account" });
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
@@ -56,6 +57,7 @@ export default class UserController {
       if (message) {
         return res.status(200).json({ message: "Account has been created successfully" })
       }
+      return res.status(400).json({ error: "Could not create account" });
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
@@ -78,6 +80,7 @@ export default class UserController {
       if (message) {
         return res.status(200).json({ message: "Account has been created successfully" })
       }
+      return res.status(400).json({ error: "Could not create account" });
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }

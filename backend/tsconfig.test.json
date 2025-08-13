@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./", // let Jest access both src and tests
+    "noEmit": true // don't output compiled files
+  },
+  "include": [
+    "src",
+    "tests"
+  ]
+}

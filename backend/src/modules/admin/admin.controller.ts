@@ -36,7 +36,7 @@ export default class AdminController {
       }
       const { id, message } = await this.adminService.adminSignIn(payload);
       if (!message) {
-        return res.status(404).json({ message: "Unauthorised user" });
+        return res.status(401).json({ message: "Unauthorised user" });
       }
 
       const sessionVal = await new Promise<void>((resolve, reject) => {

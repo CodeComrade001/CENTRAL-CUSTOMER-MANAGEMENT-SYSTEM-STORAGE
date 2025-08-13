@@ -1,0 +1,14 @@
+{
+  "name": "central-customer-management-system-storage",
+  "version": "1.0.0",
+  "description": "This is a full-stack web application built with **Vite + React** on the frontend and **Express.js + Supabase** on the backend.  \r It includes user authentication, protected routes, and a real-time connection to a remote PostgreSQL database via Supabase.  \r The entire project is Dockerized and structured for easy deployment and local development.",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd backend && jest --passWithNoTests",
+    "test:watch": "cd backend && jest --watch",
+    "test:coverage": "cd backend && jest --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

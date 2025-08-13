@@ -44,28 +44,26 @@ export default class UserImplementation {
       return { error: "Invalid package selected." };
     }
 
-    try {
-      const query = `
+
+    const query = `
       INSERT INTO school_management (
         school_name, package, renewal_date, student_count, staff_count, last_payment_date
       ) VALUES ($1, $2, $3, $4, $5, $6)
     `;
 
-      const values = [
-        school_name,
-        trimmedPackage,
-        renewal_date,
-        student_count,
-        staff_count,
-        last_payment_date,
-      ];
+    const values = [
+      school_name,
+      trimmedPackage,
+      renewal_date,
+      student_count,
+      staff_count,
+      last_payment_date,
+    ];
 
-      await this.postgres.query(query, values);
+    await this.postgres.query(query, values);
 
-      return { message: true };
-    } catch (err) {
-      return { error: "Failed to insert data." };
-    }
+    return { message: true };
+
   }
 
 
@@ -84,30 +82,26 @@ export default class UserImplementation {
       return { error: "Invalid package selected." };
     }
 
-    try {
-      const query = `
+    const query = `
       INSERT INTO health_management (
         hospital_name, package, renewal_date, last_payment
       ) VALUES ($1, $2, $3, $4)
     `;
 
-      const values = [
-        trimmedPackage,
-        hospital_name,
-        renewal_date,
-        last_payment,
-      ];
+    const values = [
+      trimmedPackage,
+      hospital_name,
+      renewal_date,
+      last_payment,
+    ];
 
-      const result = await this.postgres.query(query, values);
-      if (result.rowCount == null || result.rowCount === 0) {
+    const result = await this.postgres.query(query, values);
+    if (result.rowCount == null || result.rowCount === 0) {
 
-        return { message: false };
-      }
-      return { message: true };
-
-    } catch (err) {
-      return { error: "Failed to insert data." };
+      return { message: false };
     }
+    return { message: true };
+
   }
 
   public async fetchUserSignUpForCBT(payload: CBTpayload) {
@@ -120,30 +114,27 @@ export default class UserImplementation {
     } = payload;
 
 
-    try {
-      const query = `
+    const query = `
       INSERT INTO cbt_management (
         center_name, available_slot, used_slot, last_slot_purchase,last_login
       ) VALUES ($1, $2, $3, $4, $5) 
     `;
 
-      const values = [
-        center_name,
-        available_slot,
-        used_slot,
-        last_slot_purchase,
-        last_login,
-      ];
+    const values = [
+      center_name,
+      available_slot,
+      used_slot,
+      last_slot_purchase,
+      last_login,
+    ];
 
-      const result = await this.postgres.query(query, values);
-      if (result.rowCount == null || result.rowCount === 0) {
+    const result = await this.postgres.query(query, values);
+    if (result.rowCount == null || result.rowCount === 0) {
 
-        return { message: false };
-      }
-      return { message: true };
-    } catch (err) {
-      return { error: "Failed to insert data." };
+      return { message: false };
     }
+    return { message: true };
+
   }
 
 }
