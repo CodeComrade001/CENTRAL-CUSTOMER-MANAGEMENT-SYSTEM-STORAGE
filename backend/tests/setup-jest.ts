@@ -23,10 +23,7 @@ jest.mock('../src/config/database', () => ({
   connectToPostgres: jest.fn(() => ({ query: mockQuery })),
 }));
 
-// Mock admin middleware to skip auth in tests
-jest.mock('../src/middlewares/admin.middleware', () => ({
-  adminAuthMiddleware: (req: any, res: any, next: any) => next(),
-}));
+
 
 
 

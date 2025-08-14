@@ -37,6 +37,7 @@ export default function SubscribedSchoolManagementPackage() {
       setLoading(true);
       try {
         const admin = await api__admin_fetchAllCustomerForSMS();
+        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin);
         const { rows } = admin.data ?? {};
         setAllSMSCustomers(rows || []);
       } catch {

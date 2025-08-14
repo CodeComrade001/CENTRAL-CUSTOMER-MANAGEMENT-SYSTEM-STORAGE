@@ -76,7 +76,7 @@ const AnimatedMenuToggle = ({
 
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeBtn, setActiveBtn] = useState<string>("school_management")
+  const [activeBtn, setActiveBtn] = useState<string>("cbt_management")
   const [activeBtnText, setActiveBtnText] = useState<string>("School Mangement")
 
   const mobileSidebarVariants = {

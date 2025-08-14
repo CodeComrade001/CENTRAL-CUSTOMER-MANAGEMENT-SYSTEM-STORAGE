@@ -1,3 +1,8 @@
+// Mock admin middleware to skip auth in tests
+jest.mock('../../src/middlewares/admin.middleware', () => ({
+  adminAuthMiddleware: (req: any, res: any, next: any) => next(),
+}));
+
 // tests/admin.controller.unit.test.ts
 import request from "supertest";
 import express from "express";

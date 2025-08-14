@@ -9,6 +9,7 @@ import { limitPayload } from "./middlewares/limitPayload";
 import session from "express-session";
 import pg from "pg";
 import connectPgSimple from "connect-pg-simple";
+import { dbSessionMiddleware } from "./middlewares/admin.middleware";
 
 export default class AppBootstrap {
   private app: Express;
@@ -72,7 +73,11 @@ export default class AppBootstrap {
       legacyHeaders: false,
       message: { error: 'Too many requests, please try again later.' },
     }));
+    this.app.use(dbSessionMiddleware);
   }
+
+
+
 
   private setupRoutes() {
     const adminRoute = new AdminRoute();

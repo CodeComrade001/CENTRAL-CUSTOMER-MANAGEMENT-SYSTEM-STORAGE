@@ -69,12 +69,13 @@ export default class AdminImplementation {
 
   public async adminSignIn(payload: { username: string, password: string }) {
     const { username, password } = payload
-    // const username = "Admin36453"
-    // const password = "Admin123456789"
+    //   const username = "Admin_00001"
+    //   const password = "Admin123456789"
     const result = await this.postgres.query(
-      "SELECT id,role, email,password FROM admin WHERE username = $1 AND role = 'admin'",
+      "SELECT user_id,role, email,password FROM admin WHERE username = $1 AND role = 'admin'",
       [username]
     );
+    console.log("Turbo Log  ~ AdminImplementation ~ adminSignIn ~ result:", result);
 
     if (result.rows.length === 0) return { message: false };
 
@@ -83,7 +84,7 @@ export default class AdminImplementation {
 
     if (!isMatch) return { message: false };
 
-    return { message: true, id: result.rows[0].id };
+    return { message: true, id: result.rows[0].user_id };
   }
 
 
@@ -92,12 +93,38 @@ export default class AdminImplementation {
     FROM school_management
     ORDER BY created_at ASC
     LIMIT 50
-  `;
+    `;
 
     const { rows } = await this.postgres.query(query);
 
     return { rows: rows.length === 0 ? [] : rows };
   }
+
+
+  // public async adminNewAccount(
+  // ) {
+
+  //   const username = "Admin_00001"
+  //   const password = "Admin123456789"
+  //   const role = "admin"
+  //   const email = "admin@gmmail.com"
+  //   // Hash password
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+
+  //   const query = `
+  //   INSERT INTO admin (username, role, email, password)
+  //   VALUES ($1, $2, $3, $4) RETURNING user_id
+  // `;
+
+  //   const data = await this.postgres.query(query, [
+  //     username,
+  //     role,
+  //     email,
+  //     hashedPassword
+  //   ]);
+  //   if (data.rowCount == null) return { id: "" }
+  //   return { id: data.rows[0].user_id };
+  // }
 
 
   public async fetchAllCustomersForHMS() {
@@ -146,35 +173,6 @@ export default class AdminImplementation {
     if (rowCount == null) return false //rowCount is null
     return rowCount > 0;
   }
-
-
-  // public async adminNewAccount(
-  // ) {
-
-  //   const username = "Admin36453"
-  //   const password = "Admin123456789"
-  //   const role = "admin"
-  //   const email = "admin@gmmail.com"
-  //   // Hash password
-  //   const hashedPassword = await bcrypt.hash(password, 10);
-
-  //   const query = `
-  //   INSERT INTO admin (username, role, email, password)
-  //   VALUES ($1, $2, $3, $4) RETURNING id
-  // `;
-
-  //   const data = await this.postgres.query(query, [
-  //     username,
-  //     role,
-  //     email,
-  //     hashedPassword
-  //   ]);
-  //   if (data.rowCount == null) return false
-  //   return data.rows[0].id;
-  // }
-
-
-
 
   public async changeCustomerAccesForHMS(payload: { customer_id: string, status: boolean }) {
     const { customer_id, status } = payload

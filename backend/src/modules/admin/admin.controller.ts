@@ -25,28 +25,26 @@ export default class AdminController {
 
   public async post__adminSignIn(req: Request, res: Response, next: NextFunction) {
     try {
-
-      const payload = req.body
+      const payload = req.body;
       const validationResult = await loginInAdmin.safeParseAsync(payload);
       if (!validationResult.success) {
-        return res.status(400).json({
-          error: "Validation failed",
-          issues: validationResult.error.format(),
-        });
-      }
-      const { id, message } = await this.adminService.adminSignIn(payload);
-      if (!message) {
-        return res.status(401).json({ message: "Unauthorised user" });
+        return res.status(400).json({ error: "Validation failed", issues: validationResult.error.format() });
       }
 
-      const sessionVal = await new Promise<void>((resolve, reject) => {
+      const { id, message } = await this.adminService.adminSignIn(payload);
+      console.log("Turbo Log  ~ AdminController ~ post__adminSignIn ~ message:", message);
+      console.log("Turbo Log  ~ AdminController ~ post__adminSignIn ~ id:", id);
+      if (!message) return res.status(401).json({ message: "Invalid log in details" });
+
+      // regenerate -> set fields -> save
+      await new Promise<void>((resolve, reject) => {
         req.session.regenerate(async (err) => {
           if (err) return reject(err);
           req.session.userId = id; // keep as string for DB
           req.session.role = "admin";
           // ... set other session fields like role
           // ensure session is saved before returning control
-          const saveSession = req.session.save(async (saveErr) => {
+          req.session.save(async (saveErr) => {
             if (saveErr) return reject(saveErr);
             try {
               // defensive DB update: write user_id column for this sid
@@ -65,19 +63,33 @@ export default class AdminController {
           });
         });
       });
-    } catch {
+
+      return res.status(200).json({ message: "Account login successful", id });
+    } catch (err) {
+      console.error('post__adminSignIn error:', err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
+
   // public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
   //   try {
 
-  // const { username, role, email, password } = req.body
   //     const { id } = await this.adminService.adminNewAccount();
 
   //     req.session.userId = id; // fixed: use id from service
   //     req.session.role = "admin";
+  //     const sessiongenerate = await new Promise<void>((resolve, reject) => {
+  //       const sessionGen = req.session.regenerate((err) => {
+  //         if (err) return reject(err);
+  //         req.session.userId = id;
+  //         req.session.role = "admin";
+  //         req.session.save((saveErr) => {
+  //           if (saveErr) return reject(saveErr);
+  //           resolve();
+  //         });
+  //       });
+  //     });
   //     res.status(201).json({ success: true, message: "Account created", session: req.session });
 
   //   } catch (err) {
@@ -132,7 +144,7 @@ export default class AdminController {
       if (rows) {
         return res.status(200).json({ rows });
       }
-    } catch {
+    } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }

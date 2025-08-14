@@ -25,11 +25,6 @@ describe("userController (unit)", () => {
     jest.clearAllTimers();
   });
 
-  afterAll(async () => {
-    await pool.end(); // Close DB connection once
-    // If you have an actual server instance:
-    // await new Promise(resolve => server.close(resolve));
-  });
   /*//////////////////////////////////////////////////////////////
                           POST /user/signup/sms
       //////////////////////////////////////////////////////////////*/

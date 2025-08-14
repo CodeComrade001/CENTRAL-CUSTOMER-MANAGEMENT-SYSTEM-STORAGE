@@ -5,7 +5,7 @@ import { useAdminAuth } from "@/middleware/admin/useAuth";
 import { api__admin_LogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -31,12 +31,12 @@ export const AdminFullScreenSignIn = () => {
   const navigate = useNavigate();
 
   // avoid state updates when unmounted
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  // const mountedRef = useRef(true);
+  // useEffect(() => {
+  //   return () => {
+  //     mountedRef.current = false;
+  //   };
+  // }, []);
 
   // If auth hook finished and user is admin, redirect to dashboard immediately
   useEffect(() => {
@@ -61,7 +61,7 @@ export const AdminFullScreenSignIn = () => {
     if (!trimmedUsername || !trimmedPassword) {
       if (!trimmedUsername) setUserNameError("Username is empty");
       if (!trimmedPassword) setPasswordError("Password is empty");
-      if (mountedRef.current) setSignInText("❌ Username or password is empty");
+      setSignInText("❌ Username or password is empty");
       setSubmitted(false);
       return;
     }
@@ -71,11 +71,12 @@ export const AdminFullScreenSignIn = () => {
       const response = await api__admin_LogIn({ username: trimmedUsername, password: trimmedPassword });
 
       // Defensive display
-      if (mountedRef.current) setSignInText(getLoginStatusMessage(response.status));
+      setSignInText(getLoginStatusMessage(response.status));
 
       if (response.status === 200) {
         // Successful login — navigate to dashboard
         // NOTE: do NOT await navigate; it's synchronous
+        setSignInText(getLoginStatusMessage(response.status));
         await refreshValidation()
         navigate("/admin/dashboard", { replace: true });
       }
@@ -83,9 +84,10 @@ export const AdminFullScreenSignIn = () => {
     } catch (err: any) {
       console.error("Login error:", err);
       const status = err?.response?.status ?? null;
-      if (mountedRef.current) setSignInText(getLoginStatusMessage(status));
+      console.log("Turbo Log  ~ handleSubmit ~ status:", status);
+      setSignInText(getLoginStatusMessage(status));
     } finally {
-      if (mountedRef.current) setSubmitted(false);
+      setSubmitted(false);
     }
   };
 
@@ -121,7 +123,7 @@ export const AdminFullScreenSignIn = () => {
               <label htmlFor="username" className="block text-sm mb-2">
                 Enter Your Admin Username
                 <span className="ml-2 italic text-gray-500 text-xs align-middle">
-                  demo username: <mark>Admin36453</mark>
+                  demo username: <mark>Admin_00001</mark>
                 </span>
               </label>
               <input
