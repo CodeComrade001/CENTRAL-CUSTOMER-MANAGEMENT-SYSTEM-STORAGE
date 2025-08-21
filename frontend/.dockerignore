@@ -52,3 +52,11 @@ dist
 # Ignore OS files
 .DS_Store
 Thumbs.db
+node_modules
+dist
+.vscode
+*.log
+*.env
+.DS_Store
+.git
+.gitignore

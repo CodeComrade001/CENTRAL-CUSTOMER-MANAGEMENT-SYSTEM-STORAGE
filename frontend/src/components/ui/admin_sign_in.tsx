@@ -1,6 +1,6 @@
 "use client";
 
-import LoadingIcon from "@/extermal_component/reusable_component/loading";
+import LoadingIcon from "@/components/reusable_component/loading";
 import { useAdminAuth } from "@/middleware/admin/useAuth";
 import { api__admin_LogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
@@ -82,9 +82,7 @@ export const AdminFullScreenSignIn = () => {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error("Login error:", err);
       const status = err?.response?.status ?? null;
-      console.log("Turbo Log  ~ handleSubmit ~ status:", status);
       setSignInText(getLoginStatusMessage(status));
     } finally {
       setSubmitted(false);

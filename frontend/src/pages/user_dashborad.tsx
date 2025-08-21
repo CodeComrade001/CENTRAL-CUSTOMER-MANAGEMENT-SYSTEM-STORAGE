@@ -30,7 +30,7 @@ export default function USerSignUpCard() {
     student_count: 0,
     last_payment_date: "",
     last_payment: "",
-    available_slot: "",
+    available_slot: 0,
     used_slot: 0,
     last_slot_purchase: "",
     last_login: "",
@@ -96,8 +96,7 @@ export default function USerSignUpCard() {
         setShowNotificationText({ text: "Account Created Successfully. Navigate to admin Dashboard.", textType: "success" });
         setSuccess(true);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setShowNotificationText({ text: "Server Errror. Please try again.", textType: "destructive" });
     } finally {
       setLoading(false);
@@ -199,7 +198,7 @@ export default function USerSignUpCard() {
             {formData.systemType === "CBT" && (
               <>
                 <input name="center_name" placeholder="Center Name" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
-                <input name="available_slot" placeholder="Available Slot" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
+                <input name="available_slot" placeholder="Available Slot" type="number" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
                 <input name="used_slot" placeholder="Used Slot" type="number" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
                 <input name="last_slot_purchase" placeholder="Last Slot Purchase Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />
                 <input name="last_login" placeholder="Last Login Date" type="date" onChange={handleChange} className="w-full p-2 border rounded-lg mb-2" />

@@ -6,9 +6,6 @@ import AdminImplementation from "./admin.service";
 import { customerAccess, loginInAdmin, packageUpdate, slotUpdate } from "./admin.model";
 import pool from "../../config/database";
 
-
-
-
 export default class AdminController {
   private adminService: AdminImplementation;
 
@@ -32,92 +29,57 @@ export default class AdminController {
       }
 
       const { id, message } = await this.adminService.adminSignIn(payload);
-      console.log("Turbo Log  ~ AdminController ~ post__adminSignIn ~ message:", message);
-      console.log("Turbo Log  ~ AdminController ~ post__adminSignIn ~ id:", id);
       if (!message) return res.status(401).json({ message: "Invalid log in details" });
 
       // regenerate -> set fields -> save
       await new Promise<void>((resolve, reject) => {
         req.session.regenerate(async (err) => {
           if (err) return reject(err);
-          req.session.userId = id; // keep as string for DB
+          req.session.user_id = id; // keep as string for DB
           req.session.role = "admin";
+
           // ... set other session fields like role
           // ensure session is saved before returning control
-          req.session.save(async (saveErr) => {
-            if (saveErr) return reject(saveErr);
-            try {
-              // defensive DB update: write user_id column for this sid
-              const UpdateSessionForLogin = await pool.query(`UPDATE "session" SET user_id = $1 WHERE sid = $2`, [
-                String(id),
-                req.sessionID
-              ]);
-              const { rowCount } = UpdateSessionForLogin
-              if (rowCount !== 0 || rowCount !== null) {
-                return res.status(200).json({ message: "Account login successful" });
-              }
-            } catch {
-              return res.status(500).json({ error: "Internal Server Error" });
-            }
-            resolve();
+          req.session.regenerate((err) => {
+            if (err) return next(err);
+
+            req.session.user_id = id;
+            req.session.role = "admin";
+
+            req.session.save((saveErr) => {
+              if (saveErr) return next(saveErr);
+
+              return res.status(200).json({ message: "Account login successful" });
+            });
           });
         });
       });
-
-      return res.status(200).json({ message: "Account login successful", id });
     } catch (err) {
-      console.error('post__adminSignIn error:', err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
-
-  // public async post__adminNewAccount(req: Request, res: Response, next: NextFunction) {
-  //   try {
-
-  //     const { id } = await this.adminService.adminNewAccount();
-
-  //     req.session.userId = id; // fixed: use id from service
-  //     req.session.role = "admin";
-  //     const sessiongenerate = await new Promise<void>((resolve, reject) => {
-  //       const sessionGen = req.session.regenerate((err) => {
-  //         if (err) return reject(err);
-  //         req.session.userId = id;
-  //         req.session.role = "admin";
-  //         req.session.save((saveErr) => {
-  //           if (saveErr) return reject(saveErr);
-  //           resolve();
-  //         });
-  //       });
-  //     });
-  //     res.status(201).json({ success: true, message: "Account created", session: req.session });
-
-  //   } catch (err) {
-  //     return res.status(500).json({ error: "Internal Server Error" });
-  //   }
-  // }
-
   public async delete__adminSignOut(req: Request, res: Response) {
-    const sid = req.sessionID;
     try {
-
-      // defensive delete first (returns count)
-      const del = await this.adminService.adminSignOut(sid); // returns true if deleted
-
-      // then destroy session object
       const destroyed = await new Promise<boolean>((resolve, reject) => {
-        req.session.destroy(err => (err ? reject(err) : resolve(true)));
+        req.session.destroy(err => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(true);
+        });
       });
 
-      if (del && destroyed) {
+      if (destroyed) {
         res.clearCookie("connect.sid", {
           path: "/",
           httpOnly: true,
           sameSite: "lax",
           secure: false,
         });
-
         return res.status(200).json({ message: "Log Out successful" });
+      } else {
+        return res.status(500).json({ message: "Error deleting session successful" });
       }
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });

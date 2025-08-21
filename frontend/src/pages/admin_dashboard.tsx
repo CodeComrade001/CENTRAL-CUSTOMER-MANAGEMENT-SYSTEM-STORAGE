@@ -2,11 +2,11 @@
 
 import { useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, BatteryPlus, University, Computer } from "lucide-react";
-import SubscribedSchoolManagementPackage from "./admin_component/school_management";
-import AdminLogoutButton from "./admin_component/logOutAdmin";
-import SubscribedCBTManagementPackage from "./admin_component/cbt_management";
-import SubscribedHealthManagementPackage from "./admin_component/health_management";
+import { BatteryPlus, University, Computer } from "lucide-react";
+import SubscribedSchoolManagementPackage from "../components/admin_component/school_management";
+import AdminLogoutButton from "../components/admin_component/logOutAdmin";
+import SubscribedCBTManagementPackage from "../components/admin_component/cbt_management";
+import SubscribedHealthManagementPackage from "../components/admin_component/health_management";
 
 
 
@@ -76,7 +76,7 @@ const AnimatedMenuToggle = ({
 
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeBtn, setActiveBtn] = useState<string>("cbt_management")
+  const [activeBtn, setActiveBtn] = useState<string>("school_management")
   const [activeBtnText, setActiveBtnText] = useState<string>("School Mangement")
 
   const mobileSidebarVariants = {
@@ -128,11 +128,11 @@ const AdminDashboard = () => {
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                    <User className="h-6 w-6" />
+                    <img src="/admin_profile.webp" title="admin profile" className="h-full w-full rounded-full" />
                   </div>
                   <div>
-                    <p className="font-semibold">HextaUI</p>
-                    <p className="text-sm text-gray-500">hi@preetsuthar.me</p>
+                    <p className="font-semibold">Admin_00001</p>
+                    <p className="text-sm text-gray-500">admin@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -194,11 +194,11 @@ const AdminDashboard = () => {
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-              <User className="h-6 w-6" />
+              <img src="/admin_profile.webp" title="admin profile" className="h-full w-full rounded-full" />
             </div>
             <div>
-              <p className="font-semibold">HextaUI</p>
-              <p className="text-sm text-gray-500">hi@preetsuthar.me</p>
+              <p className="font-semibold">Admin_00001</p>
+              <p className="text-sm text-gray-500">admin@gmail.com</p>
             </div>
           </div>
         </div>

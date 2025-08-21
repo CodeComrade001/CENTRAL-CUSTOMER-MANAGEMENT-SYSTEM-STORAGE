@@ -10,6 +10,7 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+
   const checkAdmin = useCallback(async (config?: AxiosRequestConfig) => {
     setLoading(true);
     setError(null);
@@ -21,7 +22,6 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAdmin(true);
         return true
       } else {
-        navigate("admin/login")
         setIsAdmin(false);
         return false
       }
@@ -29,8 +29,8 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: any) {
       setIsAdmin(false);
       if (err.response?.status === 401 || err.response?.status === 403) {
+
         setError("Unauthorized access");
-        navigate("admin/login")
         return false
       } else {
         navigate("admin/login")
@@ -46,6 +46,7 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshValidation = useCallback((config?: AxiosRequestConfig) => {
     return checkAdmin(config); // This returns Promise<boolean>
   }, [checkAdmin]);
+
 
   // Run once on mount
   useEffect(() => {

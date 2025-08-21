@@ -1,0 +1,42 @@
+name: Customer_Storage
+services:
+  postgres:
+    image: postgres:15
+    env_file:
+      - ./backend/.env
+    container_name: cen_cms_pg
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/init-scripts:/docker-entrypoint-initdb.d  # <-- init scripts will auto-run on first container start
+
+  api:
+    image: yourdockerhubusername/cen_cms_api:latest  # <-- use your pushed backend image
+    container_name: cen_cms_api
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    ports:
+      - "${CEN_CMS_API_PORT}:${CEN_CMS_API_PORT}"
+    depends_on:
+      - postgres
+
+  web:
+    image: yourdockerhubusername/cen_cms_web:latest  # <-- use your pushed frontend image
+    container_name: cen_cms_web
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

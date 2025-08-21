@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from "react";
-import { api__admin_changeCustomerPackageForHMS, api__admin_changeCustomerVerificationForHMS, api__admin_fetchAllCustomerForHMS } from "@/services/api";
+import { api__admin_changeCustomerVerificationForCBT, api__admin_changeSlotForCBT, api__admin_fetchAllCustomerForCBT } from "@/services/api";
 import type { ColumnDef } from "../reusable_component/table";
 import GenericTable from "../reusable_component/table";
-import DbLoading from "../reusable_component/DBloading";
 
 interface Customer {
-  customer_id: string;
-  hospital_name: string;
-  package: string;
-  renewal_date: string;
-  last_payment: string;
-  is_verified: boolean;
+  customer_id: string,
+  center_name: string,
+  available_slot: number,
+  used_slot: number,
+  number_of_server: number,
+  last_slot_purchase: string,
+  last_login: string
+  is_verified: boolean,
 }
 
 function ordinal(n: number) {
@@ -20,12 +21,12 @@ function ordinal(n: number) {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-export default function SubscribedHealthManagementPackage() {
+export default function SubscribedCBTManagementPackage() {
   const [allSMSCustomer, setAllSMSCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // alertMessage state used by GenericTable via onAlert
-  const [alertMessage, setAlert] = useState<{ msg: string; ok: boolean } | null>(null);
+  // alert state used by GenericTable via onAlert
+  const [alert, setAlert] = useState<{ msg: string; ok: boolean } | null>(null);
 
   // date format choice: 'long' => "5th August 2023", 'short' => "05/25/20"
   const [dateFormat, setDateFormat] = useState<"long" | "short">("long");
@@ -34,7 +35,7 @@ export default function SubscribedHealthManagementPackage() {
     async function fetchAllDetails() {
       setLoading(true);
       try {
-        const admin = await api__admin_fetchAllCustomerForHMS();
+        const admin = await api__admin_fetchAllCustomerForCBT();
         const { rows } = admin.data ?? {};
         setAllSMSCustomers(rows || []);
       } catch {
@@ -75,11 +76,13 @@ export default function SubscribedHealthManagementPackage() {
   // Columns mapping for GenericTable
   const columns: ColumnDef<Customer>[] = [
     { key: "customer_id", label: "Customer ID", sortable: true, editable: false, type: "string" },
-    { key: "hospital_name", label: "Hospital Name", sortable: true, editable: false, type: "string" },
-    { key: "package", label: "Package", sortable: true, editable: true, type: "dropdown_column" },
-    { key: "renewal_date", label: "Renewal Date", sortable: true, editable: false, type: "date" },
-    { key: "last_payment", label: "Last Payment", sortable: true, editable: false, type: "date" },
-    { key: "is_verified", label: "Status", sortable: true, editable: true, type: "boolean" },
+    { key: "center_name", label: "Center Name", sortable: true, editable: false, type: "string" },
+    { key: "available_slot", label: "Avaiable Slot", sortable: true, editable: true, type: "number" },
+    { key: "used_slot", label: "Used Slot", sortable: true, editable: false, type: "number" },
+    { key: "number_of_server", label: "No Of Servers", sortable: true, editable: false, type: "number" },
+    { key: "last_slot_purchase", label: "Last Slot Purchase", sortable: true, editable: false, type: "date" },
+    { key: "last_login", label: "Last Login", sortable: true, editable: false, type: "date" },
+    { key: "is_verified", label: "status", sortable: true, editable: true, type: "boolean" },
   ];
 
   // onUpdate passed to GenericTable. It MUST return a "status" to be treated as success in GenericTable.
@@ -97,22 +100,22 @@ export default function SubscribedHealthManagementPackage() {
 
       // detect which fields actually changed (only check editable fields)
       const changedIsVerified = existing.is_verified !== updatedRow.is_verified;
-      const changedPackage = existing.package !== updatedRow.package;
+      const changedPackage = existing.available_slot !== updatedRow.available_slot;
 
       // nothing changed — no API call, no state update
       if (!changedIsVerified && !changedPackage) {
-        return { status: 200, message: "No changes detected for user verification" };
+        return { status: 200, message: "No changes detected for user  verification" };
       }
 
       // prepare API calls for only the changed fields
       const calls: Promise<any>[] = [];
       if (changedIsVerified) {
         // api__admin_changeCustomerVerificationForSMS expects { customer_id, status }
-        calls.push(api__admin_changeCustomerVerificationForHMS({ customer_id: id, status: updatedRow.is_verified }));
+        calls.push(api__admin_changeCustomerVerificationForCBT({ customer_id: id, status: updatedRow.is_verified }));
       }
       if (changedPackage) {
         // api__admin_changeCustomerPackageForSMS expects { customer_id, newPackage }
-        calls.push(api__admin_changeCustomerPackageForHMS({ customer_id: id, newPackage: updatedRow.package }));
+        calls.push(api__admin_changeSlotForCBT({ customer_id: id, newSlot: updatedRow.available_slot }));
       }
 
       // execute calls in parallel and capture any failures
@@ -121,7 +124,7 @@ export default function SubscribedHealthManagementPackage() {
       // If any call failed -> abort and return failure (no local mutation)
       const rejected = results.find((r) => r.status === "rejected");
       if (rejected) {
-        return { status: 500, message: "Failed to update on server (see console)" };
+        return { status: 500, message: "Failed to update on server" };
       }
 
       // Optionally inspect fulfilled results for non-200 shapes if needed.
@@ -134,7 +137,7 @@ export default function SubscribedHealthManagementPackage() {
               ...r,
               // keep everything else exactly the same, only apply what's changed
               ...(changedIsVerified ? { is_verified: updatedRow.is_verified } : {}),
-              ...(changedPackage ? { package: updatedRow.package } : {}),
+              ...(changedPackage ? { available_slot: updatedRow.available_slot } : {}),
             }
             : r
         )
@@ -146,8 +149,6 @@ export default function SubscribedHealthManagementPackage() {
     }
   }
 
-
-
   return (
     <div className="p-4 w-[100%] h-[100%]" >
       <div className="mb-3 flex items-center gap-3">
@@ -158,24 +159,19 @@ export default function SubscribedHealthManagementPackage() {
         </select>
       </div>
 
-      {alertMessage ? (
-        <div className={`p-2 mb-3 rounded ${alertMessage.ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-          {alertMessage.msg}
+      {alert ? (
+        <div className={`p-2 mb-3 rounded ${alert.ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+          {alert.msg}
         </div>
       ) : null}
 
       {loading ? (
-        <div style={{ height: 600 }}>
-          <DbLoading message="Fetching data from the database..." />
-        </div>
+        <p>Loading...</p>
       ) : (
         // ensure container has explicit height so GenericTable's 100% height works.
         <div style={{ height: 600 }}>
           <GenericTable<Customer>
             data={allSMSCustomer}
-            columnDropdowns={[
-              { key: "package", columnVal: ["starter ", "standard", "premium"] }
-            ]}
             columns={columns}
             pageSizeOptions={[10, 25, 50]}
             initialPageSize={50}

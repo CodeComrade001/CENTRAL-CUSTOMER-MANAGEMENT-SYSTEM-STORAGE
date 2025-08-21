@@ -68,7 +68,7 @@ export default class UserImplementation {
 
 
   public async fetchUserSignUpForHMS(payload: HMSpayload) {
-    const allowedPackages = ["starter ", "standard", "premium"]
+    const allowedPackages = ["starter", "standard", "premium"]
     const {
       hospital_name,
       package: userPackage,
@@ -89,8 +89,8 @@ export default class UserImplementation {
     `;
 
     const values = [
-      trimmedPackage,
       hospital_name,
+      trimmedPackage,
       renewal_date,
       last_payment,
     ];

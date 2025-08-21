@@ -20,73 +20,28 @@ export default class AdminImplementation {
     this.postgres = await connectToPostgres()
   }
 
-  protected normalizeSid(raw?: string | null): string | null {
-    if (!raw) return null;
-    if (raw.startsWith("s:")) {
-      const dot = raw.indexOf(".");
-      return dot === -1 ? raw.slice(2) : raw.slice(2, dot);
-    }
-    return raw;
-  }
-
-  public async adminSignOut(rawSid: string) {
-    try {
-      const sid = this.normalizeSid(rawSid);
-      if (!sid) {
-        console.warn("adminSignOut: invalid sid", rawSid);
-        return false;
-      }
-
-
-      // RETURNING ensures you get rows back on delete in all clients
-      const checkIfSessionExist = await this.postgres.query(`SELECT * FROM session WHERE sid =$1`, [sid])
-      if (checkIfSessionExist.rows.length === 0) {
-        // session does not exist
-        return false
-      }
-
-      const result = await this.postgres.query(
-        `DELETE FROM session WHERE sid = $1 RETURNING sid`,
-        [sid]
-      );
-
-
-      // Some clients set result.rowCount, some set result.rows.length; handle both.
-      const count =
-        (typeof result.rowCount === "number" ? result.rowCount : null) ??
-        (Array.isArray(result.rows) ? result.rows.length : 0);
-
-
-      return count > 0;
-    } catch (err) {
-      console.error("adminSignOut error:", err);
-      return false;
-    }
-  }
-
-
-
 
   public async adminSignIn(payload: { username: string, password: string }) {
-    const { username, password } = payload
-    //   const username = "Admin_00001"
-    //   const password = "Admin123456789"
+    const { username, password } = payload;
+
     const result = await this.postgres.query(
-      "SELECT user_id,role, email,password FROM admin WHERE username = $1 AND role = 'admin'",
+      "SELECT *  FROM verify_admin_login($1)",
       [username]
     );
-    console.log("Turbo Log  ~ AdminImplementation ~ adminSignIn ~ result:", result);
 
-    if (result.rows.length === 0) return { message: false };
+    if (result.rows.length === 0) {
+      return { message: false };
+    }
 
-    const hashedPassword = result.rows[0].password;
-    const isMatch = await bcrypt.compare(password, hashedPassword);
+    const { out_user_id, out_password } = result.rows[0];
 
-    if (!isMatch) return { message: false };
+    const isMatch = await bcrypt.compare(password, out_password);
+    if (!isMatch) {
+      return { message: false };
+    }
 
-    return { message: true, id: result.rows[0].user_id };
+    return { message: true, id: out_user_id };
   }
-
 
   public async fetchAllCustomersForSMS() {
     const query = `SELECT customer_id,school_name,package,renewal_date,student_count,staff_count,last_payment_date,is_verified

@@ -1,0 +1,56 @@
+name: Customer_Storage
+services:
+  postgres:
+    image: postgres:15
+    container_name: cen_cms_pg
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${DOCKER_POSTGRES_PORT}" # Host port : Container port
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/init-scripts:/docker-entrypoint-initdb.d
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cen_cms_api
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      SESSION_SECRET: ${SESSION_SECRET}
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB}
+      POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
+      POSTGRES_PORT: ${DOCKER_POSTGRES_PORT}
+      POSTGRES_CONNECTIONSTRING: ${DOCKER_DATABASE_URL} # Fixed syntax
+    ports:
+      - "${CEN_CMS_API_PORT}:${CEN_CMS_API_PORT}"
+    depends_on:
+      - postgres
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cen_cms_web
+    restart: always
+    env_file:
+      -  ./frontend/.env
+    environment:
+      VITE_BACKEND_UR: ${VITE_BACKEND_URL}
+    ports:
+      - "8080:80"   # React app served by nginx on port 8080
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

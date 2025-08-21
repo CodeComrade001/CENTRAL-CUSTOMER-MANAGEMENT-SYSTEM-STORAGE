@@ -7,9 +7,10 @@ import rateLimit from 'express-rate-limit';
 import hpp from 'hpp';
 import { limitPayload } from "./middlewares/limitPayload";
 import session from "express-session";
-import pg from "pg";
 import connectPgSimple from "connect-pg-simple";
-import { dbSessionMiddleware } from "./middlewares/admin.middleware";
+import { attachDbClient, dbSessionMiddleware } from "./middlewares/admin.middleware";
+import pool from "./config/database";
+import { logger } from "./utils/logger";
 
 export default class AppBootstrap {
   private app: Express;
@@ -27,13 +28,18 @@ export default class AppBootstrap {
 
   private setupMiddleware() {
     const PgSession = connectPgSimple(session);
+    const sessionSecret = process.env.SESSION_SECRET;
+    if (!sessionSecret) {
+      logger.error('FATAL: SESSION_SECRET (or DOCKER_SESSION_SECRET) is not set. Set SESSION_SECRET in env.');
+      process.exit(1);
+    }
     // Core body parsers
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
     // CORS config
     this.app.use(cors({
-      origin: ['https://cen-cms-ui.vercel.app', 'http://localhost:5173', 'http://localhost:5174'],
+      origin: ['https://cen-cms-ui.vercel.app', 'http://web:8080', 'http://localhost:5173', 'http://localhost:5174'],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
@@ -42,7 +48,7 @@ export default class AppBootstrap {
     this.app.use(
       session({
         store: new PgSession({
-          pool: new pg.Pool({ connectionString: process.env.DATABASE_URL }),
+          pool,
           tableName: "session"
         }),
         secret: process.env.SESSION_SECRET!,
@@ -68,18 +74,19 @@ export default class AppBootstrap {
     // Rate limiter - prevents brute force
     this.app.use(rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100, // limit each IP to 100 requests
+      max: 200, // limit each IP to 100 requests
       standardHeaders: true,
       legacyHeaders: false,
       message: { error: 'Too many requests, please try again later.' },
     }));
+    this.app.use(attachDbClient);       // attach client first
     this.app.use(dbSessionMiddleware);
   }
 
 
 
 
-  private setupRoutes() {
+  private async setupRoutes() {
     const adminRoute = new AdminRoute();
     const userRoute = new UserRoute();
 
@@ -97,8 +104,17 @@ export default class AppBootstrap {
     });
 
     this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-      console.error("App internal Error:", err.message);
       res.status(500).json({ error: "Internal Server from app Error" });
+    });
+
+    this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+      logger.error('Unhandled error:', err && (err.stack || err));
+      const payload: any = { error: 'Internal Server from app Error' };
+      if (process.env.NODE_ENV !== 'production') {
+        payload.details = err?.message;
+        payload.stack = err?.stack;
+      }
+      res.status(500).json(payload);
     });
   }
 }

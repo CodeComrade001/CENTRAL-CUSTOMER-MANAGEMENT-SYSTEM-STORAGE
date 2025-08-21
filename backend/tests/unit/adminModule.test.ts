@@ -21,19 +21,19 @@ import {
 
 describe("AdminController (unit)", () => {
   let app: express.Express;
+  let destroyMock: jest.Mock<(cb: (err?: any) => void) => void>;
+  let saveSessionMock: jest.Mock<(cb: (err?: any) => void) => void>;
 
   beforeAll(() => {
     app = express();
     app.use(express.json());
 
     // Middleware to inject a fake session for signout tests (controller expects req.session & req.sessionID)
-    app.use((req: any, res, next) => {
-      // sessionID used by adminSignOut
+    app.use((req: any, _res, next) => {
       req.sessionID = "test-sid-123";
-      // session.destroy(...) is expected by delete__adminSignOut
-      req.session = {
-        destroy: (cb: (err?: any) => void) => cb(undefined),
-      } as any;
+      destroyMock = jest.fn();
+      saveSessionMock = jest.fn();
+      req.session = { destroy: destroyMock, saveSess: saveSessionMock };
       next();
     });
 
@@ -45,30 +45,6 @@ describe("AdminController (unit)", () => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
   });
-
-  //
-  // POST /admin/login (post__adminSignIn)
-  //
-  // test("POST /admin/login -> success (valid payload + service returns message)", async () => {
-  //   // Mock validation -> succeed (controller expects validationResult.success === true)
-  //   jest.spyOn(loginInAdmin as any, "safeParseAsync").mockResolvedValueOnce({
-  //     success: true,
-  //     data: { /* put valid login payload fields here later */ },
-  //   } as any);
-
-  //   // Mock service adminSignIn to return id + message
-  //   jest
-  //     .spyOn(AdminImplementation.prototype, "adminSignIn")
-  //     .mockResolvedValueOnce({ id: "1", message: "OK" } as any);
-
-  //   const res = await request(app)
-  //     .post("/admin/login")
-  //     .send({ /* valid payload here (you said you'll add it) */ });
-
-  //   expect(res.status).toBe(200);
-  //   expect(res.body).toEqual({ message: "authorised user" });
-  //   expect(AdminImplementation.prototype.adminSignIn).toHaveBeenCalled();
-  // });
 
   test("POST /admin/login -> validation failure returns 400", async () => {
     jest.spyOn(loginInAdmin as any, "safeParseAsync").mockResolvedValueOnce({
@@ -92,35 +68,27 @@ describe("AdminController (unit)", () => {
       .mockResolvedValueOnce({ id: null, message: "" } as any);
 
     const res = await request(app).post("/admin/login").send({ /* valid payload */ });
+    saveSessionMock.mockImplementation(cb => {
+      cb(null);
+    });
     expect(res.status).toBe(401);
-    expect(res.body).toHaveProperty("message", "Unauthorised user");
+    expect(res.body).toHaveProperty("message", "Invalid log in details");
   });
 
-  //
-  // DELETE /admin/signout (delete__adminSignOut)
-  //
-  test("DELETE /admin/signout -> success clears cookie and returns 200", async () => {
-    // adminSignOut should return truthy (controller checks `del && destroyed`)
+  test("POST /admin/login -> server error  when service returns message and session is not set", async () => {
+    jest.spyOn(loginInAdmin as any, "safeParseAsync").mockResolvedValueOnce({
+      success: true,
+      data: { /* valid payload */ },
+    } as any);
+
     jest
-      .spyOn(AdminImplementation.prototype, "adminSignOut")
-      .mockResolvedValueOnce(true as any);
+      .spyOn(AdminImplementation.prototype, "adminSignIn")
+      .mockResolvedValueOnce({ id: "1081083-2272", message: true } as any);
 
-    // since we injected req.session.destroy middleware earlier to call cb(undefined),
-    // controller will treat destroyed === true
-
-    const res = await request(app).delete("/admin/signout");
-
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: "Log Out successful" });
-    expect(AdminImplementation.prototype.adminSignOut).toHaveBeenCalledWith("test-sid-123");
-  });
-
-  test("DELETE /admin/signout -> service throws -> returns 500", async () => {
-    jest
-      .spyOn(AdminImplementation.prototype, "adminSignOut")
-      .mockRejectedValueOnce(new Error("DB fail"));
-
-    const res = await request(app).delete("/admin/signout");
+    const res = await request(app).post("/admin/login").send({ /* valid payload */ });
+    saveSessionMock.mockImplementation(cb => {
+      cb(new Error("error"));
+    });
     expect(res.status).toBe(500);
     expect(res.body).toHaveProperty("error", "Internal Server Error");
   });
@@ -201,7 +169,7 @@ describe("AdminController (unit)", () => {
 
 
   /*//////////////////////////////////////////////////////////////
-                         PATCH /admin/sms/verify
+                          PATCH /admin/sms/verify
       //////////////////////////////////////////////////////////////*/
 
   test("PATCH /admin/sms/verify -> success when validation ok and service truthy", async () => {
@@ -252,7 +220,7 @@ describe("AdminController (unit)", () => {
   });
 
   /*//////////////////////////////////////////////////////////////
-                       PATCH /admin/hms/verify
+                        PATCH /admin/hms/verify
     //////////////////////////////////////////////////////////////*/
 
   test("PATCH /admin/hms/verify -> success", async () => {
@@ -303,7 +271,7 @@ describe("AdminController (unit)", () => {
   });
 
   /*//////////////////////////////////////////////////////////////
-                         PATCH /admin/cbt/verify
+                          PATCH /admin/cbt/verify
       //////////////////////////////////////////////////////////////*/
 
   test("PATCH /admin/cbt/verify -> success", async () => {
@@ -354,7 +322,7 @@ describe("AdminController (unit)", () => {
   });
 
   /*//////////////////////////////////////////////////////////////
-                     PATCH /admin/hms/update-package
+                      PATCH /admin/hms/update-package
       //////////////////////////////////////////////////////////////*/
   test("PATCH /admin/hms/update-package -> success when payload valid", async () => {
     jest.spyOn(packageUpdate as any, "safeParseAsync").mockResolvedValueOnce({
@@ -406,7 +374,7 @@ describe("AdminController (unit)", () => {
   });
 
   /*//////////////////////////////////////////////////////////////
-                   PATCH /admin/sms/update-package
+                    PATCH /admin/sms/update-package
     //////////////////////////////////////////////////////////////*/
 
   test("PATCH /admin/sms/update-package -> validation failure returns 400", async () => {

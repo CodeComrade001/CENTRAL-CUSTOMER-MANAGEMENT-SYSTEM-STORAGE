@@ -27,7 +27,7 @@ export default class UserController {
       if (!validationResult.success) {
         return res.status(400).json({
           error: "Validation failed",
-          issues: validationResult.error.format(),
+          issues: validationResult.error,
         });
       }
       const { message } = await this.userService.fetchUserSignUpForSMS(validationResult.data);
@@ -35,7 +35,7 @@ export default class UserController {
         return res.status(200).json({ message: "Account has been created successfully" })
       }
       return res.status(400).json({ error: "Could not create account" });
-    } catch (err) {
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -50,7 +50,7 @@ export default class UserController {
       if (!validationResult.success) {
         return res.status(400).json({
           error: "Validation failed",
-          issues: validationResult.error.format(),
+          issues: validationResult.error,
         });
       }
       const { message } = await this.userService.fetchUserSignUpForHMS(validationResult.data);
@@ -58,7 +58,7 @@ export default class UserController {
         return res.status(200).json({ message: "Account has been created successfully" })
       }
       return res.status(400).json({ error: "Could not create account" });
-    } catch (err) {
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }
@@ -81,7 +81,7 @@ export default class UserController {
         return res.status(200).json({ message: "Account has been created successfully" })
       }
       return res.status(400).json({ error: "Could not create account" });
-    } catch (err) {
+    } catch {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   }

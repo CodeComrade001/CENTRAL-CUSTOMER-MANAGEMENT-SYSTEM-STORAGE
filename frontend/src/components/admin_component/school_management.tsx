@@ -37,7 +37,6 @@ export default function SubscribedSchoolManagementPackage() {
       setLoading(true);
       try {
         const admin = await api__admin_fetchAllCustomerForSMS();
-        console.log("Turbo Log  ~ fetchAllDetails ~ admin:", admin);
         const { rows } = admin.data ?? {};
         setAllSMSCustomers(rows || []);
       } catch {
@@ -128,7 +127,7 @@ export default function SubscribedSchoolManagementPackage() {
       // If any call failed -> abort and return failure (no local mutation)
       const rejected = results.find((r) => r.status === "rejected");
       if (rejected) {
-        return { status: 500, message: "Failed to update on server (see console)" };
+        return { status: 500, message: "Failed to update on server" };
       }
 
       // Optionally inspect fulfilled results for non-200 shapes if needed.
