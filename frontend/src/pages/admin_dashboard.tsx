@@ -8,9 +8,6 @@ import AdminLogoutButton from "../components/admin_component/logOutAdmin";
 import SubscribedCBTManagementPackage from "../components/admin_component/cbt_management";
 import SubscribedHealthManagementPackage from "../components/admin_component/health_management";
 
-
-
-
 const AnimatedMenuToggle = ({
   toggle,
   isOpen,

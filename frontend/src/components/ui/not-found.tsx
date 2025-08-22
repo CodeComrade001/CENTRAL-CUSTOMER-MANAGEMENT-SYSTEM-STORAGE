@@ -50,7 +50,7 @@ export function NotFound({
           </a>
         </Button>
         <Button className="-order-1 sm:order-none" asChild>
-          <a href="#">Take me home</a>
+          <a href="/">Take me home</a>
         </Button>
       </div>
     </div>

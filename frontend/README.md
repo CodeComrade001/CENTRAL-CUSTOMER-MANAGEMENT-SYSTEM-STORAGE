@@ -10,30 +10,43 @@ CCMS allows schools to register and use different service packages tailored for 
 2. **Computer-Based Testing (CBT) System (SaaS)** – register students for CBT, manage exam sessions, and track participation.
 3. **Health Management System (EMR)** – under active development and not yet available.
 
-> ⚠️ Note: Payment functionality has **not** been implemented. All packages are currently available for **free** during the development phase.
+> ⚠️ **Note:** Payment functionality has **not** been implemented. All packages are currently available for **free** during the development phase.
 
 ---
 
 ## ✅ Functional Features
 
-### 🏫 School Management System
+### 👥 User Requirements
 
-- Register a school with basic info.
-- Add, edit, and delete teachers and students.
-- View school details.
-
-### 🧪 Computer-Based Testing System
-
-- Register students for CBT sessions.
-- Store and manage CBT-related student data.
+* Register a school with basic information for SMS, HMS, or CBT packages.
 
 ### 🧑‍💼 Admin Dashboard
 
-- View all registered schools.
-- See all teachers and their respective schools.
-- Monitor packages used by each school.
-- Allocate CBT slots to schools.
-- Deactivate accounts that fail to meet payment requirements (placeholder logic; no payment integration yet).
+* View all registered schools based on package type (HMS, SMS, or CBT).
+* Activate and deactivate user accounts.
+* Allocate CBT slots to schools.
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the **frontend root** directory and configure the backend URL:
+
+```ini
+##########################################
+# Local (Manual) Development Settings
+# Used when running backend locally (npm run dev).
+##########################################
+VITE_BACKEND_URL=http://localhost:3000
+
+##########################################
+# Docker Development Settings
+# Used when running frontend + API in Docker containers.
+##########################################
+VITE_BACKEND_URL=http://api:3000
+```
+
+> Replace values (e.g., `http://localhost:3000`) with your actual backend service address if needed.
 
 ---
 
@@ -41,34 +54,23 @@ CCMS allows schools to register and use different service packages tailored for 
 
 ### 🚑 Health Management System (EMR)
 
-- Electronic Medical Records functionality is currently in progress.
-- Not yet available for use.
+* Electronic Medical Records functionality is currently in progress.
+* Not yet available for use.
 
 ### 💳 Payment System
 
-- No billing or subscription management is active.
-- Schools can access all packages for free until payments are enforced.
+* No billing or subscription management is active.
+* Schools can access all packages for free until payments are enforced.
 
 ---
-
-## 🔒 Authentication & Access Control
-
-- Schools must log in to access their data.
-- Admin users have elevated privileges to manage and monitor all schools.
-
----
-
-## 🚀 Live Site
-
-Url : <https://cen-cms-ui.vercel.app>
 
 ## 🚀 How to Run Locally
 
-## 🧪 Quick Setup (Bash)
+### 🧪 Quick Setup (Bash)
 
 ```bash
 git clone https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE.git
 cd ccms-frontend
 npm install
-echo "VITE_API_URL=http://localhost:3000" > .env
 npm run dev
+```

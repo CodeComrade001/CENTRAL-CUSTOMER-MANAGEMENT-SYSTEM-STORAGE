@@ -19,7 +19,7 @@ const AdminLogoutButton = () => {
         await localStorage.removeItem("adminToken"); // safer than clear()
         await refreshValidation()
         setStatus("success");
-        return navigate("/admin/login");
+        return navigate("/admin/signin", { replace: true }); // redirect to login
       } else {
         setStatus("error");
       }

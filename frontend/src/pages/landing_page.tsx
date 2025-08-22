@@ -24,7 +24,7 @@ export function LandingPageIntroductionPage() {
           <div className="flex flex-row gap-3">
             <Button size="lg" className="gap-4">
               <a
-                href="/admin/login"
+                href="/admin/signin"
 
               >
                 Admin

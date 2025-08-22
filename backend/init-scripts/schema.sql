@@ -71,19 +71,6 @@ CREATE TABLE public.admin (
     CONSTRAINT admin_role_check CHECK ((role = ANY (ARRAY['super_admin'::text, 'admin'::text, 'moderator'::text])))
 );
 
---
--- insert default account for admin
---
-
-INSERT INTO public.admin (username, email, password, role, is_active)
-VALUES 
-(
-  'Admin_00001',
-  'admin@gmail.com',
-  '$2b$10$EEDndZh/DtwQXXg5/dmDQe0ztlclnS6kExs10Qy8jZLGv8E8l4QSy',
-  'admin',
-  true
-);
 
 --
 -- Name: admin_id_seq; Type: SEQUENCE; Schema: public; Owner: -
@@ -103,7 +90,6 @@ CREATE SEQUENCE public.admin_id_seq
 --
 
 ALTER SEQUENCE public.admin_id_seq OWNED BY public.admin.id;
-
 
 --
 -- Name: cbt_management; Type: TABLE; Schema: public; Owner: -
@@ -283,6 +269,21 @@ ALTER TABLE ONLY public.admin
 ALTER TABLE ONLY public.admin
     ADD CONSTRAINT admin_username_key UNIQUE (username);
 
+    --
+-- insert default account for admin
+--
+
+INSERT INTO public.admin (username, email, password, role, is_active)
+VALUES 
+(
+  'Admin_00001',
+  'admin@gmail.com',
+  '$2b$10$EEDndZh/DtwQXXg5/dmDQe0ztlclnS6kExs10Qy8jZLGv8E8l4QSy',
+  'admin',
+  true
+);
+
+
 
 --
 -- Name: cbt_management cbt_management_center_name_key; Type: CONSTRAINT; Schema: public; Owner: -
@@ -314,14 +315,6 @@ ALTER TABLE ONLY public.cbt_management
 
 ALTER TABLE ONLY public.health_management
     ADD CONSTRAINT health_management_customer_id_key UNIQUE (customer_id);
-
-
---
--- Name: health_management health_management_hospital_name_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.health_management
-    ADD CONSTRAINT health_management_hospital_name_key UNIQUE (hospital_name);
 
 
 --

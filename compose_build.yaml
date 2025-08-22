@@ -31,7 +31,7 @@ services:
       POSTGRES_DB: ${DOCKER_POSTGRES_DB}
       POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
       POSTGRES_PORT: ${DOCKER_POSTGRES_PORT}
-      POSTGRES_CONNECTIONSTRING: ${DOCKER_DATABASE_URL} # Fixed syntax
+      POSTGRES_CONNECTIONSTRING: ${DOCKER_DATABASE_URL} 
     ports:
       - "${CEN_CMS_API_PORT}:${CEN_CMS_API_PORT}"
     depends_on:
@@ -46,9 +46,9 @@ services:
     env_file:
       -  ./frontend/.env
     environment:
-      VITE_BACKEND_UR: ${VITE_BACKEND_URL}
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
     ports:
-      - "8080:80"   # React app served by nginx on port 8080
+      - "8080:80"   
     depends_on:
       - api
 

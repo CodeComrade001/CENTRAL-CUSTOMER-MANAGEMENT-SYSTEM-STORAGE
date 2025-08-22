@@ -1,11 +1,10 @@
 "use client";
 
-import LoadingIcon from "@/components/reusable_component/loading";
 import { useAdminAuth } from "@/middleware/admin/useAuth";
 import { api__admin_LogIn } from "@/services/api";
 import { getLoginStatusMessage } from "@/utils/authLoginStatusCode";
 import { SunIcon as Sunburst } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -20,8 +19,8 @@ import { useNavigate } from "react-router-dom";
  *  - or axios(..., { withCredentials: true })
  */
 
-export const AdminFullScreenSignIn = () => {
-  const { isAdmin, loading, refreshValidation } = useAdminAuth();
+export default function AdminFullScreenSignIn() {
+  const { refreshValidation } = useAdminAuth();
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [userNameError, setUserNameError] = useState("");
@@ -30,20 +29,6 @@ export const AdminFullScreenSignIn = () => {
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
-  // avoid state updates when unmounted
-  // const mountedRef = useRef(true);
-  // useEffect(() => {
-  //   return () => {
-  //     mountedRef.current = false;
-  //   };
-  // }, []);
-
-  // If auth hook finished and user is admin, redirect to dashboard immediately
-  useEffect(() => {
-    if (!loading && isAdmin) {
-      navigate("/admin/dashboard", { replace: true });
-    }
-  }, [loading, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,11 +59,9 @@ export const AdminFullScreenSignIn = () => {
       setSignInText(getLoginStatusMessage(response.status));
 
       if (response.status === 200) {
-        // Successful login — navigate to dashboard
-        // NOTE: do NOT await navigate; it's synchronous
         setSignInText(getLoginStatusMessage(response.status));
-        await refreshValidation()
         navigate("/admin/dashboard", { replace: true });
+        await refreshValidation()
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -89,11 +72,6 @@ export const AdminFullScreenSignIn = () => {
     }
   };
 
-  // While the auth hook is resolving, show loader to avoid flicker
-  if (loading) return <LoadingIcon />;
-
-  // If already admin we've navigated away in effect; return null as a safe fallback
-  if (isAdmin) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center overflow-hidden p-4">

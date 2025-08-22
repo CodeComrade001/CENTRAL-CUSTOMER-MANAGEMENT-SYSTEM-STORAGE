@@ -25,16 +25,11 @@ function asInt(v?: string | number, fallback = 5432) {
 }
 
 // Support both spellings for backward compatibility
-const postgressFlag = (process.env.POSTGRESS_CONNECTION || process.env.POSTGRES_CONNECTION || '').toLowerCase();
-const isDocker = postgressFlag === 'docker' || postgressFlag === 'true';
+const postgressFlag = (process.env.POSTGRESS_CONNECTION || 'local_connection').toLowerCase();
+const isDocker = postgressFlag === 'docker';
 
-// Prefer canonical connection-string envs
-const explicitConnStr =
-  process.env.POSTGRES_CONNECTIONSTRING ||
-  process.env.DOCKER_DATABASE_URL ||
-  process.env.LOCAL_DATABASE_URL ||
-  process.env.DATABASE_URL ||
-  undefined;
+//  const isDocker = true; for docker connection
+//  const isDocker = false; for local connection
 
 // Build DSN if needed
 function buildDsnFromParts(): string | undefined {
@@ -54,7 +49,7 @@ function buildDsnFromParts(): string | undefined {
 }
 
 // Final connectionString used by module
-const connectionString = explicitConnStr ?? buildDsnFromParts();
+const connectionString = buildDsnFromParts();
 
 // Create pool config
 const poolConfig: any = {

@@ -36,6 +36,7 @@ export default class AppBootstrap {
     // Core body parsers
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.set("trust proxy", 1);
 
     // CORS config
     this.app.use(cors({

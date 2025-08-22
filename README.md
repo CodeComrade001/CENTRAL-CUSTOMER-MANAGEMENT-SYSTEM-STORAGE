@@ -1,8 +1,21 @@
-# CodeComrade001-CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE
+# Central Customer Management System (CCMS)
 
-This is a full-stack web application built with **Vite + React** on the frontend and **Express.js + PostgreSQL** on the backend.
-It includes user authentication, protected routes, and a real-time connection to a PostgreSQL database.
-The entire project is Dockerized and structured for easy deployment and local development.
+A centralized platform designed to manage multiple SaaS services for schools, enabling registration, data storage, and access management across various educational and health-focused solutions.
+
+---
+
+## 📑 Table of Contents
+
+1. [Overview](#-overview)
+2. [Functional Features](#-functional-features)
+3. [Environment Configuration](#-environment-configuration)
+
+   * [Local Setup Frontend](#local-setup-frontend)
+   * [Local Setup Backend](#local-setup-backend)
+   * [Docker Setup](#docker-setup)
+4. [Run Locally](#-how-to-run-locally)
+5. [Run with Docker](#-how-to-run-with-docker)
+6. [Under Development](#-under-development)
 
 ---
 
@@ -14,200 +27,184 @@ CCMS allows schools to register and use different service packages tailored for 
 2. **Computer-Based Testing (CBT) System (SaaS)** – register students for CBT, manage exam sessions, and track participation.
 3. **Health Management System (EMR)** – under active development and not yet available.
 
----
-
-## 🚀 Hosted Links
-
-| Component        | URL                                                                                                                  |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 🌐 Frontend      | [cen-cms-ui.vercel.app](https://cen-cms-ui.vercel.app)                                                               |
-| ⚙️ Backend API   | [central-customer-management-system.onrender.com](https://central-customer-management-system.onrender.com)           |
-| 📂 Frontend Repo | [GitHub - frontend](https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE/tree/main/frontend) |
-| 📂 Backend Repo  | [GitHub - backend](https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE/tree/main/backend)   |
-| 📄 Proposal      | [GitHub - proposal](https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE/tree/main/proposal) |
+> ⚠️ Note: Payment functionality has **not** been implemented. All packages are currently available for **free** during the development phase.
 
 ---
 
-## 📦 Getting Started
+## ✅ Functional Features
 
-### ✅ Requirements
+### User Requirements
 
-* Node.js (v18+)
-* Docker (optional, for backend)
-* PostgreSQL database
+* Register a school with basic info for **SMS**, **HMS**, or **CBT**.
 
----
+### 🧑‍💼 Admin Dashboard
 
-### 🧪 Development Setup
-
-#### Clone and install
-
-```bash
-git clone https://github.com/your/repo.git
-cd your-repo
-
-# Install frontend
-cd frontend && npm install
-
-# Install backend
-cd ../backend && npm install
-```
-
-#### Run locally
-
-Frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Backend:
-
-```bash
-cd backend
-npm run dev
-```
-
-By default, the project is configured to use **local PostgreSQL connection**.
+* View all registered schools by package type (HMS, SMS, or CBT).
+* Activate and deactivate user accounts.
+* Allocate CBT slots to schools.
 
 ---
 
-### 🔑 Environment Configuration for frontend
+## ⚙️ Environment Configuration
 
-Copy the `.env.example` file into `.env` in the **frontend** folders, then update the values.
+### Local Setup for frontend
 
-Example `.env template`  for frontend:
-
-```env
-VITE_LOCAL_BACKEND_URL=your_port
-```
-Example `.env example` for frontend:
-
-```env
-VITE_LOCAL_BACKEND_URL=6482      
-```
-
-### 🔑 Environment Configuration for backend
-
-Copy the `.env.example` file into `.env` in both  **backend** folders, then update the values.
-
-Example `.env template`  for backend:
-
-```env##########################################
-
-Local (Manual) Development Settings
-These are used when running Postgres on your host machine (localhost).
-
+```ini
 ##########################################
-
-POSTGRESS_CONNECTION=local_connection       # Identifier to know we are using local connection
-LOCAL_POSTGRES_USER=<input_your_role>        # Local DB username
-LOCAL_POSTGRES_PASSWORD=<input_your_password>   # Local DB password
-LOCAL_POSTGRES_DB=<input_your_db_name>       # Local database name
-LOCAL_POSTGRES_HOST=localhost                # Localhost since DB is installed directly
-LOCAL_POSTGRES_PORT=<input_your_port>        # Exposed external port for local Postgres
-LOCAL_SESSION_SECRET=<input_your_session_secret>
-LOCAL_DATABASE_URL=postgresql://<input_your_role>:<input_your_password>@localhost:<input_your_port>/<input_your_db_name>
-
+# Local (Manual) Development Settings
+# Used when running backend locally (npm run dev).
 ##########################################
-
-Docker Development Settings
-These are used when running Postgres in a Docker container.
-
-##########################################
-
-POSTGRESS_CONNECTION=docker                 # Identifier to know we are using Docker
-DOCKER_POSTGRES_USER=<input_your_role>       # Docker DB username
-DOCKER_POSTGRES_PASSWORD=<input_your_password>   # Docker DB password
-DOCKER_POSTGRES_DB=<input_your_db_name>      # Docker database name
-DOCKER_POSTGRES_HOST=postgres                # Container hostname = "postgres" (service name in docker-compose)
-DOCKER_POSTGRES_PORT=5432                    # Internal Postgres port (always 5432 inside container)
-DOCKER_SESSION_SECRET=<input_your_session_secret>
-DOCKER_DATABASE_URL=postgresql://<input_your_role>:<input_your_password>@postgres:5432/<input_your_db_name>
-
-##########################################
-
-Common Settings
-
-##########################################
-
-POSTGRES_EXTERNAL_PORT=<input_your_external_port>   # Port exposed to host when using Docker
-CEN_CMS_API_PORT=<input_your_api_port>              # Backend API port (frontend will call this)
-
-
-```
-
-Example `.env example` for backend:
-
-```env
-##########################################
-# Local (Manual) Development Settings 
-# These are used when running Postgres on your host machine (localhost).
-##########################################
-
-POSTGRESS_CONNECTION=local_connection       # Identifier to know we are using local connection
-LOCAL_POSTGRES_USER=public_role             # Local DB username
-LOCAL_POSTGRES_PASSWORD=demopassword123   # Local DB password
-LOCAL_POSTGRES_DB=cen_cms_db                # Local database name
-LOCAL_POSTGRES_HOST=localhost               # Localhost since DB is installed directly
-LOCAL_POSTGRES_PORT=5394                    # Exposed external port for local Postgres
-LOCAL_SESSION_SECRET=6809ef42283c259b71955a1aca64135c901689ddc6071ee3749e9a7efb2cd8e7a3a96918f9a8e12aa7c3da471064b19af4d3c58cad812d3663bac9a80255eb30
-LOCAL_DATABASE_URL=postgresql://public_role:demopassword123@localhost:5394/cen_cms_db
-
+VITE_BACKEND_URL=http://localhost:3000
 
 ##########################################
 # Docker Development Settings
-# These are used when running Postgres in a Docker container.
+# Used when running frontend + API in Docker containers.
 ##########################################
+VITE_BACKEND_URL=http://api:3000
+```
 
-POSTGRESS_CONNECTION=docker                 # Identifier to know we are using Docker
-DOCKER_POSTGRES_USER=public_role            # Docker DB username
-DOCKER_POSTGRES_PASSWORD=demopassword123    # Docker DB password
-DOCKER_POSTGRES_DB=cen_cms_db               # Docker database name
-DOCKER_POSTGRES_HOST=postgres               # Container hostname = "postgres" (service name in docker-compose)
-DOCKER_POSTGRES_PORT=5432                   # Internal Postgres port (always 5432 inside container)
-DOCKER_SESSION_SECRET=6809ef42283c259b71955a1aca64135c901689ddc6071ee3749e9a7efb2cd8e7a3a96918f9a8e12aa7c3da471064b19af4d3c58cad812d3663bac9a80255eb30
-DOCKER_DATABASE_URL=postgresql://public_role:demopassword123@postgres:5432/cen_cms_db
+### Local Setup for backend
 
+```ini
+##########################################
+# Local (Manual) Development Settings
+# Switch between Docker and local connection
+##########################################
+POSTGRESS_CONNECTION=docker                 # COMMENT or DELETE to select local connection
+
+##########################################
+# Local Postgres Settings (host machine)
+##########################################
+LOCAL_POSTGRES_USER=<your_local_user>
+LOCAL_POSTGRES_PASSWORD=<your_local_password>
+LOCAL_POSTGRES_DB=<your_local_db_name>
+LOCAL_POSTGRES_HOST=localhost
+LOCAL_POSTGRES_PORT=5394
+LOCAL_DATABASE_URL=postgresql://<your_local_user>:<your_local_password>@localhost:5394/<your_local_db_name>
+
+##########################################
+# Docker Postgres Settings (containerized)
+##########################################
+DOCKER_POSTGRES_USER=<your_docker_user>
+DOCKER_POSTGRES_PASSWORD=<your_docker_password>
+DOCKER_POSTGRES_DB=<your_docker_db_name>
+DOCKER_POSTGRES_HOST=postgres
+DOCKER_POSTGRES_PORT=5432
+DOCKER_DATABASE_URL=postgresql://<your_docker_user>:<your_docker_password>@postgres:5432/<your_docker_db_name>
 
 ##########################################
 # Common Settings
 ##########################################
+SESSION_SECRET=<your_session_secret>
+NODE_ENV=development
+# NODE_ENV=production
+POSTGRES_EXTERNAL_PORT=5394
+CEN_CMS_API_PORT=3000
+```
 
-POSTGRES_EXTERNAL_PORT=5394                 # Port exposed to host when using Docker
-CEN_CMS_API_PORT=6482                       # Backend API port (frontend will call this)
+### Docker Setup
 
+```ini
+##########################################
+# Docker Development Settings
+# These are used when running Postgres in a Docker container.
+##########################################
+POSTGRESS_CONNECTION=docker                 # Identifier to know we are using Docker
+DOCKER_POSTGRES_USER=<your_db_user>         # Docker DB username
+DOCKER_POSTGRES_PASSWORD=<your_db_password> # Docker DB password
+DOCKER_POSTGRES_DB=<your_db_name>           # Docker database name
+DOCKER_POSTGRES_HOST=postgres               # Container hostname = "postgres" (service name in docker-compose)
+DOCKER_POSTGRES_PORT=5432                   # Internal Postgres port
+SESSION_SECRET=<your_session_secret>        # Strong random session key
+DOCKER_DATABASE_URL=postgresql://<your_db_user>:<your_db_password>@postgres:5432/<your_db_name>
 
+##########################################
+# Common Settings
+##########################################
+POSTGRES_EXTERNAL_PORT=5394                 # Port exposed to host
+CEN_CMS_API_PORT=3000                       # Backend API port
+VITE_BACKEND_URL=http://api:3000
 ```
 
 ---
 
-### 🐳 Docker Setup
+## 🚀 How to Run Locally
 
-To run with Docker, pull the image and start it:
+### 🧪 Quick Setup (Frontend)
 
 ```bash
-docker pull your-dockerhub-username/ccms-backend:latest
-docker run -p 5000:5000 --env-file .env your-dockerhub-username/ccms-backend:latest
+git clone https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE.git
+cd frontend
+npm install
+npm run dev
 ```
 
-You can update `.env` to match Docker container configuration.
+This will start the frontend with the backend API pointing to `http://localhost:5173`.
+
+### 🧪 Quick Setup (Backend)
+
+```bash
+git clone https://github.com/CodeComrade001/CENTRAL-CUSTOMER-MANAGEMENT-SYSTEM-STORAGE.git
+cd backend
+npm install
+npm run dev
+```
+
+This will start the backend API on `http://localhost:3000`.
+
+### 🔑 Notes on DB Connections
+
+* Remove or comment `POSTGRESS_CONNECTION=docker` for **local Postgres connection**.
+* Keep `POSTGRESS_CONNECTION=docker` for **Docker connection**.
+* Or edit `database.ts`:
+
+```ts
+const isDocker = true;   // for Docker
+const isDocker = false;  // for Local
+```
 
 ---
 
-### 🌐 Switching Between Local & Docker
+## 🐳 How to Run with Docker
 
-* **Local Mode**: Default, uses your local PostgreSQL instance.
-* **Docker Mode**: Navigate to the Docker configuration section (to be provided) and update your `.env` to point to Docker.
+### Step 1: Prepare Schema
+
+Place your `schema.sql` inside the `backend/init-scripts/` directory. This ensures the database is created with the proper schema when Postgres starts.
+
+```
+backend/
+  └── init-scripts/
+       └── schema.sql
+```
+
+### Step 2: Configure `.env.docker`
+
+Ensure `.env.docker` is configured using the [Docker Setup](#docker-setup) template.
+
+### Step 3: Run Containers
+
+If you have `docker-compose.yml` configured:
+
+```bash
+docker-compose up --build
+```
+
+This will spin up:
+
+* **Postgres** with your `schema.sql`
+* **Backend API** on port `3000`
+* **Frontend** accessible at `http://localhost:5173`
 
 ---
 
-### ✅ Testing Complete
+## 🚧 Under Development
 
-Once setup is done, visit:
+### 🚑 Health Management System (EMR)
 
-* Frontend: [http://localhost:5173](http://localhost:5173)
-* Backend: [http://localhost:5000](http://localhost:5000)
+* Electronic Medical Records functionality is currently in progress.
+* Not yet available for use.
 
----
+### 💳 Payment System
+
+* No billing or subscription management is active.
+* Schools can access all packages for free until payments are enforced.
