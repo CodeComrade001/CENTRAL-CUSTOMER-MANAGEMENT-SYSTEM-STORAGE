@@ -10,11 +10,20 @@ A centralized platform designed to manage multiple SaaS services for schools, en
 2. [Functional Features](#-functional-features)
 3. [Environment Configuration](#-environment-configuration)
 
-   * [Local Setup Frontend](#local-setup-frontend)
-   * [Local Setup Backend](#local-setup-backend)
+   * [Local Setup for Frontend](#local-setup-for-frontend)
+   * [Local Setup for Backend](#local-setup-for-backend)
    * [Docker Setup](#docker-setup)
-4. [Run Locally](#-how-to-run-locally)
-5. [Run with Docker](#-how-to-run-with-docker)
+4. [How to Run Locally](#-how-to-run-locally)
+
+   * [Frontend Setup](#-quick-setup-frontend)
+   * [Backend Setup](#-quick-setup-backend)
+   * [DB Connection Notes](#-notes-on-db-connections)
+5. [How to Run with Docker](#-how-to-run-with-docker)
+
+   * [Schema Preparation](#step-1-prepare-schema)
+   * [Docker Env Config](#step-2-configure-envdocker)
+   * [Run Containers](#step-3-run-containers)
+   * [Preconfigured Docker Setup](#-to-run-with-preconfgured-docker-download-docker-setupzip-file-in-release-section)
 6. [Under Development](#-under-development)
 
 ---
@@ -47,7 +56,7 @@ CCMS allows schools to register and use different service packages tailored for 
 
 ## ⚙️ Environment Configuration
 
-### Local Setup for frontend
+### Local Setup for Frontend
 
 ```ini
 ##########################################
@@ -63,7 +72,7 @@ VITE_BACKEND_URL=http://localhost:3000
 VITE_BACKEND_URL=http://api:3000
 ```
 
-### Local Setup for backend
+### Local Setup for Backend
 
 ```ini
 ##########################################
@@ -171,7 +180,7 @@ const isDocker = false;  // for Local
 
 Place your `schema.sql` inside the `backend/init-scripts/` directory. This ensures the database is created with the proper schema when Postgres starts.
 
-```
+```text
 backend/
   └── init-scripts/
        └── schema.sql
@@ -194,6 +203,24 @@ This will spin up:
 * **Postgres** with your `schema.sql`
 * **Backend API** on port `3000`
 * **Frontend** accessible at `http://localhost:5173`
+
+---
+
+## 🐳 To run with preconfigured Docker (Release Package)
+
+### Step 1: Download Preconfigured Package
+
+Go to the **Releases** section of this repository and download the file: `docker-setup.zip`.
+
+### Step 2: Extract and Run
+
+Extract the archive, navigate into the extracted directory, and simply run:
+
+```bash
+docker-compose up
+```
+
+This will start the containers with demo `.env` values and preloaded `schema.sql`.
 
 ---
 
